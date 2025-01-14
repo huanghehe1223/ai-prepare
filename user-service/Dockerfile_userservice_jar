@@ -1,0 +1,25 @@
+# 使用 OpenJDK 17 的 JRE Alpine 镜像
+#amd64
+FROM eclipse-temurin:17-jre-alpine
+
+ #arm64
+#FROM azul/zulu-openjdk-alpine:17-jre
+
+# 安装 tzdata 包以支持时区设置
+RUN apk add --no-cache tzdata
+
+# 设置时区为 Asia/Shanghai
+ENV TZ=Asia/Shanghai
+
+# 创建工作目录
+WORKDIR /app
+
+# 复制 Spring Boot 应用的 JAR 文件到容器中
+COPY target/user-service-0.0.1-SNAPSHOT.jar /app/app.jar
+
+# 暴露 Spring Boot 应用的默认端口
+EXPOSE 8080
+
+# 运行时设置 JVM 参数：初始堆内存 256M，最大堆内存 1024M
+#ENTRYPOINT ["java", "-Xms128M", "-Xmx512M", "-jar", "/app/app.jar","--server.port=9090"]
+ENTRYPOINT ["java", "-Xms64M", "-Xmx128M","-XX:MaxMetaspaceSize=100M", "-jar", "/app/app.jar","--server.port=9090"]

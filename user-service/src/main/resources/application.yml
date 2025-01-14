@@ -1,0 +1,85 @@
+#Spring
+spring:
+  application:
+    name: user-service
+  #连接nacos注册中心
+  cloud:
+    nacos:
+      server-addr: 47.105.115.241:8848
+#    配置openfeign okhttp连接池
+    openfeign:
+      okhttp:
+        enabled: true
+  datasource:
+    #mysql数据库配置
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${mysql.host}:${mysql.port}/${mysql.database}?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: ${mysql.password}
+  #redis配置
+  data:
+    redis:
+      host: 47.105.115.241
+      port: 6379
+      password: 123456789hhh
+      database: 0 #选择哪个数据库0-15
+      timeout: 60000
+  mail:
+    host: smtp.qq.com #邮件服务器地址
+    protocol: smtp #协议
+    username: 3145267275@qq.com #发送邮件的邮箱也就是你开通服务的邮箱
+    password: mpakcexppenodehd #开通服务后得到的授权码
+    default-encoding: utf-8 #邮件内容的编码
+    port: 465
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+
+
+
+
+#server
+server:
+  port: 8301
+
+
+#日志级别,基本上每个微服务项目都要这个配置
+logging:
+  level:
+    upc.projectname: debug
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: false
+
+
+
+#定义一下变量，方便修改
+mysql:
+  host: 146.56.111.52
+  port: 3302
+  database: quick
+  password: 123456789hh
+
+
+#springdoc
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: upc.projectname #扫描组织名对应的包，这样的配置每个微服务都能用，因为组织名一样
+#knife4j
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

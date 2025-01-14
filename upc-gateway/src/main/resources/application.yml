@@ -1,0 +1,48 @@
+#Spring
+spring:
+  application:
+    name: upc-gateway
+  #在nacos注册中心注册服务
+  cloud:
+    nacos:
+      server-addr: 47.105.115.241:8848
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+        - id: task-service
+          uri: lb://task-service
+          predicates:
+            - Path=/task/**
+          filters:
+            - StripPrefix=1
+
+
+knife4j:
+  gateway:
+    enabled: true
+    # 指定服务发现的模式聚合微服务文档，并且是默认`default`分组
+    strategy: discover
+    discover:
+      enabled: true
+      # 指定版本号(Swagger2|OpenAPI3)，springboot3只支持openapi3
+      version : openapi3
+
+
+
+
+
+#server
+server:
+  port: 8080
+
+logging:
+  level:
+    upc.projectname: debug
+
+
+

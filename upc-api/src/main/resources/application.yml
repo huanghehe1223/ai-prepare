@@ -1,0 +1,14 @@
+#Spring
+spring:
+  application:
+    name: upc-api
+
+logging:
+  level:
+    upc.projectname: debug
+
+#server
+server:
+  port: 8181
+
+
