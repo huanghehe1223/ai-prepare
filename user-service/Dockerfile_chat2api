@@ -1,4 +1,0 @@
-# 使用基础镜像
-FROM lanqian528/chat2api:latest
-# 复制文件
-COPY ./token.txt /app/data/token.txt

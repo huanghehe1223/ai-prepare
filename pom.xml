@@ -17,18 +17,16 @@
     <packaging>pom</packaging>
 
     <modules>
-<!--        <module>upc-pojo</module>-->
-        <module>task-service</module>
-        <module>user-service</module>
-<!--        <module>upc-api</module>-->
+
+
+
         <module>upc-gateway</module>
         <module>upc-common</module>
         <module>upc-redis-starter</module>
-<!--        <module>test-starter</module>-->
-<!--        <module>test-rmi</module>-->
+        <module>user-class-service</module>
+        <module>project-service</module>
 
-<!--        <module>atest-yml</module>-->
-<!--        <module>upc-main</module>-->
+
 
     </modules>
 
