@@ -13,7 +13,10 @@ spring:
             logger-level: full
       okhttp:
         enabled: true
-
+  #停止使用默认的用户名密码认证
+  security:
+    user:
+      password: none
 
 
   datasource:
@@ -36,7 +39,10 @@ server:
 logging:
   level:
     upc.projectname: debug
+#    org.springframework.boot.autoconfigure: DEBUG
 
+
+#开启驼峰命名
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -25,6 +25,8 @@
         <module>upc-redis-starter</module>
         <module>user-class-service</module>
         <module>project-service</module>
+        <module>exercise-service</module>
+        <module>teachingprocess-resource-service</module>
 
 
 
@@ -104,15 +106,18 @@
         </dependency>
 
 
-        <!--knife4j自动生成api文档 共同依赖-->
+<!--        knife4j自动生成api文档 共同依赖-->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>4.4.0</version>
         </dependency>
 
-
-
+<!--    共同依赖 spring-security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
 
 
 

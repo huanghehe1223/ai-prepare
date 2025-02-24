@@ -13,7 +13,10 @@ spring:
             logger-level: full
       okhttp:
         enabled: true
-
+  #停止使用默认的用户名密码认证
+  security:
+    user:
+      password: none
 
 
   datasource:
@@ -39,7 +42,9 @@ logging:
 
 mybatis-plus:
   configuration:
+    #配置mybatis-plus的日志输出
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    #配置mybatis-plus的下划线转驼峰
     map-underscore-to-camel-case: true
 
 

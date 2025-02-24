@@ -2,22 +2,22 @@
 spring:
   application:
     name: upc-gateway
-  #在nacos注册中心注册服务
+  #在nacos注册中心注册服务,查找服务对应的ip和端口
   cloud:
     nacos:
       server-addr: 47.105.115.241:8848
     gateway:
       routes:
-        - id: user-service
-          uri: lb://user-service
+        - id: project-service
+          uri: lb://project-service
           predicates:
-            - Path=/user/**
+            - Path=/project/**
           filters:
             - StripPrefix=1
-        - id: task-service
-          uri: lb://task-service
+        - id: user-class-service
+          uri: lb://user-class-service
           predicates:
-            - Path=/task/**
+            - Path=/user/**
           filters:
             - StripPrefix=1
 
