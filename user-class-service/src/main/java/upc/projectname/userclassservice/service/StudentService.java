@@ -25,4 +25,6 @@ public interface StudentService extends IService<Student> {
     List<Student> getStudentsByClassId(Integer classId);
 
     boolean studentApply(Integer studentId, String classCode);
+
+    boolean agreeStudentApply(Integer studentId, Integer classId);
 }

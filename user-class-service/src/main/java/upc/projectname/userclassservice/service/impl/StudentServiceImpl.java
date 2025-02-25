@@ -73,9 +73,13 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         ClassStudent classStudent = new ClassStudent();
         classStudent.setStudentId(studentId);
         classStudent.setClassId(classByCode.getClassId());
+        classStudent.setStatus("Apply");
+        return classStudentService.saveClassStudent(classStudent);
 
-        return false;
     }
 
-
+    @Override
+    public boolean agreeStudentApply(Integer studentId, Integer classId) {
+         return classStudentService.updateStudentStatus(studentId, classId, "Agree");
+    }
 }

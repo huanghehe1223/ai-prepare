@@ -62,6 +62,15 @@ public class StudentController {
                 Result.error("删除失败");
     }
 
+
+    @Operation(summary = "学生申请入班")
+    @PostMapping("studentApply")
+    public Result<Boolean> studentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classCode") String classCode) {
+        return studentService.studentApply(studentId,classCode) ?
+                Result.success(true, "申请成功") :
+                Result.error("申请失败");
+    }
+
     @Operation(summary = "分页条件查询学生(业务)")
     @GetMapping("/page")
     public Result<IPage<Student>> getStudentPage(
@@ -76,12 +85,12 @@ public class StudentController {
         return Result.success(studentPage);
     }
 
-    @Operation(summary = "学生申请入班")
-    @PostMapping
-    public Result<Boolean> studentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classCode") String classCode) {
-        return studentService.studentApply(studentId,classCode) ?
-                Result.success(true, "申请成功") :
-                Result.error("申请失败");
+    @Operation(summary = "同意学生入班（业务）")
+    @PutMapping("/agree")
+    public Result<Boolean> agreeStudentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classId") Integer classId) {
+        return studentService.agreeStudentApply(studentId,classId) ?
+                Result.success(true, "同意成功") :
+                Result.error("同意失败");
     }
 
 

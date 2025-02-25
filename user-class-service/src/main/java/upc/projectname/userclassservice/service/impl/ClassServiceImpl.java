@@ -25,11 +25,9 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
     public boolean saveClass(Class clazz) {
         if(this.save(clazz)){
             Integer classId = clazz.getClassId();
-            String classCode = ConvertIdToStringUtils.convertIdToStringUtils(classId, 7);
+            String classCode = ConvertIdToStringUtils.convertIdToStringUtils(classId);
             clazz.setClassCode(classCode);
-            if (this.updateById(clazz)){
-                return true;
-            }
+            return this.updateById(clazz);
         }
         return false;
     }
