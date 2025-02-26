@@ -47,4 +47,16 @@ public class RecommendQuestionGroupServiceImpl extends ServiceImpl<RecommendQues
               .orderByDesc(RecommendQuestionGroup::getCreateTime);
         return this.list(wrapper);
     }
+
+    @Override
+    public Boolean submitRecommendQuestionGroup(Integer studentId, Integer projectId) {
+        LambdaQueryWrapper<RecommendQuestionGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RecommendQuestionGroup::getStudentId, studentId)
+                .eq(RecommendQuestionGroup::getProjectId, projectId);
+
+        RecommendQuestionGroup group = new RecommendQuestionGroup();
+        group.setStatus("do");
+
+        return this.update(group, wrapper);
+    }
 } 

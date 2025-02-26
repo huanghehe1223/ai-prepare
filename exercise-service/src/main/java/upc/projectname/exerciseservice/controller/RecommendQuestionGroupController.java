@@ -66,4 +66,12 @@ public class RecommendQuestionGroupController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    @Operation(summary = "做完题目后提交推荐题目组（业务，token）")
+    @PostMapping("/submit")
+    public Result<Boolean> submitRecommendQuestionGroup(@RequestParam Integer projectId,@RequestParam Integer studentId) {
+        return recommendQuestionGroupService.submitRecommendQuestionGroup(projectId,studentId) ?
+                Result.success(true, "提交成功") :
+                Result.error("提交失败");
+    }
 } 

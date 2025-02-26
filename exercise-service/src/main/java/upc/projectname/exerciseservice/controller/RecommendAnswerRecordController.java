@@ -43,7 +43,7 @@ public class RecommendAnswerRecordController {
                 Result.error("未找到该题目的推荐答题记录");
     }
 
-    @Operation(summary = "新增推荐答题记录")
+    @Operation(summary = "新增推荐答题记录（业务）")
     @PostMapping
     public Result<Boolean> saveRecommendAnswerRecord(@RequestBody RecommendAnswerRecord record) {
         return recommendAnswerRecordService.saveRecommendAnswerRecord(record) ?
@@ -66,4 +66,5 @@ public class RecommendAnswerRecordController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
 } 
