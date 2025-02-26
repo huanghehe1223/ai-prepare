@@ -21,7 +21,7 @@ public class ClassController {
     private final ClassService classService;
 
     @Operation(summary = "根据学生ID、课程名称分页模糊查询班级（业务，token）")
-    @GetMapping("/student")
+    @PostMapping("/student")
     public Result<IPage<Class>> getClassesByStudentId(
             @RequestParam Integer studentId,
             @RequestParam(defaultValue = "1") Integer current,
