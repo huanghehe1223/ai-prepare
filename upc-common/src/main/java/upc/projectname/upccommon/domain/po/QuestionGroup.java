@@ -28,4 +28,6 @@ public class QuestionGroup implements Serializable {
     private LocalDateTime deadline;
     
     private String groupType;
+
+    private Integer groupStatus;
 } 

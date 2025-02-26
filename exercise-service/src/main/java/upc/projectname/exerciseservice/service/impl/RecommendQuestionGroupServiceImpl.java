@@ -1,6 +1,7 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.RecommendQuestionGroup;
@@ -49,14 +50,11 @@ public class RecommendQuestionGroupServiceImpl extends ServiceImpl<RecommendQues
     }
 
     @Override
-    public Boolean submitRecommendQuestionGroup(Integer studentId, Integer projectId) {
-        LambdaQueryWrapper<RecommendQuestionGroup> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(RecommendQuestionGroup::getStudentId, studentId)
-                .eq(RecommendQuestionGroup::getProjectId, projectId);
+    public Boolean submitRecommendQuestionGroup(Integer groupId) {
+        LambdaUpdateWrapper<RecommendQuestionGroup> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(RecommendQuestionGroup::getGroupId, groupId)
+                .set(RecommendQuestionGroup::getStatus, "Done");
 
-        RecommendQuestionGroup group = new RecommendQuestionGroup();
-        group.setStatus("do");
-
-        return this.update(group, wrapper);
+        return this.update(updateWrapper);
     }
 } 

@@ -1,6 +1,7 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.QuestionGroup;
@@ -41,6 +42,15 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
     public List<QuestionGroup> getQuestionGroupsByProjectId(Integer projectId) {
         LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QuestionGroup::getProjectId, projectId);
+        return this.list(wrapper);
+    }
+
+    @Override
+    public List<QuestionGroup> searchQuestionGroupByPage(Integer projectId, Integer status, String type) {
+        LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(projectId != null, QuestionGroup::getProjectId, projectId)
+                .eq(status != null, QuestionGroup::getGroupStatus, status)
+                .eq(type != null, QuestionGroup::getGroupType, type);
         return this.list(wrapper);
     }
 } 

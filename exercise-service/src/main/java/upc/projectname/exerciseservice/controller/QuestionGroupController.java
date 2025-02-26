@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,16 @@ public class QuestionGroupController {
         return questionGroupService.deleteQuestionGroup(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+
+    @Operation(summary = "教师根据项目ID、发布情况和题目组类型查询题目组（业务）")
+    @PostMapping("/searchByPage/batch")
+    public Result<List<QuestionGroup>> searchQuestionGroupByPage(
+            @RequestParam Integer projectId,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String type) {
+        List<QuestionGroup> questionGroups = questionGroupService.searchQuestionGroupByPage(projectId, status, type);
+        return !questionGroups.isEmpty() ? Result.success(questionGroups) : Result.error("未找到题目组信息");
     }
 } 

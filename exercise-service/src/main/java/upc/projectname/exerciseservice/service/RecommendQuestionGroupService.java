@@ -22,5 +22,5 @@ public interface RecommendQuestionGroupService extends IService<RecommendQuestio
     
     List<RecommendQuestionGroup> getRecommendQuestionGroupsByStudentId(Integer studentId);
 
-    Boolean submitRecommendQuestionGroup(Integer studentId, Integer projectId);
+    Boolean submitRecommendQuestionGroup(Integer groupId);
 } 
