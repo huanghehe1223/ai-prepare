@@ -1,5 +1,7 @@
 package upc.projectname.projectservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,18 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+
+    @Operation(summary = "根据classId分页模糊查询项目（id、名称）（业务）")
+    @GetMapping("/class/page")
+    public Result<IPage<Project>> getProjectsByClassIdAndPage(@RequestParam Integer classId,
+                                                             @RequestParam(defaultValue = "1") Integer current,
+                                                             @RequestParam(defaultValue = "10") Integer size,
+                                                             @RequestParam(required = false) String name) {
+        Page<Project> page = new Page<>(current, size);
+        IPage<Project> projects = projectService.getProjectsByClassIdAndPage(classId, page, name);
+        return projects != null ? Result.success(projects) : Result.error("未找到项目信息");
+    }
+
 
     @Operation(summary = "根据ID查询项目")
     @GetMapping("/{id}")

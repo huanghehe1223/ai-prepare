@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import upc.projectname.upccommon.domain.po.Question;
 
@@ -18,4 +20,6 @@ public interface QuestionService extends IService<Question> {
     List<Question> getQuestionByIds(List<Integer> ids);
     
     List<Question> getQuestionsByGroupId(Integer groupId);
+
+    IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId);
 } 

@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,16 @@ public class QuestionController {
         return questions != null && !questions.isEmpty() ? 
                 Result.success(questions) : 
                 Result.error("未找到该题目组的题目信息");
+    }
+
+    @Operation(summary = "根据题目组ID分页查询题目（业务）")
+    @PostMapping("/group/batch")
+    public Result<IPage<Question>> getQuestionsByGroupIdAndPage(@RequestParam Integer groupId,
+                                                                @RequestParam(defaultValue = "1") Integer current,
+                                                                @RequestParam(defaultValue = "10") Integer size) {
+        Page<Question> page = new Page<>(current, size);
+        IPage<Question> questions = questionService.getQuestionsByGroupIdAndPage(page, groupId);
+        return questions != null ? Result.success(questions) : Result.error("未找到题目信息");
     }
 
     @Operation(summary = "新增题目")

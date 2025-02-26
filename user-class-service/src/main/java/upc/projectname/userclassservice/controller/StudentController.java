@@ -85,6 +85,9 @@ public class StudentController {
         return Result.success(studentPage);
     }
 
+
+
+
     @Operation(summary = "同意学生入班（业务）")
     @PutMapping("/agree")
     public Result<Boolean> agreeStudentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classId") Integer classId) {
