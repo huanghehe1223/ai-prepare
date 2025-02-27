@@ -1,12 +1,16 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
+import upc.projectname.upccommon.domain.po.Question;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
 import upc.projectname.exerciseservice.service.AnswerRecordService;
+import upc.projectname.upccommon.domain.po.Student;
 
 import java.util.List;
 
@@ -65,11 +69,11 @@ public class AnswerRecordController {
 
     @Operation(summary = "新增答题记录")
     @PostMapping
-    public Result<AnswerRecord> saveAnswerRecord(@RequestBody AnswerRecord record) {
-        return Result.success(record);
-//        return answerRecordService.saveAnswerRecord(record) ?
-//                Result.success(true, "添加成功") :
-//                Result.error("添加失败");
+    public Result<Boolean> saveAnswerRecord(@RequestBody AnswerRecord record) {
+//        return Result.success(record);
+        return answerRecordService.saveAnswerRecord(record) ?
+                Result.success(true, "添加成功") :
+                Result.error("添加失败");
     }
 
     @Operation(summary = "更新答题记录")
@@ -87,4 +91,28 @@ public class AnswerRecordController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+
+    @Operation(summary = "根据学生ID和题目组ID分页条件查询学生的答题记录")
+    @PostMapping("/student/searchAnswerRecord")
+        public Result<IPage<StudentAnswerResult>> searchAnswerRecord(
+                @RequestParam(defaultValue = "1") Integer current,
+                @RequestParam(defaultValue = "10") Integer size,
+                @RequestParam("studentId") Integer studentId,
+                @RequestParam("questionGroupId") Integer questionGroupId,
+                @RequestParam(value = "questionType",required = false) String questionType
+                ){
+
+        IPage<StudentAnswerResult> studentAnswerResultIPage = answerRecordService.searchAnswerRecord(current, size, studentId, questionGroupId,questionType);
+            return null;
+
+
+
+
+        }
+
+
+
+
+
 } 

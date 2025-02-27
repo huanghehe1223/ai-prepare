@@ -30,4 +30,9 @@ public interface QuestionGroupStatusClient {
 
     @DeleteMapping("/questiongroupstatus/{id}")
     Result<Boolean> deleteStatus(@PathVariable Integer id);
+
+    @GetMapping("/questiongroupstatus/group/{groupId}/student/{studentId}")
+    Result<List<QuestionGroupStatus>> getStatusByGroupIdAndStudent(
+            @PathVariable Integer groupId, 
+            @PathVariable Integer studentId);
 } 

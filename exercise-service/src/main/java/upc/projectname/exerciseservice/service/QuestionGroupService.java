@@ -18,4 +18,6 @@ public interface QuestionGroupService extends IService<QuestionGroup> {
     List<QuestionGroup> getQuestionGroupByIds(List<Integer> ids);
     
     List<QuestionGroup> getQuestionGroupsByProjectId(Integer projectId);
+
+    List<QuestionGroup> searchStudentGroup(Integer projectId, Integer studentId, String status, String groupType);
 } 

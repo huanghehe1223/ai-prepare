@@ -3,6 +3,8 @@ package upc.projectname.userclassservice.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudentController {
 
+    private static final Logger log = LoggerFactory.getLogger(StudentController.class);
     private final StudentService studentService;
 
     @Operation(summary = "根据ID查询学生")
@@ -33,8 +36,8 @@ public class StudentController {
     @PostMapping("/batch")
     public Result<List<Student>> getStudentByIds(@RequestBody List<Integer> ids) {
         List<Student> students = studentService.getStudentByIds(ids);
-        return students != null && !students.isEmpty() ? 
-                Result.success(students) : 
+        return students != null && !students.isEmpty() ?
+                Result.success(students) :
                 Result.error("未找到学生信息");
     }
 

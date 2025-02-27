@@ -66,4 +66,33 @@ public class QuestionGroupController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    /**
+     * 查看某个学生某种状态某种类型的的习题组
+     * @param projectId 备课项目ID
+     * @param studentId 学生ID
+     * @param status    学生对某个习题组的状态  已完成Done，未完成Incomplete，正在批阅 Review
+     * @param groupType 习题组类型
+     * @return 习题组列表
+     */
+
+//    status
+    @Operation(summary = "查看某个学生某种状态某种类型的的已经发布的习题组(业务，token)")
+    @PostMapping ("/student/searchGroup")
+    public Result<List<QuestionGroup>>  searchStudentGroup(
+            @RequestParam("projectId") Integer projectId,
+            @RequestParam("studentId") Integer studentId,
+            @RequestParam("status") String status,
+            @RequestParam("groupType") String groupType) {
+        List<QuestionGroup> questionGroups = questionGroupService.searchStudentGroup(projectId, studentId, status, groupType);
+        return questionGroups != null && !questionGroups.isEmpty() ?
+                Result.success(questionGroups) :
+                Result.error("未找到该学生的习题组信息");
+
+    }
+
+
+
+
+
 } 

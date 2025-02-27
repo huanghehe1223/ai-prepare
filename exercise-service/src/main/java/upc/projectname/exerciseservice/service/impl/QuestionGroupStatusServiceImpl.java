@@ -50,4 +50,12 @@ public class QuestionGroupStatusServiceImpl extends ServiceImpl<QuestionGroupSta
         wrapper.eq(QuestionGroupStatus::getGroupId, groupId);
         return this.list(wrapper);
     }
+
+    @Override
+    public List<QuestionGroupStatus> getStatusByGroupIdAndStudentId(Integer groupId, Integer studentId) {
+        LambdaQueryWrapper<QuestionGroupStatus> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QuestionGroupStatus::getGroupId, groupId)
+              .eq(QuestionGroupStatus::getStudentId, studentId);
+        return this.list(wrapper);
+    }
 } 

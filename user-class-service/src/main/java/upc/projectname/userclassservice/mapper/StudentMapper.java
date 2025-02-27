@@ -24,6 +24,7 @@ public interface StudentMapper extends BaseMapper<Student> {
 
     // todo 
     // DISTINCT 会不会影响pagesize
+    //多表查询可能的问题，1 一对多重复 2 一对0缺失 3 distinct影响pagesize
 
     //todo
 //    // 获取当前页数据列表

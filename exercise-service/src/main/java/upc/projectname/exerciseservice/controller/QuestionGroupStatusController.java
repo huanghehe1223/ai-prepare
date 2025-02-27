@@ -52,6 +52,15 @@ public class QuestionGroupStatusController {
                 Result.error("未找到该题目组的状态信息");
     }
 
+    @Operation(summary = "根据题目组ID和学生ID查询状态")
+    @GetMapping("/group/{groupId}/student/{studentId}")
+    public Result<List<QuestionGroupStatus>> getStatusByGroupIdAndStudent(@PathVariable Integer groupId, @PathVariable Integer studentId) {
+        List<QuestionGroupStatus> statuses = statusService.getStatusByGroupIdAndStudentId(groupId, studentId);
+        return statuses != null && !statuses.isEmpty() ? 
+                Result.success(statuses) : 
+                Result.error("未找到相关状态信息");
+    }
+
     @Operation(summary = "新增题目组状态")
     @PostMapping
     public Result<Boolean> saveStatus(@RequestBody QuestionGroupStatus status) {

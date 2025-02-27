@@ -1,8 +1,10 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
 import upc.projectname.exerciseservice.mapper.AnswerRecordMapper;
 import upc.projectname.exerciseservice.service.AnswerRecordService;
@@ -63,4 +65,10 @@ public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, Ans
               .eq(AnswerRecord::getQuestionId, questionId);
         return this.list(wrapper);
     }
-} 
+
+    @Override
+    public IPage<StudentAnswerResult> searchAnswerRecord(Integer current, Integer size, Integer studentId, Integer questionGroupId, String questionType) {
+
+        return null;
+    }
+}

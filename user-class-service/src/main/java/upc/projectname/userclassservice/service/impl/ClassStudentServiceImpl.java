@@ -44,6 +44,7 @@ public class ClassStudentServiceImpl extends ServiceImpl<ClassStudentMapper, Cla
         wrapper.eq(ClassStudent::getClassId, classId);
         return this.list(wrapper);
     }
+
     
     @Override
     public List<ClassStudent> getClassStudentsByStudentId(Integer studentId) {
@@ -51,7 +52,8 @@ public class ClassStudentServiceImpl extends ServiceImpl<ClassStudentMapper, Cla
         wrapper.eq(ClassStudent::getStudentId, studentId);
         return this.list(wrapper);
     }
-    
+
+
     @Override
     public boolean updateStudentStatus(Integer studentId, Integer classId, String status) {
         LambdaUpdateWrapper<ClassStudent> wrapper = new LambdaUpdateWrapper<>();
