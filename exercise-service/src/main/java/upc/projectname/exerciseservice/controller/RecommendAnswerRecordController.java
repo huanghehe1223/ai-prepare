@@ -1,9 +1,11 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.RecommendAnswerRecord;
 import upc.projectname.exerciseservice.service.RecommendAnswerRecordService;
@@ -66,4 +68,18 @@ public class RecommendAnswerRecordController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    @Operation(summary = "根据groupID分页条件查询学生的推荐习题答题结果(业务)")
+    @PostMapping("/student/searchRecommendAnswerResult")
+    public Result<IPage<StudentAnswerResult>> searchAnswerRecord(
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam("questionGroupId") Integer questionGroupId,
+            @RequestParam(value = "questionType",required = false) String questionType
+    ){
+        IPage<StudentAnswerResult> studentRecommendAnswerResultIPage = recommendAnswerRecordService.searchRecommendAnswerRecord(current, size,  questionGroupId,questionType);
+        return Result.success(studentRecommendAnswerResultIPage);
+    }
+
+
 } 

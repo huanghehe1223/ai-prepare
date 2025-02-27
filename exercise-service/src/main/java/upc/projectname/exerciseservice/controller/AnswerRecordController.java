@@ -93,8 +93,8 @@ public class AnswerRecordController {
     }
 
 
-    @Operation(summary = "根据学生ID和题目组ID分页条件查询学生的答题记录")
-    @PostMapping("/student/searchAnswerRecord")
+    @Operation(summary = "根据学生ID和题目组ID分页条件查询学生的答题结果(业务，token)")
+    @PostMapping("/student/searchAnswerResult")
         public Result<IPage<StudentAnswerResult>> searchAnswerRecord(
                 @RequestParam(defaultValue = "1") Integer current,
                 @RequestParam(defaultValue = "10") Integer size,
@@ -102,14 +102,9 @@ public class AnswerRecordController {
                 @RequestParam("questionGroupId") Integer questionGroupId,
                 @RequestParam(value = "questionType",required = false) String questionType
                 ){
-
         IPage<StudentAnswerResult> studentAnswerResultIPage = answerRecordService.searchAnswerRecord(current, size, studentId, questionGroupId,questionType);
-            return null;
-
-
-
-
-        }
+        return Result.success(studentAnswerResultIPage);
+    }
 
 
 

@@ -53,15 +53,15 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
 
     @Override
     public List<QuestionGroup> searchStudentGroup(Integer projectId, Integer studentId, String status, String groupType) {
-        LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(QuestionGroup::getProjectId, projectId);
-        wrapper.eq(QuestionGroup::getGroupType, groupType);
-        wrapper.eq(QuestionGroup::getGroupStatus, 1); //查找已经发布的习题组
-        List<QuestionGroup> questionGroups = this.list(wrapper);
-        if (questionGroups.isEmpty()){
-            return questionGroups;
-        }
         if (status.equals("Incomplete")){
+            LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(QuestionGroup::getProjectId, projectId);
+            wrapper.eq(QuestionGroup::getGroupType, groupType);
+            wrapper.eq(QuestionGroup::getGroupStatus, 1); //查找已经发布的习题组
+            List<QuestionGroup> questionGroups = this.list(wrapper);
+            if (questionGroups.isEmpty()){
+                return questionGroups;
+            }
             Iterator<QuestionGroup> iterator = questionGroups.iterator();
             while (iterator.hasNext()) {
                 QuestionGroup group = iterator.next();

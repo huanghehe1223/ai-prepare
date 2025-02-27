@@ -44,4 +44,6 @@ public class RecommendQuestion implements Serializable {
     private String optionC;
 
     private String optionD;
+
+    private String knowledgePoint;
 }

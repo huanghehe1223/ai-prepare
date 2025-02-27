@@ -13,6 +13,9 @@ import upc.projectname.upccommon.domain.po.Student;
 @Mapper
 public interface AnswerRecordMapper extends BaseMapper<AnswerRecord> {
 
+    // todo
+    // 在最后面(where标签之后)加上 ORDER BY ar.created_at DESC
+
     @Select("""
         <script>
         SELECT 
@@ -25,6 +28,7 @@ public interface AnswerRecordMapper extends BaseMapper<AnswerRecord> {
             q.option_b,
             q.option_c,
             q.option_d,
+            q.knowledge_point,
             ar.answer_result,
             ar.student_answer,
             ar.created_at,
@@ -38,7 +42,6 @@ public interface AnswerRecordMapper extends BaseMapper<AnswerRecord> {
                 AND q.question_type = #{questionType}
             </if>
         </where>
-        ORDER BY ar.created_at DESC
         </script>
         """)
     IPage<StudentAnswerResult> searchAnswerRecord(Page<StudentAnswerResult> page,

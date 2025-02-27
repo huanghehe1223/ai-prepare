@@ -1,8 +1,11 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.RecommendAnswerRecord;
 import upc.projectname.exerciseservice.mapper.RecommendAnswerRecordMapper;
 import upc.projectname.exerciseservice.service.RecommendAnswerRecordService;
@@ -48,4 +51,11 @@ public class RecommendAnswerRecordServiceImpl extends ServiceImpl<RecommendAnswe
               .orderByDesc(RecommendAnswerRecord::getCreatedAt);
         return this.list(wrapper);
     }
-} 
+
+    @Override
+    public IPage<StudentAnswerResult> searchRecommendAnswerRecord(Integer current, Integer size, Integer questionGroupId, String questionType) {
+        Page<StudentAnswerResult> page = new Page<>(current, size);
+        return this.baseMapper.searchRecommendAnswerRecord(page, questionGroupId, questionType);
+
+    }
+}

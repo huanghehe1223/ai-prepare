@@ -66,7 +66,7 @@ public class StudentController {
     }
 
 
-    @Operation(summary = "学生申请入班")
+    @Operation(summary = "学生申请入班(业务)")
     @PostMapping("studentApply")
     public Result<Boolean> studentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classCode") String classCode) {
         return studentService.studentApply(studentId,classCode) ?
@@ -95,9 +95,6 @@ public class StudentController {
                 Result.success(true, "同意成功") :
                 Result.error("同意失败");
     }
-
-
-
 
 
 

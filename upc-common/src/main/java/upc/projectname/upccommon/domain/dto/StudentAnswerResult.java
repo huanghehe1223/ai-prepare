@@ -20,9 +20,9 @@ public class StudentAnswerResult {
 
     private String correctAnswer;
 
-    private String explanation;
+    private String explanation;  //感觉这个也没有内容
 
-    private String difficulty;
+    private String difficulty;   //没有内容
 
     private String optionA;
 
@@ -32,6 +32,8 @@ public class StudentAnswerResult {
 
     private String optionD;
 
+    private String knowledgePoint; //关联知识点
+
 
     //以下字段来自answer_record表
     private String answerResult;  //正确，错误
@@ -40,9 +42,9 @@ public class StudentAnswerResult {
 
     private LocalDateTime createdAt;  //学生做完这道题的时刻
 
-    private String aiAnalysis;  //ai解析（感觉用不到）
+    private String aiAnalysis;  //ai解析（感觉没有内容）
 
-    private String knowledgePoint; //关联知识点
+
 
 
 }
