@@ -57,4 +57,14 @@ public class RecommendQuestionGroupServiceImpl extends ServiceImpl<RecommendQues
 
         return this.update(updateWrapper);
     }
+
+    @Override
+    public List<RecommendQuestionGroup> viewRecommendQuestionGroup(Integer projectId, Integer studentId, String groupType, String status) {
+        LambdaQueryWrapper<RecommendQuestionGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RecommendQuestionGroup::getProjectId, projectId)
+              .eq(RecommendQuestionGroup::getStudentId, studentId)
+              .eq(groupType != null,RecommendQuestionGroup::getGroupType, groupType)
+              .eq(status != null,RecommendQuestionGroup::getStatus, status);
+        return this.list(wrapper);
+    }
 } 

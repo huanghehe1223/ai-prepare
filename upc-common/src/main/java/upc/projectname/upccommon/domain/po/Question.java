@@ -45,4 +45,6 @@ public class Question implements Serializable {
     private String optionC;
     
     private String optionD;
+
+    private String knowledgePoint;
 } 

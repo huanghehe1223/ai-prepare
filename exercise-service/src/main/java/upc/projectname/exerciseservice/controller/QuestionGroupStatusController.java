@@ -75,4 +75,13 @@ public class QuestionGroupStatusController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    @Operation(summary = "根据groupId和studentId做完题目后提交习题组（业务,token）")
+    @PostMapping("/submit")
+    public Result<Boolean> submitQuestionGroup(@RequestParam Integer groupId, @RequestParam Integer studentId) {
+        return statusService.submitQuestionGroup(studentId, groupId) ?
+                Result.success(true, "提交成功") :
+                Result.error("提交失败");
+
+    }
 } 

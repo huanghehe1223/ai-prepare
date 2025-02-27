@@ -20,4 +20,6 @@ public interface QuestionGroupStatusService extends IService<QuestionGroupStatus
     List<QuestionGroupStatus> getStatusByStudentId(Integer studentId);
     
     List<QuestionGroupStatus> getStatusByGroupId(Integer groupId);
+
+    boolean submitQuestionGroup(Integer studentId, Integer groupId);
 } 

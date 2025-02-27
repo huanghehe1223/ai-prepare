@@ -74,9 +74,9 @@ public class QuestionGroupController {
     @PostMapping("/searchByPage/batch")
     public Result<List<QuestionGroup>> searchQuestionGroupByPage(
             @RequestParam Integer projectId,
-            @RequestParam(required = false) Integer status,
-            @RequestParam(required = false) String type) {
-        List<QuestionGroup> questionGroups = questionGroupService.searchQuestionGroupByPage(projectId, status, type);
+            @RequestParam(required = false) Integer groupStatus,
+            @RequestParam(required = false) String groupType) {
+        List<QuestionGroup> questionGroups = questionGroupService.searchQuestionGroupByPage(projectId, groupStatus, groupType);
         return !questionGroups.isEmpty() ? Result.success(questionGroups) : Result.error("未找到题目组信息");
     }
 } 

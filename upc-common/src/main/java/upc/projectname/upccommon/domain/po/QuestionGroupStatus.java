@@ -24,7 +24,7 @@ public class QuestionGroupStatus implements Serializable {
 
     private Integer groupId;
 
-    private Integer status;
+    private String status;
 
     private Integer duration;
 }

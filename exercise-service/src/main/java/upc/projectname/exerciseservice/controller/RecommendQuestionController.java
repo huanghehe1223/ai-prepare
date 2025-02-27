@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,18 @@ public class RecommendQuestionController {
         return recommendQuestionService.deleteRecommendQuestion(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+    @Operation(summary = "根据groupId分页查询推荐习题（业务）")
+    @GetMapping("/group/recommend")
+    public Result<IPage<RecommendQuestion>> getRecommendQuestionsByGroupId(@RequestParam Integer groupId,
+                                                                           @RequestParam(required = false) String questionType,
+                                                                           @RequestParam(defaultValue = "1") Integer current,
+                                                                           @RequestParam(defaultValue = "10") Integer size) {
+        Page<RecommendQuestion> page = new Page<>(current, size);
+        IPage<RecommendQuestion> questions = recommendQuestionService.getRecommendQuestionsByGroupIdAndPage(groupId, page, questionType);
+        return questions != null && !questions.getRecords().isEmpty() ?
+                Result.success(questions) :
+                Result.error("未找到该题目组的推荐题目");
     }
 } 

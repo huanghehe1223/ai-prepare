@@ -74,4 +74,13 @@ public class RecommendQuestionGroupController {
                 Result.success(true, "提交成功") :
                 Result.error("提交失败");
     }
+
+    @Operation(summary = "查看推荐习题组（业务）")
+    @PostMapping("/view")
+    public Result<List<RecommendQuestionGroup>> viewRecommendQuestionGroup(@RequestParam Integer projectId,
+                                                      @RequestParam Integer studentId,
+                                                      @RequestParam(required = false) String groupType,
+                                                      @RequestParam(required = false) String status) {
+        return Result.success(recommendQuestionGroupService.viewRecommendQuestionGroup(projectId, studentId, groupType, status));
+    }
 } 
