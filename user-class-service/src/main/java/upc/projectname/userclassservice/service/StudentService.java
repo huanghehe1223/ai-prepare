@@ -3,6 +3,7 @@ package upc.projectname.userclassservice.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.Student;
 import java.util.List;
 
@@ -27,4 +28,8 @@ public interface StudentService extends IService<Student> {
     boolean studentApply(Integer studentId, String classCode);
 
     boolean agreeStudentApply(Integer studentId, Integer classId);
+
+    Result<Boolean> studentRegister(Student student);
+
+    Result<String> studentLogin(String userName, String password);
 }

@@ -2,6 +2,7 @@ package upc.projectname.userclassservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import upc.projectname.upccommon.domain.po.Teacher;
+import upc.projectname.upccommon.domain.po.Result;
 
 import java.util.List;
 
@@ -16,4 +17,8 @@ public interface TeacherService extends IService<Teacher> {
     boolean deleteTeacher(Integer id);
     
     List<Teacher> getTeacherByIds(List<Integer> ids);
+
+    Result<Boolean> teacherRegister(Teacher teacher);
+    
+    Result<String> teacherLogin(String userName, String password);
 } 

@@ -34,7 +34,7 @@ public class ClassController {
                 Result.error("未找到班级信息");
     }
 
-    @Operation(summary = "新增班级")
+    @Operation(summary = "新增班级(业务)")
     @PostMapping
     public Result<Boolean> saveClass(@RequestBody Class clazz) {
         return classService.saveClass(clazz) ?

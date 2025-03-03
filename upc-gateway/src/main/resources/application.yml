@@ -8,19 +8,30 @@ spring:
       server-addr: 47.105.115.241:8848
     gateway:
       routes:
+        - id: user-class-service
+          uri: lb://user-class-service
+          predicates:
+            - Path=/userclass/**
+          filters:
+            - StripPrefix=1
         - id: project-service
           uri: lb://project-service
           predicates:
             - Path=/project/**
           filters:
             - StripPrefix=1
-        - id: user-class-service
-          uri: lb://user-class-service
+        - id: exercise-service
+          uri: lb://exercise-service
           predicates:
-            - Path=/user/**
+            - Path=/exercise/**
           filters:
             - StripPrefix=1
-
+        - id: teachingprocess-resource-service
+          uri: lb://teachingprocess-resource-service
+          predicates:
+            - Path=/process/**
+          filters:
+            - StripPrefix=1
 
 knife4j:
   gateway:

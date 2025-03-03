@@ -13,8 +13,10 @@ import upc.projectname.upccommon.domain.po.Student;
 import upc.projectname.userclassservice.service.StudentService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import upc.projectname.userclassservice.utils.JwtUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "学生管理接口")
 @RestController
@@ -96,12 +98,55 @@ public class StudentController {
                 Result.error("同意失败");
     }
 
+    @Operation(summary = "学生注册(业务)")
+    @PostMapping("studentRegister")
+    public Result<Boolean> studentRegister(@RequestBody Student student) {
+
+      return  studentService.studentRegister(student);
+
+
+    }
+
+
+    @Operation(summary = "学生登录(业务)")
+    @PostMapping("studentLogin")
+    public Result<String> studentRegister(
+            @RequestParam("userName") String userName,
+            @RequestParam("password") String password
+    ) {
+
+        return  studentService.studentLogin(userName,password);
+
+
+    }
+
+
+    @Operation(summary = "testJwt")
+    @PostMapping("testJwt")
+    public Result<Integer> testJwt(@RequestHeader String token) {
+        Object object = JwtUtils.parseJWT(token);
+        if (object instanceof Map){
+            Map<String, Object> map = (Map<String, Object>) object;
+            return Result.success((Integer) map.get("studentId"));
+        }
+        if (((String)object).equals(JwtUtils.TOKEN_EXPIRED)){
+            return Result.error("token过期");
+        }
+        if (((String)object).equals(JwtUtils.TOKEN_INVALID)){
+            return Result.error("token不合法");
+        }
+        return Result.error("解析失败");
+    }
 
 
 
 
 
-    @Operation(summary = "获取班级学生")
+
+
+
+
+    @Operation(summary = "获取班级学生(错误接口，准备删除)")
     @GetMapping("/class/{classId}")
     public Result<List<Student>> getStudentsByClassId(@PathVariable Integer classId) {
         List<Student> students = studentService.getStudentsByClassId(classId);

@@ -107,5 +107,14 @@ class UserClassServiceApplicationTests {
         assertNull(getResult.getData());
     }
 
+//    @Test
+//    void testJwt() {
+//        Student student = new Student();
+//
+//        Result<String> result =
+//    }
+
+
+
 
 }

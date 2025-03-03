@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Select;
 import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.RecommendAnswerRecord;
 
+
+//todo
+//         ORDER BY rar.created_at DESC，插入到where标签之后
 @Mapper
 public interface RecommendAnswerRecordMapper extends BaseMapper<RecommendAnswerRecord> {
 
@@ -37,7 +40,6 @@ public interface RecommendAnswerRecordMapper extends BaseMapper<RecommendAnswerR
                 AND rq.question_type = #{questionType}
             </if>
         </where>
-        ORDER BY rar.created_at DESC
         </script>
         """)
     IPage<StudentAnswerResult> searchRecommendAnswerRecord(Page<StudentAnswerResult> page,

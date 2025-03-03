@@ -57,4 +57,19 @@ public class TeacherController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    @Operation(summary = "教师注册(业务)")
+    @PostMapping("teacherRegister")
+    public Result<Boolean> teacherRegister(@RequestBody Teacher teacher) {
+        return teacherService.teacherRegister(teacher);
+    }
+
+    @Operation(summary = "教师登录(业务)")
+    @PostMapping("teacherLogin")
+    public Result<String> teacherLogin(
+            @RequestParam("userName") String userName,
+            @RequestParam("password") String password
+    ) {
+        return teacherService.teacherLogin(userName, password);
+    }
 } 
