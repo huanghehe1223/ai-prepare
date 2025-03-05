@@ -20,6 +20,7 @@ public class ClassController {
 
     private final ClassService classService;
 
+
     @Operation(summary = "根据学生ID、课程名称分页模糊查询班级（业务，token）")
     @PostMapping("/student")
     public Result<IPage<Class>> getClassesByStudentId(
@@ -30,9 +31,7 @@ public class ClassController {
             @RequestParam(required = false) String courseName) {
         Page<Class> page = new Page<>(current, size);
         IPage<Class> classPage = classService.getClassesByStudentId(page, studentId, className, courseName);
-        return classPage != null && classPage.getRecords().size() > 0 ?
-                Result.success(classPage) :
-                Result.error("未找到班级信息");
+        return Result.success(classPage);
     }
 
     @Operation(summary = "根据ID查询班级")
@@ -90,4 +89,17 @@ public class ClassController {
 //                Result.success(classes) :
 //                Result.error("未找到班级信息");
 //    }
+
+    @Operation(summary = "教师查询与自己相关的班级，分页条件模糊查询（业务，token）")
+    @PostMapping("/teacher")
+    public Result<IPage<Class>> getClassByTeacherIdAndStatusAndClassnameAndPage(
+            @RequestParam Integer teacherId,
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String status) {
+        Page<Class> page = new Page<>(current, size);
+        IPage<Class> classPage = classService.getClassByTeacherIdAndStatusAndClassnameAndPage(page, teacherId, className, status);
+        return Result.success(classPage);
+    }
 } 

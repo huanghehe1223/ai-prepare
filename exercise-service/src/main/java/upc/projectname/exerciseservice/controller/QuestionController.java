@@ -49,10 +49,11 @@ public class QuestionController {
     @PostMapping("/group/batch")
     public Result<IPage<Question>> getQuestionsByGroupIdAndPage(@RequestParam Integer groupId,
                                                                 @RequestParam(defaultValue = "1") Integer current,
-                                                                @RequestParam(defaultValue = "10") Integer size) {
+                                                                @RequestParam(defaultValue = "10") Integer size,
+                                                                @RequestParam(required = false) String questionType) {
         Page<Question> page = new Page<>(current, size);
-        IPage<Question> questions = questionService.getQuestionsByGroupIdAndPage(page, groupId);
-        return questions != null ? Result.success(questions) : Result.error("未找到题目信息");
+        IPage<Question> questions = questionService.getQuestionsByGroupIdAndPage(page, groupId,questionType);
+        return Result.success(questions);
     }
 
     @Operation(summary = "新增题目")
@@ -77,5 +78,13 @@ public class QuestionController {
         return questionService.deleteQuestion(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+    @Operation(summary = "批量增加习题（业务）")
+    @PostMapping("/batch")
+    public Result<Boolean> saveQuestions(@RequestBody List<Question> questions) {
+        return questionService.saveQuestions(questions) ?
+                Result.success(true, "添加成功") :
+                Result.error("添加失败");
     }
 } 

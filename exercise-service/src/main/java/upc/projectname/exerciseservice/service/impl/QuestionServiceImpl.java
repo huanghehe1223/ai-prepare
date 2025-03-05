@@ -47,9 +47,15 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     }
 
     @Override
-    public IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId){
+    public IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId,String questionType){
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Question::getGroupId, groupId);
+        wrapper.eq(Question::getGroupId, groupId)
+                .eq(questionType != null && !questionType.isEmpty(), Question::getQuestionType, questionType);;
         return this.page(page, wrapper);
+    }
+
+    @Override
+    public Boolean saveQuestions(List<Question> questions) {
+        return this.saveBatch(questions);
     }
 } 

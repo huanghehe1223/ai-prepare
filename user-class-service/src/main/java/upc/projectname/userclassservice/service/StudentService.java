@@ -27,4 +27,6 @@ public interface StudentService extends IService<Student> {
     boolean studentApply(Integer studentId, String classCode);
 
     boolean agreeStudentApply(Integer studentId, Integer classId);
+
+    IPage<Student> getStudentsByClassIdAndPage(Page<Student> page, String studentName, Integer classId, String sex, String status);
 }

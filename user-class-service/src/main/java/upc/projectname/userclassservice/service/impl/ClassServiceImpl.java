@@ -59,4 +59,9 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
         queryWrapper.eq(Class::getClassCode, classCode);
         return this.getOne(queryWrapper);
     }
+
+    @Override
+    public IPage<Class> getClassByTeacherIdAndStatusAndClassnameAndPage(Page<Class> page, Integer teacherId, String className, String status) {
+        return this.baseMapper.getClassByTeacherIdAndStatusAndClassnameAndPage(page, teacherId, className, status);
+    }
 }

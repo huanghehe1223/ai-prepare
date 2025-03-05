@@ -33,8 +33,8 @@ public class StudentController {
     @PostMapping("/batch")
     public Result<List<Student>> getStudentByIds(@RequestBody List<Integer> ids) {
         List<Student> students = studentService.getStudentByIds(ids);
-        return students != null && !students.isEmpty() ? 
-                Result.success(students) : 
+        return students != null && !students.isEmpty() ?
+                Result.success(students) :
                 Result.error("未找到学生信息");
     }
 
@@ -54,7 +54,7 @@ public class StudentController {
                 Result.error("更新失败");
     }
 
-    @Operation(summary = "删除学生")
+    @Operation(summary = "删除学生（业务）")
     @DeleteMapping("/{id}")
     public Result<Boolean> deleteStudent(@PathVariable Integer id) {
         return studentService.deleteStudent(id) ?
@@ -66,7 +66,7 @@ public class StudentController {
     @Operation(summary = "学生申请入班")
     @PostMapping("studentApply")
     public Result<Boolean> studentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classCode") String classCode) {
-        return studentService.studentApply(studentId,classCode) ?
+        return studentService.studentApply(studentId, classCode) ?
                 Result.success(true, "申请成功") :
                 Result.error("申请失败");
     }
@@ -81,27 +81,18 @@ public class StudentController {
             @RequestParam(required = false) Integer classId,
             @RequestParam(required = false) String status) {
         Page<Student> page = new Page<>(current, size);
-        IPage<Student> studentPage = studentService.getStudentPage(page, studentName, classId, status,sex);
+        IPage<Student> studentPage = studentService.getStudentPage(page, studentName, classId, status, sex);
         return Result.success(studentPage);
     }
-
-
 
 
     @Operation(summary = "同意学生入班（业务）")
     @PutMapping("/agree")
     public Result<Boolean> agreeStudentApply(@RequestParam("studentId") Integer studentId, @RequestParam("classId") Integer classId) {
-        return studentService.agreeStudentApply(studentId,classId) ?
+        return studentService.agreeStudentApply(studentId, classId) ?
                 Result.success(true, "同意成功") :
                 Result.error("同意失败");
     }
-
-
-
-
-
-
-
 
 
     @Operation(summary = "获取班级学生")
@@ -113,6 +104,17 @@ public class StudentController {
                 Result.error("未找到该班级的学生");
     }
 
-
-
+//    @Operation(summary = "根据班级ID、部分学生信息查询学生（业务）")
+//    @PostMapping("/class/page")
+//    public Result<IPage<Student>> getStudentsByClassIdAndPage(
+//            @RequestParam(defaultValue = "1") Integer current,
+//            @RequestParam(defaultValue = "10") Integer size,
+//            @PathVariable Integer classId,
+//            @RequestParam(required = false) String studentName,
+//            @RequestParam(required = false) String sex,
+//            @RequestParam(required = false) String status) {
+//        Page<Student> page = new Page<>(current, size);
+//        IPage<Student> studentPage = studentService.getStudentsByClassIdAndPage(page, studentName, classId, sex, status);
+//        return Result.success(studentPage);
+//    }
 }

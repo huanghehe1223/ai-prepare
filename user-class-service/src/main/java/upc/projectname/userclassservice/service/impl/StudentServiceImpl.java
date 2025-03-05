@@ -82,4 +82,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     public boolean agreeStudentApply(Integer studentId, Integer classId) {
          return classStudentService.updateStudentStatus(studentId, classId, "Agree");
     }
+
+    @Override
+    public IPage<Student> getStudentsByClassIdAndPage(Page<Student> page, String studentName, Integer classId, String sex, String status){
+        return this.baseMapper.selectStudentsByClassIdAndPage(page, studentName, classId, sex, status);
+    }
 }

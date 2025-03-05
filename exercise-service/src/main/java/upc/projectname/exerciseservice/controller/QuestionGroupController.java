@@ -45,7 +45,7 @@ public class QuestionGroupController {
                 Result.error("未找到该项目的题目组信息");
     }
 
-    @Operation(summary = "新增题目组")
+    @Operation(summary = "新增题目组（业务）")
     @PostMapping
     public Result<Boolean> saveQuestionGroup(@RequestBody QuestionGroup questionGroup) {
         return questionGroupService.saveQuestionGroup(questionGroup) ?
@@ -78,5 +78,14 @@ public class QuestionGroupController {
             @RequestParam(required = false) String groupType) {
         List<QuestionGroup> questionGroups = questionGroupService.searchQuestionGroupByPage(projectId, groupStatus, groupType);
         return !questionGroups.isEmpty() ? Result.success(questionGroups) : Result.error("未找到题目组信息");
+    }
+
+    @Operation(summary = "根据题目组id更新题目组状态，默认发布（业务）")
+    @PutMapping("/updateStatus")
+    public Result<Boolean> updateQuestionGroupStatus(@RequestParam Integer groupId,
+                                                     @RequestParam(defaultValue = "1") Integer groupStatus) {
+        return questionGroupService.updateQuestionGroupStatus(groupId, groupStatus) ?
+                Result.success(true, "更新成功") :
+                Result.error("更新失败");
     }
 } 

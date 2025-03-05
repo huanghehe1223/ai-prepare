@@ -12,13 +12,14 @@ import java.util.List;
 
 @Mapper
 public interface StudentMapper extends BaseMapper<Student> {
-    
+
     /**
      * 分页查询学生信息
-     * @param page 分页参数
+     *
+     * @param page        分页参数
      * @param studentName 学生姓名(可选)
-     * @param classId 班级ID(可选)
-     * @param status 状态(可选)
+     * @param classId     班级ID(可选)
+     * @param status      状态(可选)
      * @return 分页结果
      */
 
@@ -36,36 +37,67 @@ public interface StudentMapper extends BaseMapper<Student> {
 //    long size = page.getSize();
 //    // 获取总页数
 //    long pages = page.getPages();
+    @Select("""
+            <script>
+            SELECT DISTINCT
+                s.student_id,
+                s.student_name,
+                s.user_name,
+                s.image_url
+            FROM student s
+            LEFT JOIN class_student cs ON s.student_id = cs.student_id
+            <where>
+                <if test="classId != null">
+                    cs.class_id = #{classId}
+                </if>
+                <if test="studentName != null and studentName != ''">
+                    AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
+                </if>
+                <if test="sex != null and sex != ''">
+                    AND s.sex =#{sex}
+                </if>
+                <if test="status != null and status != ''">
+                    AND cs.status = #{status}
+                </if>
+            </where>
+            ORDER BY s.student_id DESC
+            </script>
+            """)
+    IPage<Student> selectStudentPage(Page<Student> page,
+                                     @Param("studentName") String studentName,
+                                     @Param("sex") String sex,
+                                     @Param("classId") Integer classId,
+                                     @Param("status") String status);
 
     @Select("""
-        <script>
-        SELECT DISTINCT
-            s.student_id,
-            s.student_name,
-            s.user_name,
-            s.image_url
-        FROM student s
-        LEFT JOIN class_student cs ON s.student_id = cs.student_id
-        <where>
-            <if test="classId != null">
+            <script>
+            SELECT DISTINCT
+                s.student_id,
+                s.student_name,
+                s.user_name,
+                s.image_url
+            FROM student s
+            INNER JOIN class_student cs ON s.student_id = cs.student_id
+            <where>
                 cs.class_id = #{classId}
-            </if>
-            <if test="studentName != null and studentName != ''">
-                AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
-            </if>
-            <if test="sex != null and sex != ''">
-                AND s.sex =#{sex}
-            </if>
-            <if test="status != null and status != ''">
-                AND cs.status = #{status}
-            </if>
-        </where>
-        ORDER BY s.student_id DESC
-        </script>
-        """)
-    IPage<Student> selectStudentPage(Page<Student> page,
-                                   @Param("studentName") String studentName,
-                                   @Param("sex") String sex,
-                                   @Param("classId") Integer classId,
-                                   @Param("status") String status);
+                <if test="studentName != null and studentName != ''">
+                    AND s.student_name LIKE CONCAT('%', #{studentName}, '%')
+                </if>
+                <if test="sex != null and sex != ''">
+                    AND s.sex = #{sex}
+                </if>
+                <if test="status != null and status != ''">
+                    AND cs.status = #{status}
+                </if>
+            </where>
+            ORDER BY s.student_id DESC
+            </script>
+            """)
+    IPage<Student> selectStudentsByClassIdAndPage(
+            Page<Student> page,
+            @Param("studentName") String studentName,
+            @Param("classId") Integer classId,
+            @Param("sex") String sex,
+            @Param("status") String status
+    );
 }

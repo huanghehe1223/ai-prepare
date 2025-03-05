@@ -21,4 +21,6 @@ public interface QuestionGroupService extends IService<QuestionGroup> {
     List<QuestionGroup> getQuestionGroupsByProjectId(Integer projectId);
 
     List<QuestionGroup> searchQuestionGroupByPage(Integer projectId, Integer status,String type);
+
+    boolean updateQuestionGroupStatus(Integer groupId, Integer status);
 } 

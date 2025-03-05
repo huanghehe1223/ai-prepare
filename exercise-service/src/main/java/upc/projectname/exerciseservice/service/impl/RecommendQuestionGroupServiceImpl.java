@@ -53,7 +53,7 @@ public class RecommendQuestionGroupServiceImpl extends ServiceImpl<RecommendQues
     public Boolean submitRecommendQuestionGroup(Integer groupId) {
         LambdaUpdateWrapper<RecommendQuestionGroup> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(RecommendQuestionGroup::getGroupId, groupId)
-                .set(RecommendQuestionGroup::getStatus, "Done");
+                .set(RecommendQuestionGroup::getStatus, "Review");
 
         return this.update(updateWrapper);
     }

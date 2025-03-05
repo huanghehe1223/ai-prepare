@@ -28,7 +28,7 @@ public class ProjectController {
                                                              @RequestParam(required = false) String name) {
         Page<Project> page = new Page<>(current, size);
         IPage<Project> projects = projectService.getProjectsByClassIdAndPage(classId, page, name);
-        return projects != null ? Result.success(projects) : Result.error("未找到项目信息");
+        return Result.success(projects);
     }
 
 

@@ -22,4 +22,6 @@ public interface ClassService extends IService<Class> {
     List<Class> getClassByIds(List<Integer> ids);
 
     Class getClassByCode(String classCode);
+
+    IPage<Class> getClassByTeacherIdAndStatusAndClassnameAndPage(Page<Class> page, Integer teacherId, String className, String status);
 }

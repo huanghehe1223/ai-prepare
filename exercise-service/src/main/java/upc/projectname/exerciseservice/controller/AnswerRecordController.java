@@ -90,9 +90,10 @@ public class AnswerRecordController {
 
 
 
+
     @Operation(summary = "批量保存或更新答题记录(业务)")
     @PostMapping("/batch/save")
-    public Result<Boolean> saveOrUpdateBatchAnswerRecords(@RequestBody List<AnswerRecord> records) {
+    public Result<Boolean> saveOrUpdateBatchAnswerRecords(@RequestBody List<AnswerRecord> records,@RequestParam(required = false,value = "studentId") Integer studentId) {
         return answerRecordService.saveOrUpdateBatchAnswerRecords(records) ?
                 Result.success(true, "批量保存成功") :
                 Result.error("批量保存失败");
