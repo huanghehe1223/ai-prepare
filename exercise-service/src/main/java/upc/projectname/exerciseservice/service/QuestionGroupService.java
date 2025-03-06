@@ -1,5 +1,6 @@
 package upc.projectname.exerciseservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import upc.projectname.upccommon.domain.po.QuestionGroup;
 
@@ -20,4 +21,8 @@ public interface QuestionGroupService extends IService<QuestionGroup> {
     List<QuestionGroup> getQuestionGroupsByProjectId(Integer projectId);
 
     List<QuestionGroup> searchStudentGroup(Integer projectId, Integer studentId, String status, String groupType);
-} 
+
+    List<QuestionGroup> searchQuestionGroupByPage(Integer projectId, Integer status,String type);
+
+    boolean updateQuestionGroupStatus(Integer groupId, Integer status);
+}

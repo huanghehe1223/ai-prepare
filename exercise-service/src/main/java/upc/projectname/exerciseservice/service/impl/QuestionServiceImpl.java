@@ -1,6 +1,8 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.Question;
@@ -42,5 +44,18 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Question::getGroupId, groupId);
         return this.list(wrapper);
+    }
+
+    @Override
+    public IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId,String questionType){
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getGroupId, groupId)
+                .eq(questionType != null && !questionType.isEmpty(), Question::getQuestionType, questionType);;
+        return this.page(page, wrapper);
+    }
+
+    @Override
+    public Boolean saveQuestions(List<Question> questions) {
+        return this.saveBatch(questions);
     }
 } 

@@ -1,5 +1,7 @@
 package upc.projectname.userclassservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,20 @@ import java.util.List;
 public class ClassController {
 
     private final ClassService classService;
+
+
+    @Operation(summary = "根据学生ID、课程名称分页模糊查询班级（业务，token）")
+    @PostMapping("/student")
+    public Result<IPage<Class>> getClassesByStudentId(
+            @RequestParam Integer studentId,
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String courseName) {
+        Page<Class> page = new Page<>(current, size);
+        IPage<Class> classPage = classService.getClassesByStudentId(page, studentId, className, courseName);
+        return Result.success(classPage);
+    }
 
     @Operation(summary = "根据ID查询班级")
     @GetMapping("/{id}")
@@ -73,4 +89,17 @@ public class ClassController {
 //                Result.success(classes) :
 //                Result.error("未找到班级信息");
 //    }
+
+    @Operation(summary = "教师查询与自己相关的班级，分页条件模糊查询（业务，token）")
+    @PostMapping("/teacher")
+    public Result<IPage<Class>> getClassByTeacherIdAndStatusAndClassnameAndPage(
+            @RequestParam Integer teacherId,
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String status) {
+        Page<Class> page = new Page<>(current, size);
+        IPage<Class> classPage = classService.getClassByTeacherIdAndStatusAndClassnameAndPage(page, teacherId, className, status);
+        return Result.success(classPage);
+    }
 } 

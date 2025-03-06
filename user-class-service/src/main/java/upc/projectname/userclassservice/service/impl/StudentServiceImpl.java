@@ -117,4 +117,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         return Result.success(jwt);
 
     }
+
+    @Override
+    public IPage<Student> getStudentsByClassIdAndPage(Page<Student> page, String studentName, Integer classId, String sex, String status){
+        return this.baseMapper.selectStudentsByClassIdAndPage(page, studentName, classId, sex, status);
+    }
 }

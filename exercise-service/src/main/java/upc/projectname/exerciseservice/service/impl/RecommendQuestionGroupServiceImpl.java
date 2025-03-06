@@ -1,6 +1,7 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.RecommendQuestionGroup;
@@ -45,6 +46,25 @@ public class RecommendQuestionGroupServiceImpl extends ServiceImpl<RecommendQues
         LambdaQueryWrapper<RecommendQuestionGroup> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RecommendQuestionGroup::getStudentId, studentId)
               .orderByDesc(RecommendQuestionGroup::getCreateTime);
+        return this.list(wrapper);
+    }
+
+    @Override
+    public Boolean submitRecommendQuestionGroup(Integer groupId) {
+        LambdaUpdateWrapper<RecommendQuestionGroup> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(RecommendQuestionGroup::getGroupId, groupId)
+                .set(RecommendQuestionGroup::getStatus, "Review");
+
+        return this.update(updateWrapper);
+    }
+
+    @Override
+    public List<RecommendQuestionGroup> viewRecommendQuestionGroup(Integer projectId, Integer studentId, String groupType, String status) {
+        LambdaQueryWrapper<RecommendQuestionGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RecommendQuestionGroup::getProjectId, projectId)
+              .eq(RecommendQuestionGroup::getStudentId, studentId)
+              .eq(groupType != null,RecommendQuestionGroup::getGroupType, groupType)
+              .eq(status != null,RecommendQuestionGroup::getStatus, status);
         return this.list(wrapper);
     }
 } 

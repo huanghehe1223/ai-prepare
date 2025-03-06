@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,17 @@ public class QuestionController {
                 Result.error("未找到该题目组的题目信息");
     }
 
+    @Operation(summary = "根据题目组ID分页查询题目（业务）")
+    @PostMapping("/group/batch")
+    public Result<IPage<Question>> getQuestionsByGroupIdAndPage(@RequestParam Integer groupId,
+                                                                @RequestParam(defaultValue = "1") Integer current,
+                                                                @RequestParam(defaultValue = "10") Integer size,
+                                                                @RequestParam(required = false) String questionType) {
+        Page<Question> page = new Page<>(current, size);
+        IPage<Question> questions = questionService.getQuestionsByGroupIdAndPage(page, groupId,questionType);
+        return Result.success(questions);
+    }
+
     @Operation(summary = "新增题目")
     @PostMapping
     public Result<Boolean> saveQuestion(@RequestBody Question question) {
@@ -65,5 +78,13 @@ public class QuestionController {
         return questionService.deleteQuestion(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+    @Operation(summary = "批量增加习题（业务）")
+    @PostMapping("/batch")
+    public Result<Boolean> saveQuestions(@RequestBody List<Question> questions) {
+        return questionService.saveQuestions(questions) ?
+                Result.success(true, "添加成功") :
+                Result.error("添加失败");
     }
 } 

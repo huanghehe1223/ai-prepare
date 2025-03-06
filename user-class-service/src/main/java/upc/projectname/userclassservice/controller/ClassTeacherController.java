@@ -76,7 +76,7 @@ public class ClassTeacherController {
                 Result.error("删除失败");
     }
     
-    @Operation(summary = "更新教师状态")
+    @Operation(summary = "更新教师状态（审核）（业务）")
     @PutMapping("/status")
     public Result<Boolean> updateTeacherStatus(
             @RequestParam Integer teacherId,
@@ -85,5 +85,15 @@ public class ClassTeacherController {
         return classTeacherService.updateTeacherStatus(teacherId, classId, status) ?
                 Result.success(true, "状态更新成功") :
                 Result.error("状态更新失败");
+    }
+
+    @Operation(summary = "教师根据classCode申请入班（业务）")
+    @PostMapping("/apply")
+    public Result<Boolean> applyClassTeacher(
+            @RequestParam Integer teacherId,
+            @RequestParam String classCode) {
+        return classTeacherService.applyClassTeacher(teacherId, classCode) ?
+                Result.success(true, "申请成功") :
+                Result.error("申请失败");
     }
 } 

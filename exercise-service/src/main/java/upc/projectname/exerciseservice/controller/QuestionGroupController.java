@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +45,7 @@ public class QuestionGroupController {
                 Result.error("未找到该项目的题目组信息");
     }
 
-    @Operation(summary = "新增题目组")
+    @Operation(summary = "新增题目组（业务）")
     @PostMapping
     public Result<Boolean> saveQuestionGroup(@RequestBody QuestionGroup questionGroup) {
         return questionGroupService.saveQuestionGroup(questionGroup) ?
@@ -95,4 +97,24 @@ public class QuestionGroupController {
 
 
 
-} 
+
+
+    @Operation(summary = "教师根据项目ID、发布情况和题目组类型查询题目组（业务）")
+    @PostMapping("/searchByPage/batch")
+    public Result<List<QuestionGroup>> searchQuestionGroupByPage(
+            @RequestParam Integer projectId,
+            @RequestParam(required = false) Integer groupStatus,
+            @RequestParam(required = false) String groupType) {
+        List<QuestionGroup> questionGroups = questionGroupService.searchQuestionGroupByPage(projectId, groupStatus, groupType);
+        return !questionGroups.isEmpty() ? Result.success(questionGroups) : Result.error("未找到题目组信息");
+    }
+
+    @Operation(summary = "根据题目组id更新题目组状态，默认发布（业务）")
+    @PutMapping("/updateStatus")
+    public Result<Boolean> updateQuestionGroupStatus(@RequestParam Integer groupId,
+                                                     @RequestParam(defaultValue = "1") Integer groupStatus) {
+        return questionGroupService.updateQuestionGroupStatus(groupId, groupStatus) ?
+                Result.success(true, "更新成功") :
+                Result.error("更新失败");
+    }
+}

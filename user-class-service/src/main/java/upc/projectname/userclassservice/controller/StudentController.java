@@ -59,7 +59,7 @@ public class StudentController {
                 Result.error("更新失败");
     }
 
-    @Operation(summary = "删除学生")
+    @Operation(summary = "删除学生（业务）")
     @DeleteMapping("/{id}")
     public Result<Boolean> deleteStudent(@PathVariable Integer id) {
         return studentService.deleteStudent(id) ?

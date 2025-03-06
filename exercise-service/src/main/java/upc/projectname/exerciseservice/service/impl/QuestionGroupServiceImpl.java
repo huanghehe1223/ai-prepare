@@ -1,6 +1,8 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,5 +75,22 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
             return questionGroups;
         }
         return this.baseMapper.searchStudentGroup(projectId, studentId, status, groupType);
+    }
+}
+
+    @Override
+    public List<QuestionGroup> searchQuestionGroupByPage(Integer projectId, Integer status, String type) {
+        LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(projectId != null, QuestionGroup::getProjectId, projectId)
+                .eq(status != null, QuestionGroup::getGroupStatus, status)
+                .eq(type != null, QuestionGroup::getGroupType, type);
+        return this.list(wrapper);
+    }
+
+    @Override
+    public boolean updateQuestionGroupStatus(Integer groupId, Integer status) {
+        LambdaUpdateWrapper<QuestionGroup> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(QuestionGroup::getGroupId, groupId).set(QuestionGroup::getGroupStatus, status);
+        return this.update(wrapper);
     }
 }

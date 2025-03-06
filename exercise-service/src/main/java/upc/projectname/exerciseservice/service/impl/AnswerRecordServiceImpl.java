@@ -73,3 +73,31 @@ public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, Ans
         return this.baseMapper.searchAnswerRecord(page, studentId, questionGroupId, questionType);
     }
 }
+
+
+    @Override
+    public boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records, Integer studentId) {
+        if (records == null || records.isEmpty() || studentId == null) {
+            return false;
+        }
+
+        for (AnswerRecord record : records) {
+            record.setStudentId(studentId);
+            LambdaQueryWrapper<AnswerRecord> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(AnswerRecord::getQuestionId, record.getQuestionId())
+                    .eq(AnswerRecord::getStudentId, studentId);
+
+            AnswerRecord existingRecord = this.getOne(wrapper);
+            if (existingRecord != null) {
+                record.setRecordId(existingRecord.getRecordId());
+                record.setUpdatedAt(LocalDateTime.now());
+                this.updateById(record);
+            } else {
+                record.setCreatedAt(LocalDateTime.now());
+                record.setUpdatedAt(LocalDateTime.now());
+                this.save(record);
+            }
+        }
+        return true;
+    }
+}

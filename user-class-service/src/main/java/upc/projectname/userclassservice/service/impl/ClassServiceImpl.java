@@ -1,6 +1,8 @@
 package upc.projectname.userclassservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,10 @@ import java.util.List;
 @Service
 public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements ClassService {
 
+    @Override
+    public IPage<Class> getClassesByStudentId(Page<Class> page, Integer studentId, String className, String courseName) {
+        return this.baseMapper.getClassesByStudentId(page, studentId, className, courseName);
+    }
 
     @Override
     public Class getClassById(Integer id) {
@@ -52,5 +58,10 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
         LambdaQueryWrapper<Class> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Class::getClassCode, classCode);
         return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public IPage<Class> getClassByTeacherIdAndStatusAndClassnameAndPage(Page<Class> page, Integer teacherId, String className, String status) {
+        return this.baseMapper.getClassByTeacherIdAndStatusAndClassnameAndPage(page, teacherId, className, status);
     }
 }

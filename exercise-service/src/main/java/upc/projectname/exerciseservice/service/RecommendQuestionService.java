@@ -1,5 +1,7 @@
 package upc.projectname.exerciseservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import upc.projectname.upccommon.domain.po.RecommendQuestion;
 
@@ -18,4 +20,6 @@ public interface RecommendQuestionService extends IService<RecommendQuestion> {
     List<RecommendQuestion> getRecommendQuestionByIds(List<Integer> ids);
     
     List<RecommendQuestion> getRecommendQuestionsByGroupId(Integer groupId);
+
+    IPage<RecommendQuestion> getRecommendQuestionsByGroupIdAndPage(Integer groupId, Page<RecommendQuestion> page, String questionType);
 } 

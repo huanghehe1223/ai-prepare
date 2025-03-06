@@ -1,5 +1,7 @@
 package upc.projectname.projectservice.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import upc.projectname.upccommon.domain.po.Project;
 
@@ -18,4 +20,6 @@ public interface ProjectService extends IService<Project> {
     List<Project> getProjectByIds(List<Integer> ids);
     
     List<Project> getProjectsByClassId(Integer classId);
+
+    IPage<Project> getProjectsByClassIdAndPage(Integer classId, Page<Project> page, String name);
 } 

@@ -21,4 +21,6 @@ public interface ClassTeacherService extends IService<ClassTeacher> {
     List<ClassTeacher> getClassTeachersByTeacherId(Integer teacherId);
     
     boolean updateTeacherStatus(Integer teacherId, Integer classId, String status);
+
+    boolean applyClassTeacher(Integer teacherId, String classId);
 } 

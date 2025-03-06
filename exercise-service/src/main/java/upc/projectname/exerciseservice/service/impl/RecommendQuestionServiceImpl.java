@@ -1,6 +1,8 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.RecommendQuestion;
@@ -46,5 +48,13 @@ public class RecommendQuestionServiceImpl extends ServiceImpl<RecommendQuestionM
         LambdaQueryWrapper<RecommendQuestion> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RecommendQuestion::getGroupId, groupId);
         return this.list(wrapper);
+    }
+
+    @Override
+    public IPage<RecommendQuestion> getRecommendQuestionsByGroupIdAndPage(Integer groupId, Page<RecommendQuestion> page, String questionType){
+        LambdaQueryWrapper<RecommendQuestion> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RecommendQuestion::getGroupId, groupId)
+                .eq(questionType != null, RecommendQuestion::getQuestionType, questionType);
+        return this.page(page, wrapper);
     }
 } 

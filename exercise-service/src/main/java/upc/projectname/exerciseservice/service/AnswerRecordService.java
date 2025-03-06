@@ -26,4 +26,6 @@ public interface AnswerRecordService extends IService<AnswerRecord> {
     List<AnswerRecord> getAnswerRecordsByStudentAndQuestion(Integer studentId, Integer questionId);
 
     IPage<StudentAnswerResult> searchAnswerRecord(Integer current, Integer size, Integer studentId, Integer questionGroupId, String questionType);
-} 
+
+    boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records, Integer studentId);
+}

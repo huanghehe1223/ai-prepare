@@ -1,11 +1,13 @@
 package upc.projectname.exerciseservice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.QuestionGroupStatus;
 import upc.projectname.exerciseservice.mapper.QuestionGroupStatusMapper;
 import upc.projectname.exerciseservice.service.QuestionGroupStatusService;
+import upc.projectname.upccommon.domain.po.RecommendQuestionGroup;
 
 import java.util.List;
 
@@ -58,4 +60,14 @@ public class QuestionGroupStatusServiceImpl extends ServiceImpl<QuestionGroupSta
               .eq(QuestionGroupStatus::getStudentId, studentId);
         return this.list(wrapper);
     }
-} 
+
+    @Override
+    public boolean submitQuestionGroup(Integer studentId, Integer groupId) {
+        LambdaUpdateWrapper<QuestionGroupStatus> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(QuestionGroupStatus::getGroupId, groupId)
+                .eq(QuestionGroupStatus::getStudentId, studentId)
+                .set(QuestionGroupStatus::getStatus, "Review");
+
+        return this.update(updateWrapper);
+    }
+}

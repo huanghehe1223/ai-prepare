@@ -32,4 +32,6 @@ public interface StudentService extends IService<Student> {
     Result<Boolean> studentRegister(Student student);
 
     Result<String> studentLogin(String userName, String password);
+
+    IPage<Student> getStudentsByClassIdAndPage(Page<Student> page, String studentName, Integer classId, String sex, String status);
 }

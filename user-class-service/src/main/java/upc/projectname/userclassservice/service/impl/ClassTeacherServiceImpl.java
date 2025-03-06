@@ -3,15 +3,20 @@ package upc.projectname.userclassservice.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.ClassTeacher;
 import upc.projectname.userclassservice.mapper.ClassTeacherMapper;
+import upc.projectname.userclassservice.service.ClassService;
 import upc.projectname.userclassservice.service.ClassTeacherService;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class ClassTeacherServiceImpl extends ServiceImpl<ClassTeacherMapper, ClassTeacher> implements ClassTeacherService {
+
+    private final ClassService classService;
 
     @Override
     public ClassTeacher getClassTeacherById(Integer id) {
@@ -59,5 +64,15 @@ public class ClassTeacherServiceImpl extends ServiceImpl<ClassTeacherMapper, Cla
                .eq(ClassTeacher::getClassId, classId)
                .set(ClassTeacher::getStatus, status);
         return this.update(wrapper);
+    }
+
+    @Override
+    public boolean applyClassTeacher(Integer teacherId, String classCode) {
+        Integer classId = classService.getClassByCode(classCode).getClassId();
+        ClassTeacher classTeacher = new ClassTeacher();
+        classTeacher.setTeacherId(teacherId);
+        classTeacher.setClassId(classId);
+        classTeacher.setStatus("Apply");
+        return this.save(classTeacher);
     }
 } 
