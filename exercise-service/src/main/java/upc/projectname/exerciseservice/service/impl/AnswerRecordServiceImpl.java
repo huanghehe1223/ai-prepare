@@ -66,15 +66,16 @@ public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, Ans
 
 
     @Override
-    public boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records) {
-        if (records == null || records.isEmpty()) {
+    public boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records, Integer studentId) {
+        if (records == null || records.isEmpty() || studentId == null) {
             return false;
         }
 
         for (AnswerRecord record : records) {
+            record.setStudentId(studentId);
             LambdaQueryWrapper<AnswerRecord> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(AnswerRecord::getQuestionId, record.getQuestionId())
-                    .eq(AnswerRecord::getStudentId, record.getStudentId());
+                    .eq(AnswerRecord::getStudentId, studentId);
 
             AnswerRecord existingRecord = this.getOne(wrapper);
             if (existingRecord != null) {

@@ -23,5 +23,5 @@ public interface AnswerRecordService extends IService<AnswerRecord> {
     
     List<AnswerRecord> getAnswerRecordsByStudentAndQuestion(Integer studentId, Integer questionId);
 
-    boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records);
+    boolean saveOrUpdateBatchAnswerRecords(List<AnswerRecord> records, Integer studentId);
 } 
