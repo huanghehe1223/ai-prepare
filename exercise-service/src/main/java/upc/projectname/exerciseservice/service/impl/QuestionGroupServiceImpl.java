@@ -58,7 +58,7 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
         if (status.equals("Incomplete")){
             LambdaQueryWrapper<QuestionGroup> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(QuestionGroup::getProjectId, projectId);
-            wrapper.eq(QuestionGroup::getGroupType, groupType);
+            wrapper.eq(groupType!=null&&!groupType.isEmpty(),QuestionGroup::getGroupType, groupType);
             wrapper.eq(QuestionGroup::getGroupStatus, 1); //查找已经发布的习题组
             List<QuestionGroup> questionGroups = this.list(wrapper);
             if (questionGroups.isEmpty()){
@@ -76,7 +76,7 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
         }
         return this.baseMapper.searchStudentGroup(projectId, studentId, status, groupType);
     }
-}
+
 
     @Override
     public List<QuestionGroup> searchQuestionGroupByPage(Integer projectId, Integer status, String type) {

@@ -85,7 +85,7 @@ public class QuestionGroupController {
             @RequestParam("projectId") Integer projectId,
             @RequestParam("studentId") Integer studentId,
             @RequestParam("status") String status,
-            @RequestParam("groupType") String groupType) {
+            @RequestParam(value = "groupType",required = false) String groupType) {
         List<QuestionGroup> questionGroups = questionGroupService.searchStudentGroup(projectId, studentId, status, groupType);
         return questionGroups != null && !questionGroups.isEmpty() ?
                 Result.success(questionGroups) :

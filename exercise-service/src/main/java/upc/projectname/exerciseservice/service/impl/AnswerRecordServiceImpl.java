@@ -72,7 +72,7 @@ public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, Ans
         Page<StudentAnswerResult> page = new Page<>(current, size);
         return this.baseMapper.searchAnswerRecord(page, studentId, questionGroupId, questionType);
     }
-}
+
 
 
     @Override

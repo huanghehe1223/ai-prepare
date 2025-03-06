@@ -50,7 +50,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId,String questionType){
         LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Question::getGroupId, groupId)
-                .eq(questionType != null && !questionType.isEmpty(), Question::getQuestionType, questionType);;
+                .eq(questionType != null && !questionType.isEmpty(), Question::getQuestionType, questionType);
         return this.page(page, wrapper);
     }
 

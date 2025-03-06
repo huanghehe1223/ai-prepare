@@ -17,7 +17,7 @@ public interface QuestionGroupMapper extends BaseMapper<QuestionGroup> {
            "WHERE qg.project_id = #{projectId} " +
            "AND qs.student_id = #{studentId} " +
            "AND qs.status = #{status} " +
-           "AND qg.group_type = #{groupType}")
+           "AND (#{groupType} IS NULL OR #{groupType} = '' OR qg.group_type = #{groupType})")
     List<QuestionGroup> searchStudentGroup(@Param("projectId") Integer projectId,
                                          @Param("studentId") Integer studentId,
                                          @Param("status") String status, 

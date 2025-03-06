@@ -81,7 +81,7 @@ public class QuestionController {
     }
 
     @Operation(summary = "批量增加习题（业务）")
-    @PostMapping("/batch")
+    @PostMapping("/batch/add")
     public Result<Boolean> saveQuestions(@RequestBody List<Question> questions) {
         return questionService.saveQuestions(questions) ?
                 Result.success(true, "添加成功") :
