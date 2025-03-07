@@ -22,9 +22,11 @@ public class StudentResource implements Serializable {
 
     private Integer studentId;
 
-    private Integer projectId;
+    private Integer projectId; //废弃，可以传，也可以不传
 
     private String type;
 
     private String content;
+
+    private Integer groupId; //绑定的习题组
 }

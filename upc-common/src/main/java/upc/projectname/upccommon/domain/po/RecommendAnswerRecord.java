@@ -32,4 +32,8 @@ public class RecommendAnswerRecord implements Serializable {
     private LocalDateTime updatedAt;
 
     private String aiAnalysis;
+
+    private Integer duration;  //单位：秒
+
+    private Integer score; // 得分
 }

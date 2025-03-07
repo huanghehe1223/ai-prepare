@@ -32,4 +32,6 @@ public class RecommendQuestionGroup implements Serializable {
     private String groupType;
 
     private String status;
+
+    private Integer duration;  //单位：秒
 }
