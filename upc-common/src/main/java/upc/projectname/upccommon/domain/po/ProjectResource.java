@@ -23,4 +23,6 @@ public class ProjectResource implements Serializable {
     private String content;
     
     private Integer projectId;
+
+    private String type;
 } 

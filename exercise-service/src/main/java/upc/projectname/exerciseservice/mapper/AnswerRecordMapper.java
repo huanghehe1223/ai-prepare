@@ -10,6 +10,8 @@ import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
 import upc.projectname.upccommon.domain.po.Student;
 
+import java.util.List;
+
 @Mapper
 public interface AnswerRecordMapper extends BaseMapper<AnswerRecord> {
 
@@ -48,4 +50,8 @@ public interface AnswerRecordMapper extends BaseMapper<AnswerRecord> {
                                                 @Param("studentId") Integer studentId,
                                                 @Param("questionGroupId") Integer questionGroupId,
                                                 @Param("questionType") String questionType);
+
+//    List<StudentAnswerResult> statisticsStudentAnswerAccuracy(Integer studentId, Integer questionGroupId);
+
+
 } 

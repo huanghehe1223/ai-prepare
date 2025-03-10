@@ -24,4 +24,6 @@ public interface QuestionService extends IService<Question> {
     IPage<Question> getQuestionsByGroupIdAndPage(Page<Question> page, Integer groupId,String questionType);
 
     Boolean saveQuestions(List<Question> questions);
+
+    List<Integer> getQuestionIdsByGroupId(Integer questionGroupId);
 } 

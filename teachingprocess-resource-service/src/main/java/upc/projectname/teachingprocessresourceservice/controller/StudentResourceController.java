@@ -1,6 +1,9 @@
 package upc.projectname.teachingprocessresourceservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -85,5 +88,21 @@ public class StudentResourceController {
         return studentResourceService.deleteStudentResource(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+    @Operation(summary = "分页查询学生资源（业务，token）")
+    @PostMapping("/page")
+    public Result<IPage<StudentResource>> getStudentResourcesByPage(
+            @Parameter(description = "学生ID") @RequestParam Integer studentId,
+            @Parameter(description = "当前页码") @RequestParam(defaultValue = "1") Integer current,
+            @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer size,
+            @Parameter(description = "项目ID") @RequestParam(required = false) Integer projectId,
+            @Parameter(description = "习题组ID") @RequestParam(required = false) Integer groupId,
+            @Parameter(description = "习题组类型") @RequestParam(required = false) String groupType) {
+
+        Page<StudentResource> page = new Page<>(current, size);
+        IPage<StudentResource> studentResources = studentResourceService.getStudentResourcesByPage(
+                page, studentId, projectId, groupId, groupType);
+        return Result.success(studentResources);
     }
 } 

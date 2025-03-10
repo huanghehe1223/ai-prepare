@@ -10,6 +10,7 @@ import upc.projectname.exerciseservice.mapper.QuestionMapper;
 import upc.projectname.exerciseservice.service.QuestionService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
@@ -57,5 +58,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     @Override
     public Boolean saveQuestions(List<Question> questions) {
         return this.saveBatch(questions);
+    }
+
+    @Override
+    public List<Integer> getQuestionIdsByGroupId(Integer questionGroupId) {
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getGroupId, questionGroupId);
+        List<Question> questions = this.list(wrapper);
+        return questions.stream().map(Question::getQuestionId).collect(Collectors.toList());
     }
 } 

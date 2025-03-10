@@ -1,5 +1,7 @@
 package upc.projectname.teachingprocessresourceservice.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +67,20 @@ public class ProjectResourceController {
         return projectResourceService.deleteProjectResource(id) ?
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
+    }
+
+    @Operation(summary="分页查询学生的项目资源（业务，token，无用）")
+    @PostMapping("/page")
+    public Result<IPage<ProjectResource>> getProjectResourcesByPage(@RequestParam Integer studentId,
+                                                                    @RequestParam(defaultValue = "1") Integer current,
+                                                                    @RequestParam(defaultValue = "10") Integer size,
+                                                                    @RequestParam Integer projectId,
+                                                                    @RequestParam(required = false) String type,
+                                                                    @RequestParam(required = false) Integer groupId,
+                                                                    @RequestParam(required = false) String groupType) {
+
+        Page<ProjectResource> page = new Page<>(current, size);
+        IPage<ProjectResource> resources = projectResourceService.getProjectResourcesByPage(page, studentId, projectId, type, groupId, groupType);
+        return Result.success(resources);
     }
 } 
