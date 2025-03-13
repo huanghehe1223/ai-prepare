@@ -38,7 +38,7 @@ public class ClassController {
     @GetMapping("/{id}")
     public Result<Class> getClass(@PathVariable Integer id) {
         Class clazz = classService.getClassById(id);
-        return clazz != null ? Result.success(clazz) : Result.error("班级不存在");
+        return clazz != null ? Result.success(clazz) : Result.error("班级不存在了");
     }
 
     @Operation(summary = "根据ID批量查询班级")
@@ -50,12 +50,12 @@ public class ClassController {
                 Result.error("未找到班级信息");
     }
 
-    @Operation(summary = "新增班级(业务)")
+    @Operation(summary = "教师新增班级(业务，token)")
     @PostMapping
-    public Result<Boolean> saveClass(@RequestBody Class clazz) {
-        return classService.saveClass(clazz) ?
+    public Result<Boolean> saveClass(@RequestBody Class clazz, @RequestParam Integer teacherId) {
+        return classService.saveClass(clazz,teacherId) ?
                 Result.success(true, "添加成功") :
-                Result.error("添加失败");
+                Result.error("添加失败了");
     }
 
     @Operation(summary = "更新班级信息")

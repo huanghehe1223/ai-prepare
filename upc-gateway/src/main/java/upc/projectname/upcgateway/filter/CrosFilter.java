@@ -27,15 +27,16 @@ public class CrosFilter implements GlobalFilter, Ordered {
         System.out.println(path);
         System.out.println(method);
         //处理跨域请求
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
-        response.getHeaders().add("Access-Control-Allow-Methods", "*");
-        response.getHeaders().add("Access-Control-Allow-Headers", "*");
-        response.getHeaders().add("Access-Control-Max-Age", "1800");
-        //处理options请求
-        if (method.equals(HttpMethod.OPTIONS)) {
-            response.setStatusCode(HttpStatus.OK);
-            return Mono.empty();
-        }
+//    response.getHeaders().add("Access-Control-Allow-Origin", "*");
+//    response.getHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+//    response.getHeaders().add("Access-Control-Allow-Headers", "Content-Type,XFILENAME,XFILECATEGORY,XFILESIZE,x-requested-with,Authorization,token,check");
+//    response.getHeaders().add("Access-Control-Max-Age", "1800");
+//    response.getHeaders().add("Access-Control-Allow-Credentials", "true");
+//        //处理options请求
+//        if (method.equals(HttpMethod.OPTIONS)) {
+//            response.setStatusCode(HttpStatus.OK);
+//            return Mono.empty();
+//        }
 
         //获取token
 

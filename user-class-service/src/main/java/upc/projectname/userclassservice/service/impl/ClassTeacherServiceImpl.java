@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.po.ClassTeacher;
 import upc.projectname.userclassservice.mapper.ClassTeacherMapper;
@@ -12,11 +13,12 @@ import upc.projectname.userclassservice.service.ClassTeacherService;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Service
 public class ClassTeacherServiceImpl extends ServiceImpl<ClassTeacherMapper, ClassTeacher> implements ClassTeacherService {
 
-    private final ClassService classService;
+    @Autowired
+    private ClassService classService;
 
     @Override
     public ClassTeacher getClassTeacherById(Integer id) {

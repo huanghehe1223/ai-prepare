@@ -22,11 +22,19 @@ public class AnswerRecordController {
 
     private final AnswerRecordService answerRecordService;
 
+
+    @Operation(summary = "测试docker-compose")
+    @GetMapping("/testdocker")
+    public Result<String> testDocker() {
+        return Result.success("docker-compose测试成功,version3-exercise");
+    }
+
+
     @Operation(summary = "根据ID查询答题记录")
     @GetMapping("/{id}")
     public Result<AnswerRecord> getAnswerRecord(@PathVariable Integer id) {
         AnswerRecord record = answerRecordService.getAnswerRecordById(id);
-        return record != null ? Result.success(record) : Result.error("答题记录不存在");
+        return record != null ? Result.success(record) : Result.error("答题记录不存在了");
     }
 
     @Operation(summary = "根据ID批量查询答题记录")

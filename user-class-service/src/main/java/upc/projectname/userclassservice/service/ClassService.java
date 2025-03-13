@@ -13,7 +13,7 @@ public interface ClassService extends IService<Class> {
 
     Class getClassById(Integer id);
 
-    boolean saveClass(Class clazz);
+    boolean saveClass(Class clazz, Integer teacherId);
 
     boolean updateClass(Class clazz);
 

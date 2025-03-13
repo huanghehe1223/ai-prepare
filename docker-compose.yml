@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  gateway:
+    build:
+      context: ./upc-gateway
+      dockerfile: Dockerfile_jar
+    container_name: upc-gateway
+    ports:
+      - "9090:9090"
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  user-class-service:
+    build:
+      context: ./user-class-service
+      dockerfile: Dockerfile_jar
+    container_name: user-class-service
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  project-service:
+    build:
+      context: ./project-service
+      dockerfile: Dockerfile_jar
+    container_name: project-service
+    ports:
+      - "9091:9090"
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  exercise-service:
+    build:
+      context: ./exercise-service
+      dockerfile: Dockerfile_jar
+    container_name: exercise-service
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+  teachingprocess-resource-service:
+    build:
+      context: ./teachingprocess-resource-service
+      dockerfile: Dockerfile_jar
+    container_name: teachingprocess-resource-service
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
+networks:
+  microservice_network:
+    driver: bridge

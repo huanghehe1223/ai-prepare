@@ -20,6 +20,16 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+
+
+    @Operation(summary = "测试docker-compose")
+    @GetMapping("/testdocker")
+    public Result<String> testDocker() {
+        return Result.success("docker-compose测试成功,version2");
+    }
+
+
+
     @Operation(summary = "根据classId分页模糊查询项目（id、名称）（业务）")
     @GetMapping("/class/page")
     public Result<IPage<Project>> getProjectsByClassIdAndPage(@RequestParam Integer classId,
