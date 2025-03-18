@@ -29,6 +29,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<jackson.version>2.18.1</jackson.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -48,9 +49,65 @@
 <!--			<artifactId>spring-boot-starter-webflux</artifactId>-->
 <!--		</dependency>-->
 
+		<!--        openai api官方sdk-->
+		<dependency>
+			<groupId>com.openai</groupId>
+			<artifactId>openai-java</artifactId>
+			<version>0.33.0</version>
+		</dependency>
+
+
+
 
 
 	</dependencies>
+
+
+
+
+
+	<dependencyManagement>
+		<!-- 添加或修改以下依赖 -->
+		<dependencies>
+			<!-- 覆盖Jackson核心库版本 -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+
+			<!-- 如果使用了其他Jackson模块，也需要更新它们 -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.module</groupId>
+				<artifactId>jackson-module-kotlin</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+		</dependencies>
+
+	</dependencyManagement>
+
+
+
 
 	<build>
 		<plugins>

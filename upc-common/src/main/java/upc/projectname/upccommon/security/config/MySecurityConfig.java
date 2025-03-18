@@ -35,6 +35,7 @@ public class MySecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 //所有的请求都需要进行认证
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/stream/**").permitAll() // 允许公开访问 /stream 端点
                         .anyRequest().authenticated()
                 );
         return http.build();

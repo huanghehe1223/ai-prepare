@@ -53,4 +53,21 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         wrapper.like(name != null && !name.trim().isEmpty(), Project::getProjectName, name);
         return this.page(page, wrapper);
     }
+
+    @Override
+    public boolean changeProject(Integer projectId,
+                               Integer classId,
+                               String teachingAims,
+                               String studentAnalysis,
+                               String knowledgePoints,
+                               String teachingContent,
+                               Integer teachingDuration,
+                               String teachingTheme,
+                               String teachingObject,
+                               String extraReq) {
+        return this.baseMapper.updateProjectSelective(
+                projectId, classId, teachingAims, studentAnalysis,
+                knowledgePoints, teachingContent, teachingDuration,
+                teachingTheme, teachingObject, extraReq) > 0;
+    }
 } 

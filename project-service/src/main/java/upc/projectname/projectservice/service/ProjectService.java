@@ -22,4 +22,15 @@ public interface ProjectService extends IService<Project> {
     List<Project> getProjectsByClassId(Integer classId);
 
     IPage<Project> getProjectsByClassIdAndPage(Integer classId, Page<Project> page, String name);
+
+    boolean changeProject(Integer projectId,
+                        Integer classId,
+                        String teachingAims,
+                        String studentAnalysis,
+                        String knowledgePoints,
+                        String teachingContent,
+                        Integer teachingDuration,
+                        String teachingTheme,
+                        String teachingObject,
+                        String extraReq);
 } 

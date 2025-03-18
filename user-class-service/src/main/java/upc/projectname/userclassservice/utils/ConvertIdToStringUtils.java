@@ -7,23 +7,18 @@ public class ConvertIdToStringUtils {
             throw new IllegalArgumentException("class_id must be positive");
         }
 
-
+        // 只使用大写字母，基数为26
         char[] letters = new char[7];
         int tempId = classId;
 
         for (int i = 6; i >= 0; i--) {
-            int remainder = tempId % 52;
-            tempId = tempId / 52;
+            int remainder = tempId % 26;
+            tempId = tempId / 26;
 
-            if (remainder < 26) {
-                letters[i] = (char) (65 + remainder); // 大写字母 A-Z
-            } else {
-                letters[i] = (char) (71 + remainder); // 小写字母 a-z
-            }
+            // 只使用大写字母 A-Z (ASCII 65-90)
+            letters[i] = (char) (65 + remainder);
         }
 
         return new String(letters);
     }
-
-
 }

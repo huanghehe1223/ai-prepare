@@ -4,7 +4,7 @@ spring:
     name: teachingprocess-resource-service
   cloud:
     nacos:
-      server-addr: 47.105.115.241:8848
+      server-addr: 118.190.217.72:8848
     #配置openfeign接口日志输出，与okhttp连接池子
     openfeign:
       client:
@@ -26,7 +26,7 @@ spring:
     password: ${mysql.password}
 
 mysql:
-  host: 118.190.217.72
+  host: 47.105.115.241
   port: 3306
   database: ai-prepare
   password: 123456789hh!

@@ -90,4 +90,38 @@ public class ProjectController {
                 Result.success(true, "删除成功") :
                 Result.error("删除失败");
     }
+
+    @Operation(summary = "条件修改项目")
+    @PostMapping("/changeproject")
+    public Result<Boolean> changeProject(@RequestParam("projectId") Integer projectId,
+                                         @RequestParam(value = "classId",required = false) Integer classId,
+                                         @RequestParam(value = "teachingAims",required = false) String teachingAims,
+                                         @RequestParam(value = "studentAnalysis",required = false) String studentAnalysis,
+                                         @RequestParam(value = "knowledgePoints",required = false) String knowledgePoints,
+                                         @RequestParam(value = "teachingContent",required = false) String teachingContent,
+                                         @RequestParam(value = "teachingDuration",required = false) Integer teachingDuration,
+                                         @RequestParam(value = "teachingTheme",required = false) String teachingTheme,
+                                         @RequestParam(value = "teachingObject",required = false) String teachingObject,
+                                         @RequestParam(value = "extraReq",required = false) String extraReq) {
+        // 判断除了projectId外的所有参数是否都为空
+        if (classId == null
+                && teachingAims == null
+                && studentAnalysis == null
+                && knowledgePoints == null
+                && teachingContent == null
+                && teachingDuration == null
+                && teachingTheme == null
+                && teachingObject == null
+                && extraReq == null) {
+            return Result.error("更新失败：至少需要一个更新参数");
+        }
+
+        return projectService.changeProject(projectId, classId, teachingAims, studentAnalysis,
+                knowledgePoints, teachingContent, teachingDuration, teachingTheme,
+                teachingObject, extraReq) ?
+                Result.success(true, "更新成功") :
+                Result.error("更新失败");
+    }
+
+
 } 

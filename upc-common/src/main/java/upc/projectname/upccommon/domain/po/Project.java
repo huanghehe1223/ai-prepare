@@ -33,4 +33,12 @@ public class Project implements Serializable {
     private String teachingContent;
     
     private Integer teachingDuration;
-} 
+
+    private String  teachingTheme; //教学主题
+
+    private String  teachingObject; //教学对象
+
+    private String  extraReq; //额外要求
+
+
+}
