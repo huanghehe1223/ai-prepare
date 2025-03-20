@@ -14,6 +14,6 @@ import java.util.List;
 public class ChatRequestDTO {
     List<ChatCompletionMessageParam> messages;
     String model;
-    String testContent;
+    String extraContent;
 
 }

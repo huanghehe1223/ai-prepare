@@ -40,5 +40,7 @@ public class Project implements Serializable {
 
     private String  extraReq; //额外要求
 
+    private Integer currentStage; //当前阶段
+
 
 }

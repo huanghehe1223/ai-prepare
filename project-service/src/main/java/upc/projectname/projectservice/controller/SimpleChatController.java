@@ -1,15 +1,17 @@
 package upc.projectname.projectservice.controller;
 
 
+import com.openai.client.OpenAIClient;
 import com.openai.models.ChatCompletion;
 import com.openai.models.ChatCompletionMessageParam;
+import com.openai.models.Model;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import upc.projectname.projectservice.entity.ChatRequestDTO;
+import upc.projectname.projectservice.utils.OpenAISdkUtils;
 import upc.projectname.projectservice.utils.StreamRequestUtils;
 import upc.projectname.upccommon.domain.po.Result;
 
@@ -23,16 +25,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SimpleChatController {
     private final StreamRequestUtils streamRequestUtils;
+    private final OpenAISdkUtils openAISdkUtils;
 
 
     @PostMapping("test1")
-    public Result<ChatCompletion> simpleChat (@RequestBody List<ChatCompletionMessageParam> messages) {
-        String baseUrl = "https://api.studio.nebius.ai/v1";
-        String apiKey = "eyJhbGciOiJIUzI1NiIsImtpZCI6IlV6SXJWd1h0dnprLVRvdzlLZWstc0M1akptWXBvX1VaVkxUZlpnMDRlOFUiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJ3aW5kb3dzbGl2ZXw2OTBhM2U0Y2I0ZjkzMjk5Iiwic2NvcGUiOiJvcGVuaWQgb2ZmbGluZV9hY2Nlc3MiLCJpc3MiOiJhcGlfa2V5X2lzc3VlciIsImF1ZCI6WyJodHRwczovL25lYml1cy1pbmZlcmVuY2UuZXUuYXV0aDAuY29tL2FwaS92Mi8iXSwiZXhwIjoxODk3MjAyMzk3LCJ1dWlkIjoiYjBmMzRmOWEtNDFjNS00YmE3LWFmNWMtNDUxMzRmNDAxNWZhIiwibmFtZSI6ImFwaSIsImV4cGlyZXNfYXQiOiIyMDMwLTAyLTEzVDA4OjM5OjU3KzAwMDAifQ.5ATwgbU6zMz_ZnYieXr0bwm66jZoQJ4mJqgm1Nw-G1I";
-        String model = "Qwen/Qwen2-VL-7B-Instruct";
-        ChatCompletion chatCompletion = streamRequestUtils.simpleChat(baseUrl, apiKey, model, messages);
+    public Result<ChatCompletion> simpleChat (@RequestBody ChatRequestDTO chatRequest) {
+
+        String model = chatRequest.getModel();
+        List<ChatCompletionMessageParam> messages = chatRequest.getMessages();
+        ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
         return Result.success(chatCompletion);
     }
+
+    @Operation(summary = "获取所有模型名称")
+    @GetMapping("/models")
+    public Result<List<Model>> getAllModels() {
+        OpenAIClient openAIClient = openAISdkUtils.defaultClient;
+        List<Model> models = openAIClient.models().list().response().data();
+        return Result.success(models);
+    }
+
+
+
+
 
 
 }

@@ -40,6 +40,10 @@ public interface ProjectMapper extends BaseMapper<Project> {
                 <if test="extraReq != null and extraReq != ''">
                     extra_req = #{extraReq}
                 </if>
+                <if test="currentStage != null">
+                    current_stage = #{currentStage},
+                </if>
+     
             </set>
             WHERE project_id = #{projectId}
             </script>
@@ -53,5 +57,6 @@ public interface ProjectMapper extends BaseMapper<Project> {
                              @Param("teachingDuration") Integer teachingDuration,
                              @Param("teachingTheme") String teachingTheme,
                              @Param("teachingObject") String teachingObject,
-                             @Param("extraReq") String extraReq);
+                             @Param("extraReq") String extraReq,
+                             @Param("currentStage") Integer currentStage);
 } 

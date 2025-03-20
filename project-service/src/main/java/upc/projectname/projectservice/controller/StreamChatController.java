@@ -42,7 +42,7 @@ public class StreamChatController {
         String lastUserMessageText = messageProcessUtils.extractLastUserMessageText(messages);
         log.debug("lastUserMessageText: " + lastUserMessageText);
         String newText = """
-                 回复要求: 使用日文回答我;
+                 回复要求: 使用轻薄的语气回答我;
                  消息正文: """+lastUserMessageText +"""
                 """;
         List<ChatCompletionMessageParam> newMessages = messageProcessUtils.modifyLastUserMessage(messages, newText);
@@ -66,10 +66,13 @@ public class StreamChatController {
 
         // 使用线程池异步处理，避免阻塞主线程
         executorService.execute(() -> {
-            String baseUrl = "https://huanghe1223-monica2api.hf.space/hf/v1";
-            String apiKey = "huanghe1223";
-//            String model = "claude-3-5-haiku";
-            streamRequestUtils.processStreamRequestMessages(baseUrl, apiKey, model, newMessages, emitter);
+
+            if (model.equals("deepseek-r1")){
+                streamRequestUtils.streamReasonChat(model, newMessages, emitter);
+            }
+            else {
+                streamRequestUtils.streamChat(model, newMessages, emitter);
+            }
             emitter.complete();
             log.warn("所有响应处理完毕，在外面关闭SSE连接");
         });

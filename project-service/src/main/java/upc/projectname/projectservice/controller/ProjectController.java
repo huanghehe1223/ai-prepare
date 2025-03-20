@@ -69,10 +69,10 @@ public class ProjectController {
 
     @Operation(summary = "新增项目")
     @PostMapping
-    public Result<Boolean> saveProject(@RequestBody Project project) {
-        return projectService.saveProject(project) ?
-                Result.success(true, "添加成功") :
-                Result.error("添加失败");
+    public Result<Project> saveProject(@RequestBody Project project) {
+        return projectService.saveProject(project) != null ?
+                Result.success(project, "新增成功") :
+                Result.error("新增失败");
     }
 
     @Operation(summary = "更新项目信息")
@@ -91,7 +91,7 @@ public class ProjectController {
                 Result.error("删除失败");
     }
 
-    @Operation(summary = "条件修改项目")
+    @Operation(summary = "条件修改项目(业务,token)")
     @PostMapping("/changeproject")
     public Result<Boolean> changeProject(@RequestParam("projectId") Integer projectId,
                                          @RequestParam(value = "classId",required = false) Integer classId,
@@ -102,7 +102,8 @@ public class ProjectController {
                                          @RequestParam(value = "teachingDuration",required = false) Integer teachingDuration,
                                          @RequestParam(value = "teachingTheme",required = false) String teachingTheme,
                                          @RequestParam(value = "teachingObject",required = false) String teachingObject,
-                                         @RequestParam(value = "extraReq",required = false) String extraReq) {
+                                         @RequestParam(value = "extraReq",required = false) String extraReq,
+                                         @RequestParam(value = "currentStage",required = false) Integer currentStage) {
         // 判断除了projectId外的所有参数是否都为空
         if (classId == null
                 && teachingAims == null
@@ -112,13 +113,14 @@ public class ProjectController {
                 && teachingDuration == null
                 && teachingTheme == null
                 && teachingObject == null
-                && extraReq == null) {
+                && extraReq == null
+                && currentStage == null) {
             return Result.error("更新失败：至少需要一个更新参数");
         }
 
         return projectService.changeProject(projectId, classId, teachingAims, studentAnalysis,
                 knowledgePoints, teachingContent, teachingDuration, teachingTheme,
-                teachingObject, extraReq) ?
+                teachingObject, extraReq,currentStage) ?
                 Result.success(true, "更新成功") :
                 Result.error("更新失败");
     }

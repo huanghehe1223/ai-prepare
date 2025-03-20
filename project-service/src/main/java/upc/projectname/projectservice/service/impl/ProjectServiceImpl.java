@@ -20,8 +20,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     }
 
     @Override
-    public boolean saveProject(Project project) {
-        return this.save(project);
+    public Project saveProject(Project project) {
+        if (this.save(project)) {
+            return project;
+        }
+        return null;
     }
 
     @Override
@@ -56,18 +59,19 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Override
     public boolean changeProject(Integer projectId,
-                               Integer classId,
-                               String teachingAims,
-                               String studentAnalysis,
-                               String knowledgePoints,
-                               String teachingContent,
-                               Integer teachingDuration,
-                               String teachingTheme,
-                               String teachingObject,
-                               String extraReq) {
+                                 Integer classId,
+                                 String teachingAims,
+                                 String studentAnalysis,
+                                 String knowledgePoints,
+                                 String teachingContent,
+                                 Integer teachingDuration,
+                                 String teachingTheme,
+                                 String teachingObject,
+                                 String extraReq,
+                                 Integer currentStage) {
         return this.baseMapper.updateProjectSelective(
                 projectId, classId, teachingAims, studentAnalysis,
                 knowledgePoints, teachingContent, teachingDuration,
-                teachingTheme, teachingObject, extraReq) > 0;
+                teachingTheme, teachingObject, extraReq,currentStage) > 0;
     }
 } 
