@@ -28,6 +28,7 @@ public class SimpleChatController {
     private final OpenAISdkUtils openAISdkUtils;
 
 
+    @Operation(summary = "非流式对话")
     @PostMapping("test1")
     public Result<ChatCompletion> simpleChat (@RequestBody ChatRequestDTO chatRequest) {
 

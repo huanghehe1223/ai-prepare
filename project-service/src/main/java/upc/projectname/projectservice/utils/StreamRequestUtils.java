@@ -1,5 +1,6 @@
 package upc.projectname.projectservice.utils;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.openai.client.OpenAIClient;
 import com.openai.core.http.StreamResponse;
 import com.openai.models.*;
@@ -96,12 +97,26 @@ public class StreamRequestUtils {
                     .messages(messages)
                     .build();
 
+            // 标记是否是第一个chunk
+            final boolean[] isFirstChunk = {true};
+
+
+
             // 使用try-with-resources确保资源正确释放
             try (StreamResponse<ChatCompletionChunk> streamResponse =
                          openAIClient.chat().completions().createStreaming(params)) {
 
                 streamResponse.stream().forEach(chunk -> {
                     try {
+                        if (model.equals("QwQ-32B")&&isFirstChunk[0]) {
+                            isFirstChunk[0] = false;
+                            // 发送开始标记
+                            JSONObject messageChunk = new JSONObject();
+                            messageChunk.put("status","answering");
+                            messageChunk.put("content","<think>");
+                            emitter.send(messageChunk.toJSONString());
+                        }
+
                         // 检查chunk.choices()是否为空
                         List<ChatCompletionChunk.Choice> choices = chunk.choices();
                         if (choices != null && !choices.isEmpty()) {
@@ -110,10 +125,13 @@ public class StreamRequestUtils {
                             if (choice.delta() != null) {
                                 Optional<String> optionalString = choice.delta().content();
 
-                                if (optionalString.isPresent()) {
+                                if (optionalString.isPresent()&&!optionalString.get().isEmpty()) {
                                     // 发送数据到客户端
                                     String content = optionalString.get();
-                                    emitter.send(content);
+                                    JSONObject messageChunk = new JSONObject();
+                                    messageChunk.put("status","answering");
+                                    messageChunk.put("content",content);
+                                    emitter.send(messageChunk.toJSONString());
                                 }
                             }
 
@@ -171,6 +189,11 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
         final boolean[] reasoningEnded = {false};
         // 标记是否发送过内容
         final boolean[] sentAnyReasoningContent = {false};
+        // 标记是否是第一个chunk
+        final boolean[] isFirstChunk = {true};
+
+
+
 
         // 使用try-with-resources确保资源正确释放
         try (StreamResponse<ChatCompletionChunk> streamResponse =
@@ -178,6 +201,14 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
 
             streamResponse.stream().forEach(chunk -> {
                 try {
+                    if (isFirstChunk[0]) {
+                        isFirstChunk[0] = false;
+                        // 发送开始标记
+                        JSONObject messageChunk = new JSONObject();
+                        messageChunk.put("status","answering");
+                        messageChunk.put("content","<think>");
+                        emitter.send(messageChunk.toJSONString());
+                    }
                     // 检查chunk.choices()是否为空
                     List<ChatCompletionChunk.Choice> choices = chunk.choices();
                     if (choices != null && !choices.isEmpty()) {
@@ -194,7 +225,10 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
                                 
                                 // 发送推理内容到前端
                                 if (!reasoningContent.isEmpty()) {
-                                    emitter.send(reasoningContent);
+                                    JSONObject messageChunk = new JSONObject();
+                                    messageChunk.put("status","answering");
+                                    messageChunk.put("content",reasoningContent);
+                                    emitter.send(messageChunk.toJSONString());
                                 }
                             }
 
@@ -202,10 +236,13 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
                                 // 如果没有reasoning_content这个key，表示推理阶段已结束
                                 if (!reasoningEnded[0] && sentAnyReasoningContent[0]) {
                                     // 发送推理结束标记
-                                    emitter.send("</think>");
+                                    JSONObject messageChunk = new JSONObject();
+                                    messageChunk.put("status","answering");
+                                    messageChunk.put("content","</think>");
+                                    emitter.send(messageChunk.toJSONString());
                                     reasoningEnded[0] = true;
                                 }
-                                
+
                             }
                             
                             // 处理正常内容
@@ -213,7 +250,10 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
                             if (optionalString.isPresent()&&!optionalString.get().isEmpty()) {
                                 // 发送正常内容到客户端
                                 String content = optionalString.get();
-                                emitter.send(content);
+                                JSONObject messageChunk = new JSONObject();
+                                messageChunk.put("status","answering");
+                                messageChunk.put("content",content);
+                                emitter.send(messageChunk.toJSONString());
                             }
                         }
 

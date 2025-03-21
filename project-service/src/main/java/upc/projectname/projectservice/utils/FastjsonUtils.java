@@ -4,11 +4,13 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.JSONWriter;
 import com.alibaba.fastjson2.TypeReference;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class FastjsonUtils {
 
     /**
@@ -21,7 +23,7 @@ public class FastjsonUtils {
         if (object == null) {
             return null;
         }
-        return JSON.toJSONString(object, JSONWriter.Feature.WriteMapNullValue);
+        return JSON.toJSONString(object, JSONWriter.Feature.PrettyFormat);
     }
 
     /**
@@ -71,7 +73,7 @@ public class FastjsonUtils {
 
 
     // 提取markdown中的JSON内容
-    private static String extractJsonFromMarkdown(String markdown) {
+    public static String extractJsonFromMarkdown(String markdown) {
         // 使用正则表达式匹配```json和```之间的内容
         Pattern pattern = Pattern.compile("```json\\s*\\n(.*?)\\n```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(markdown);

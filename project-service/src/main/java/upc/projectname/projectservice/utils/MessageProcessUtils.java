@@ -148,6 +148,36 @@ public class MessageProcessUtils {
     }
 
 
+    /**
+     * 在消息列表的最前面添加一条用户消息
+     *
+     * @param messages 原始消息列表
+     * @param firstPrompt 要添加的用户消息内容
+     * @return 添加了首条用户消息后的新消息列表
+     */
+    public List<ChatCompletionMessageParam> addFirstUserMessage(List<ChatCompletionMessageParam> messages, String firstPrompt) {
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
+
+        // 创建消息列表的副本，避免直接修改原始列表
+        List<ChatCompletionMessageParam> newMessages = new ArrayList<>();
+
+        // 构造新的用户消息
+        ChatCompletionUserMessageParam newUserMessage = ChatCompletionUserMessageParam.builder()
+                .content(firstPrompt)
+                .build();
+
+        // 添加新的用户消息作为第一条消息
+        newMessages.add(ChatCompletionMessageParam.ofUser(newUserMessage));
+
+        // 添加原有的所有消息
+        newMessages.addAll(messages);
+
+        return newMessages;
+    }
+
+
 
 
 }
