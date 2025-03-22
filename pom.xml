@@ -27,6 +27,7 @@
         <module>project-service</module>
         <module>exercise-service</module>
         <module>teachingprocess-resource-service</module>
+        <module>knowledgebase-service</module>
 
 
 

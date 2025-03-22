@@ -32,6 +32,12 @@ spring:
             - Path=/process/**
           filters:
             - StripPrefix=1
+        - id: knowledgebase-service
+          uri: lb://knowledgebase-service
+          predicates:
+            - Path=/knowledge/**
+          filters:
+            - StripPrefix=1
       globalcors:
         cors-configurations:
           '[/**]':
