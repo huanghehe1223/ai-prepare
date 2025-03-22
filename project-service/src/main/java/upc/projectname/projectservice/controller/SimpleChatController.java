@@ -43,6 +43,10 @@ public class SimpleChatController {
     public Result<List<Model>> getAllModels() {
         OpenAIClient openAIClient = openAISdkUtils.defaultClient;
         List<Model> models = openAIClient.models().list().response().data();
+        // Filter out the model with id "openai-mini"
+        models = models.stream()
+                .filter(model -> !"openai-mini".equals(model.id()))
+                .collect(java.util.stream.Collectors.toList());
         return Result.success(models);
     }
 

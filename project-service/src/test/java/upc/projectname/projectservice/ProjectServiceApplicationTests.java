@@ -225,19 +225,19 @@ class ProjectServiceApplicationTests {
 	void testJsonUtils()
 	{
 		Question question1 = new Question();
-		question1.setCorrectAnswer("A");
+		question1.setQuestionText("15+16=?");
 		question1.setOptionA("15");
 		question1.setOptionB("16");
 		question1.setOptionC("17");
-		question1.setOptionD("18");
-		question1.setQuestionText("15+16=?");
+		question1.setOptionD("31");
+		question1.setCorrectAnswer("D");
 		Question question2 = new Question();
-		question2.setCorrectAnswer("B");
+		question2.setQuestionText("9+1=?");
 		question2.setOptionA("9");
 		question2.setOptionB("10");
 		question2.setOptionC("11");
 		question2.setOptionD("12");
-		question2.setQuestionText("9+1=?");
+		question2.setCorrectAnswer("B");
 		List<Question> questions = new ArrayList<>();
 		questions.add(question1);
 		questions.add(question2);
@@ -249,13 +249,54 @@ class ProjectServiceApplicationTests {
 		markdownJson.append("\n```");
 		// 输出最终的Markdown格式JSON字符串
 		String finalMarkdownJson = markdownJson.toString();
+		System.out.println(finalMarkdownJson);
 
-		 String originJson = FastjsonUtils.
+//		 String originJson = FastjsonUtils.extractJsonFromMarkdown(finalMarkdownJson);
+//		System.out.println(originJson);
+//
+//		List<Question> questions1 = FastjsonUtils.parseArray(originJson, Question.class);
+//		System.out.println(questions1);
 
-		List<Question> questions1 = FastjsonUtils.parseArray(jsonString, Question.class);
-		System.out.println(questions1);
 
+	}
 
+	@Test
+	void  checkPrompt(){
+		String systemPrompt = """
+                # 身份定位：教师备课预备知识检测题生成助手
+                                
+                你是一名教师备课助手，你的核心任务是生成高质量的预备知识检测单选题。这些题目用于帮助教师评估学生对即将学习内容所需前置知识的掌握程度。请严格遵循以下指导原则：
+                                
+                ## 主要职责
+                1. 分析教师提供的备课主题，准确识别相关的前置知识点
+                2. 根据提供的知识图谱数据（如有），筛选与当前主题直接相关的预备知识，忽略不相关内容
+                3. 为每个关键前置知识点设计单选题，确保题目能有效检测学生的实际掌握程度
+                4. 提供全面的题目解析，阐明每道题目考察的具体知识点及其与主课题的关联
+                                
+                ## 输出规范
+                针对教师提供的备课信息，你需要生成：
+                                
+                1. **检测题目集**：
+                   - 每道题目包含：题干、4个选项(A-D)、正确答案、详细解析
+                                
+                2. **使用建议**：
+                   - 简要建议教师如何利用测试结果调整教学策略
+                                
+                ## 题目设计原则
+                - 题目必须检测实际知识掌握情况，不是简单的"你是否学过"调查问卷
+                - 难度适中，需要学生进行思考和应用知识
+                - 选项设计合理，具有适当的干扰性
+                - 题目应直接关联到即将教授主题所需的预备知识
+                - 考虑授课对象的认知水平和学习阶段
+                                
+                ## 注意事项
+                - 严格关注前置知识，而非当前备课主题本身的内容
+                - 根据提供的授课对象和时长，调整题目的难度和数量
+                - 当提供知识图谱数据时，优先使用其中与备课主题相关的内容，忽略不相关部分
+                - 保持专业、清晰的语言表述，适合教育场景使用
+                                
+                请等待教师提供备课主题、授课对象、授课时长等信息，然后按照上述要求生成内容。""";
+		System.out.println(systemPrompt);
 	}
 
 

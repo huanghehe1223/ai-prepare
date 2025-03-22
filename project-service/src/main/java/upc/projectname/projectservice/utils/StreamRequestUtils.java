@@ -385,5 +385,46 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
 
     }
 
+    /**
+     * 创建并配置SSE发射器
+     * @param timeoutMillis 超时时间（毫秒）
+     * @return 配置好的SseEmitter实例
+     */
+    public SseEmitter createConfiguredEmitter(long timeoutMillis) {
+        SseEmitter emitter = new SseEmitter(timeoutMillis);
+
+        // 设置完成回调
+        emitter.onCompletion(() -> {
+            log.debug("SSE连接已完成");
+        });
+
+        // 设置超时回调
+        emitter.onTimeout(() -> {
+            log.debug("SSE连接超时");
+            emitter.complete();
+        });
+
+        // 设置错误回调
+        emitter.onError(ex -> {
+            log.error("SSE连接发生错误: " + ex.getMessage(), ex);
+        });
+
+        return emitter;
+    }
+
+
+    public void StreamRequestChat(String model, List<ChatCompletionMessageParam> messages, SseEmitter emitter){
+        if (model.equals("deepseek-r1")){
+            streamReasonChat(model, messages, emitter);
+        }
+        else {
+            streamChat(model, messages, emitter);
+        }
+
+    }
+
+
+
+
 
 }
