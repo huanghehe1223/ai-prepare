@@ -60,6 +60,17 @@ services:
       - TZ=Asia/Shanghai
     restart: unless-stopped
 
+  knowledgebase-service:
+    build:
+      context: ./knowledgebase-service
+      dockerfile: Dockerfile_jar
+    container_name: knowledgebase-service
+    networks:
+      - microservice_network
+    environment:
+      - TZ=Asia/Shanghai
+    restart: unless-stopped
+
 networks:
   microservice_network:
     driver: bridge

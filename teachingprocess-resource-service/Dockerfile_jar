@@ -19,4 +19,4 @@ COPY ./target/teachingprocess-resource-service-0.0.1-SNAPSHOT.jar /app/app.jar
 EXPOSE 8080
 
 # 运行时设置 JVM 参数：初始堆内存 256M，最大堆内存 1024M
-ENTRYPOINT ["java", "-Xms128M", "-Xmx512M", "-jar", "/app/app.jar","--server.port=9090"]
+ENTRYPOINT ["java", "-Xms256M", "-Xmx1024M", "-jar", "/app/app.jar","--server.port=9090"]

@@ -108,6 +108,7 @@ public class StreamChatController {
         messages.add(ChatCompletionMessageParam.ofUser(projectRequirementsMeaasgeWithSystem));
         ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请帮我生成10道预备知识检测单选题目");
         messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        messages.forEach(message -> log.debug("消息内容: " + message));
         // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
         SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
         // 使用线程池异步处理，避免阻塞主线程

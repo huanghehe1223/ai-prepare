@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import upc.projectname.projectservice.entity.ChatRequestDTO;
 import upc.projectname.projectservice.utils.OpenAISdkUtils;
+import upc.projectname.projectservice.utils.PromptUtils;
 import upc.projectname.projectservice.utils.StreamRequestUtils;
 import upc.projectname.upccommon.domain.po.Result;
 
@@ -26,6 +27,7 @@ import java.util.List;
 public class SimpleChatController {
     private final StreamRequestUtils streamRequestUtils;
     private final OpenAISdkUtils openAISdkUtils;
+    private final PromptUtils promptUtils;
 
 
     @Operation(summary = "非流式对话")
@@ -48,6 +50,14 @@ public class SimpleChatController {
                 .filter(model -> !"openai-mini".equals(model.id()))
                 .collect(java.util.stream.Collectors.toList());
         return Result.success(models);
+    }
+
+
+    @Operation(summary = "提取结构化的单选题目")
+    @PostMapping("/extractSingleChoice")
+    public  Result<String> extractSingleChoice(@RequestParam String questionString){
+        String structuredSingleChoiceQuestion = promptUtils.extractStructuredSingleChoiceQuestion(questionString);
+        return Result.success(structuredSingleChoiceQuestion);
     }
 
 

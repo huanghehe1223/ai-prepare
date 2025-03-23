@@ -13,7 +13,7 @@ ENV TZ=Asia/Shanghai
 WORKDIR /app
 
 # 复制 Spring Boot 应用的 JAR 文件到容器中
-COPY ./target/upc-gateway-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY ./target/knowledgebase-service-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # 暴露 Spring Boot 应用的默认端口
 EXPOSE 8080

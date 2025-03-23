@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import upc.projectname.projectservice.utils.FastjsonUtils;
 import upc.projectname.projectservice.utils.OpenAISdkUtils;
+import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.upccommon.domain.po.Question;
 
 import java.util.ArrayList;
@@ -231,6 +232,8 @@ class ProjectServiceApplicationTests {
 		question1.setOptionC("17");
 		question1.setOptionD("31");
 		question1.setCorrectAnswer("D");
+		question1.setExplanation("简单的算术问题，两个10相加得20，5加6得11，加起来就是31，选择D选项");
+		question1.setKnowledgePoint("简单加法运算");
 		Question question2 = new Question();
 		question2.setQuestionText("9+1=?");
 		question2.setOptionA("9");
@@ -238,6 +241,8 @@ class ProjectServiceApplicationTests {
 		question2.setOptionC("11");
 		question2.setOptionD("12");
 		question2.setCorrectAnswer("B");
+		question2.setExplanation("简单的算术问题，9加1得10，选择B选项");
+		question2.setKnowledgePoint("简单加法运算");
 		List<Question> questions = new ArrayList<>();
 		questions.add(question1);
 		questions.add(question2);
@@ -297,6 +302,56 @@ class ProjectServiceApplicationTests {
                                 
                 请等待教师提供备课主题、授课对象、授课时长等信息，然后按照上述要求生成内容。""";
 		System.out.println(systemPrompt);
+	}
+
+	@Test
+	void testSimpleChat(){
+		OpenAIClient openAIClient = openAISdkUtils.defaultClient;
+//		String model = "openai-mini";
+//		String model = "deepseek-r1";
+		String model = "gemini-2.0-flash";
+		List<ChatCompletionMessageParam> messages = new ArrayList<>();
+//		 添加系统消息
+        ChatCompletionSystemMessageParam systemMessage = ChatCompletionSystemMessageParam.builder()
+                .content("不管我说什么，用什么语言，你都必须只使用日语回答我")
+                .build();
+        messages.add(ChatCompletionMessageParam.ofSystem(systemMessage));
+
+		ChatCompletionUserMessageParam userMessage = ChatCompletionUserMessageParam.builder()
+				.content("我的名字叫黄河。")
+				.build();
+		messages.add(ChatCompletionMessageParam.ofUser(userMessage));
+		ChatCompletionUserMessageParam userMessage1 = ChatCompletionUserMessageParam.builder()
+				.content("你好")
+				.build();
+		messages.add(ChatCompletionMessageParam.ofUser(userMessage1));
+		ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+				.model(model)
+				.messages(messages)
+				.build();
+        ChatCompletion chatCompletion = openAIClient.chat().completions().create(params);
+		String answer = chatCompletion.choices().get(0).message().content().get();
+		System.out.println(answer);
+//		System.out.println(chatCompletion);
+
+	}
+
+
+	@Test
+	void testPreKnowledge(){
+//		String model = "deepseek-r1";
+//       List<ChatCompletionMessageParam> messages = new ArrayList<> ();
+//       ChatCompletionSystemMessageParam preKnowledgeSystemMessage = promptUtils.getPreKnowledgeSystemMessage();
+//       messages.add(ChatCompletionMessageParam.ofSystem(preKnowledgeSystemMessage));
+//		Project project = new Project();
+//
+//
+//       ChatCompletionUserMessageParam projectRequirementsMeaasgeWithSystem = promptUtils.getProjectRequirementsMeaasgeWithSystem(project);
+//       messages.add(ChatCompletionMessageParam.ofUser(projectRequirementsMeaasgeWithSystem));
+//       ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请帮我生成10道预备知识检测单选题目");
+//       messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+//       messages.forEach(message -> log.debug("消息内容: " + message));
+
 	}
 
 
