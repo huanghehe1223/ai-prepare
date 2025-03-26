@@ -42,5 +42,9 @@ public class Project implements Serializable {
 
     private Integer currentStage; //当前阶段
 
+    private String textbookContent; //相关教材内容
+
+    private String preexerceseResult; //预备知识检测结果
+
 
 }

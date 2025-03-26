@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import upc.projectname.exerciseservice.service.QuestionGroupStatusService;
+import upc.projectname.exerciseservice.service.QuestionService;
 import upc.projectname.upccommon.domain.po.QuestionGroup;
 import upc.projectname.exerciseservice.mapper.QuestionGroupMapper;
 import upc.projectname.exerciseservice.service.QuestionGroupService;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, QuestionGroup> implements QuestionGroupService {
     private final QuestionGroupStatusService questionGroupStatusService;
+    private final QuestionService questionService;
 
 
     @Override
@@ -27,8 +29,8 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
     }
 
     @Override
-    public boolean saveQuestionGroup(QuestionGroup questionGroup) {
-        return this.save(questionGroup);
+    public QuestionGroup saveQuestionGroup(QuestionGroup questionGroup) {
+        return this.save(questionGroup) ? questionGroup : null;
     }
 
     @Override
@@ -38,6 +40,8 @@ public class QuestionGroupServiceImpl extends ServiceImpl<QuestionGroupMapper, Q
 
     @Override
     public boolean deleteQuestionGroup(Integer id) {
+        boolean deleteQuestionsByGroupId = questionService.deleteQuestionsByGroupId(id);
+        if (!deleteQuestionsByGroupId) {return false;}
         return this.removeById(id);
     }
 

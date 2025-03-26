@@ -38,7 +38,7 @@ public interface ProjectMapper extends BaseMapper<Project> {
                     teaching_object = #{teachingObject},
                 </if>
                 <if test="extraReq != null and extraReq != ''">
-                    extra_req = #{extraReq}
+                    extra_req = #{extraReq},
                 </if>
                 <if test="currentStage != null">
                     current_stage = #{currentStage},

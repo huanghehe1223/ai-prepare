@@ -10,7 +10,7 @@ public interface QuestionGroupService extends IService<QuestionGroup> {
 
     QuestionGroup getQuestionGroupById(Integer id);
 
-    boolean saveQuestionGroup(QuestionGroup questionGroup);
+    QuestionGroup saveQuestionGroup(QuestionGroup questionGroup);
 
     boolean updateQuestionGroup(QuestionGroup questionGroup);
 

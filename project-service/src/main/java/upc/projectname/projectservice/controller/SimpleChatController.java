@@ -11,11 +11,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import upc.projectname.projectservice.entity.ChatRequestDTO;
-import upc.projectname.projectservice.utils.OpenAISdkUtils;
-import upc.projectname.projectservice.utils.PromptUtils;
-import upc.projectname.projectservice.utils.StreamRequestUtils;
+import upc.projectname.projectservice.utils.*;
+import upc.projectname.upccommon.api.client.QuestionClient;
+import upc.projectname.upccommon.api.client.QuestionGroupClient;
+import upc.projectname.upccommon.domain.po.Question;
+import upc.projectname.upccommon.domain.po.QuestionGroup;
 import upc.projectname.upccommon.domain.po.Result;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -28,6 +31,9 @@ public class SimpleChatController {
     private final StreamRequestUtils streamRequestUtils;
     private final OpenAISdkUtils openAISdkUtils;
     private final PromptUtils promptUtils;
+    private final QuestionGroupClient questionGroupClient;
+    private final QuestionClient questionClient;
+    private final EducationAutoCompleteUtils educationAutoCompleteUtils;
 
 
     @Operation(summary = "非流式对话")
@@ -55,12 +61,58 @@ public class SimpleChatController {
 
     @Operation(summary = "提取结构化的单选题目")
     @PostMapping("/extractSingleChoice")
-    public  Result<String> extractSingleChoice(@RequestParam String questionString){
+    public  Result<QuestionGroup> extractSingleChoice(@RequestParam String questionString, @RequestParam Integer projectId){
         String structuredSingleChoiceQuestion = promptUtils.extractStructuredSingleChoiceQuestion(questionString);
-        return Result.success(structuredSingleChoiceQuestion);
+        String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredSingleChoiceQuestion);
+        if (extractJsonFromMarkdown == null){
+            log.error("markdown格式数据:{}",structuredSingleChoiceQuestion);
+            return Result.error("提取失败");
+        }
+        try {
+            String replacedJson = extractJsonFromMarkdown.replace("\\", "\\\\");
+            List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+            //创建一个习题组，QuestionGroup,插入到数据库里面
+            QuestionGroup questionGroup = new QuestionGroup();
+            questionGroup.setProjectId(projectId);
+            questionGroup.setGroupType("Pre");
+            questionGroup.setGroupStatus(0);
+            Result<QuestionGroup> questionGroupResult = questionGroupClient.saveQuestionGroup(questionGroup);
+            if (questionGroupResult.getCode() ==0){
+                return Result.error("保存习题组失败");
+            }
+            QuestionGroup newQuestionGroup = questionGroupResult.getData();
+            Integer groupId = newQuestionGroup.getGroupId();
+            questions.forEach(question -> {
+                question.setGroupId(groupId);
+                question.setQuestionType("单选");
+                question.setCreatedAt(LocalDateTime.now());
+                question.setUpdatedAt(LocalDateTime.now());
+            });
+            Result<Boolean> questionResult = questionClient.saveQuestions(questions);
+            if (questionResult.getCode() ==0){
+                return Result.error("保存习题失败");
+            }
+            return Result.success(newQuestionGroup);
+
+        } catch (Exception e) {
+            log.error("反序列化失败",e);
+            System.out.println("json字符串:"+extractJsonFromMarkdown);
+            return Result.error("反序列化失败");
+        }
+
+
+
+
+
+
+
     }
-
-
+    @Operation(summary = "文本补全")
+    @PostMapping("/completion")
+    public Result<String> completion(@RequestParam String inputText, @RequestParam String footerText) {
+        String textCompletion = educationAutoCompleteUtils.getTextCompletion(inputText, footerText);
+        return Result.success(textCompletion);
+    }
 
 
 

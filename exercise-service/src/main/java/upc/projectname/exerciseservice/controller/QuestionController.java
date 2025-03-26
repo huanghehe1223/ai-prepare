@@ -87,4 +87,14 @@ public class QuestionController {
                 Result.success(true, "添加成功") :
                 Result.error("添加失败");
     }
+
+    @Operation(summary = "根据groupId删除question")
+    @DeleteMapping("/group/{groupId}")
+    public Result<Boolean> deleteQuestionsByGroupId(@PathVariable Integer groupId) {
+        return questionService.deleteQuestionsByGroupId(groupId) ?
+                Result.success(true, "删除成功") :
+                Result.error("删除失败");
+    }
+
+
 } 

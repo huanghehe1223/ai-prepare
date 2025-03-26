@@ -21,7 +21,9 @@ public interface ClassMapper extends BaseMapper<Class> {
             INNER JOIN class_student cs ON c.class_id = cs.class_id
             <where>
                 cs.student_id = #{studentId}
-                AND cs.status IS NOT NULL
+                <if test="status != null and status != ''">
+                    AND cs.status = #{status}
+                </if>
                 <if test="className != null and className != ''">
                     AND c.class_name LIKE CONCAT('%', #{className}, '%')
                 </if>
@@ -35,7 +37,8 @@ public interface ClassMapper extends BaseMapper<Class> {
     IPage<Class> getClassesByStudentId(Page<Class> page,
                                        @Param("studentId") Integer studentId,
                                        @Param("className") String className,
-                                       @Param("courseName") String courseName);
+                                       @Param("courseName") String courseName,
+                                       @Param("status") String status);
 
     @Select("""
             <script>

@@ -21,16 +21,17 @@ public class ClassController {
     private final ClassService classService;
 
 
-    @Operation(summary = "根据学生ID、课程名称分页模糊查询班级（业务，token）")
+    @Operation(summary = "根据学生ID、课程名称，状态，分页模糊查询班级（业务，token）")
     @PostMapping("/student")
     public Result<IPage<Class>> getClassesByStudentId(
             @RequestParam Integer studentId,
             @RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer size,
             @RequestParam(required = false) String className,
-            @RequestParam(required = false) String courseName) {
+            @RequestParam(required = false) String courseName,
+            @RequestParam(required = false) String status) {
         Page<Class> page = new Page<>(current, size);
-        IPage<Class> classPage = classService.getClassesByStudentId(page, studentId, className, courseName);
+        IPage<Class> classPage = classService.getClassesByStudentId(page, studentId, className, courseName,status);
         return Result.success(classPage);
     }
 

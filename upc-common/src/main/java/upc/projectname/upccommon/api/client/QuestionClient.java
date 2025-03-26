@@ -27,4 +27,8 @@ public interface QuestionClient {
 
     @DeleteMapping("/question/{id}")
     Result<Boolean> deleteQuestion(@PathVariable Integer id);
+
+    @PostMapping("/question/batch/add")
+    Result<Boolean> saveQuestions(@RequestBody List<Question> questions);
+
 } 

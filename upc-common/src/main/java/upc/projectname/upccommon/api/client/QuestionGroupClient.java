@@ -20,11 +20,13 @@ public interface QuestionGroupClient {
     Result<List<QuestionGroup>> getQuestionGroupsByProjectId(@PathVariable Integer projectId);
 
     @PostMapping("/questiongroup")
-    Result<Boolean> saveQuestionGroup(@RequestBody QuestionGroup questionGroup);
+    Result<QuestionGroup> saveQuestionGroup(@RequestBody QuestionGroup questionGroup);
 
     @PutMapping("/questiongroup")
     Result<Boolean> updateQuestionGroup(@RequestBody QuestionGroup questionGroup);
 
     @DeleteMapping("/questiongroup/{id}")
     Result<Boolean> deleteQuestionGroup(@PathVariable Integer id);
+
+
 } 

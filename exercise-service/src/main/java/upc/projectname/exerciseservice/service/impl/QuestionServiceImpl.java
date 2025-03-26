@@ -58,4 +58,14 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public Boolean saveQuestions(List<Question> questions) {
         return this.saveBatch(questions);
     }
-} 
+
+    @Override
+    public boolean deleteQuestionsByGroupId(Integer groupId) {
+        LambdaQueryWrapper<Question> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Question::getGroupId, groupId);
+        if(this.remove(wrapper)){
+            return true;
+        }
+        return false;
+    }
+}

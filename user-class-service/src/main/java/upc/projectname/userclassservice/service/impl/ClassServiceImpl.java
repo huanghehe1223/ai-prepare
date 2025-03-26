@@ -27,8 +27,8 @@ public class ClassServiceImpl extends ServiceImpl<ClassMapper, Class> implements
     private ClassTeacherMapper classTeacherMapper;
 
     @Override
-    public IPage<Class> getClassesByStudentId(Page<Class> page, Integer studentId, String className, String courseName) {
-        return this.baseMapper.getClassesByStudentId(page, studentId, className, courseName);
+    public IPage<Class> getClassesByStudentId(Page<Class> page, Integer studentId, String className, String courseName,String status) {
+        return this.baseMapper.getClassesByStudentId(page, studentId, className, courseName,status);
     }
 
     @Override

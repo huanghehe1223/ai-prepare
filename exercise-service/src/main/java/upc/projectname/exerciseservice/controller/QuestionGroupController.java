@@ -47,10 +47,11 @@ public class QuestionGroupController {
 
     @Operation(summary = "新增题目组（业务）")
     @PostMapping
-    public Result<Boolean> saveQuestionGroup(@RequestBody QuestionGroup questionGroup) {
-        return questionGroupService.saveQuestionGroup(questionGroup) ?
-                Result.success(true, "添加成功") :
-                Result.error("添加失败");
+    public Result<QuestionGroup> saveQuestionGroup(@RequestBody QuestionGroup questionGroup) {
+        //添加习题组
+        QuestionGroup savedQuestionGroup = questionGroupService.saveQuestionGroup(questionGroup);
+        //判断null条件
+        return savedQuestionGroup != null ? Result.success(savedQuestionGroup) : Result.error("添加失败");
     }
 
     @Operation(summary = "更新题目组信息")

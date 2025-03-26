@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ClassService extends IService<Class> {
 
-    IPage<Class> getClassesByStudentId(Page<Class> page, Integer studentId, String className, String courseName);
+    IPage<Class> getClassesByStudentId(Page<Class> page, Integer studentId, String className, String courseName,String status);
 
     Class getClassById(Integer id);
 

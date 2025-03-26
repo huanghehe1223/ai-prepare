@@ -182,6 +182,7 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
         OpenAIClient openAIClient = openAISdkUtils.defaultClient;
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(model)
+                .maxTokens(16000)
                 .messages(messages)
                 .build();
 

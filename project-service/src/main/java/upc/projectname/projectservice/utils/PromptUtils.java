@@ -21,13 +21,14 @@ public class PromptUtils {
 
 
 
+    //传入prompt,构建用户消息
     public ChatCompletionUserMessageParam getUserMessage(String prompt){
         ChatCompletionUserMessageParam userMessage = ChatCompletionUserMessageParam.builder()
                 .content(prompt)
                 .build();
         return userMessage;
     }
-
+    //传入prompt,构建system消息
     public ChatCompletionSystemMessageParam getSystemMessage(String prompt){
         ChatCompletionSystemMessageParam systemMessage = ChatCompletionSystemMessageParam.builder()
                 .content(prompt)
@@ -40,49 +41,60 @@ public class PromptUtils {
     public ChatCompletionSystemMessageParam getPreKnowledgeSystemMessage() {
         String systemPrompt = """
                 # 身份定位：教师备课预备知识检测题生成助手
-
-                你是一名教师备课助手，你的核心任务是生成高质量的预备知识检测单选题。这些题目用于帮助教师评估学生对即将学习内容所需前置知识的掌握程度。请严格遵循以下指导原则：
-
+                
+                你是一名教师备课助手，你的核心任务是生成高质量的预备知识检测单选题。这些题目用于帮助教师评估学生对即将学习内容所需前置知识的掌握程度。
+                
                 ## 主要职责
                 1. 分析教师提供的备课主题，准确识别相关的前置知识点
-                2. 根据提供的知识图谱数据（如有），筛选与当前主题直接相关的预备知识，忽略不相关内容
+                2. 根据提供的知识图谱数据（如有），筛选与当前主题直接相关的内容，忽略不相关内容
                 3. 为每个关键前置知识点设计单选题，确保题目能有效检测学生的实际掌握程度
-                4. 提供全面的题目解析，清晰说明解答此题的逻辑或步骤。
-
+                4. 提供全面的题目解析，清晰说明解答此题的逻辑或步骤
+                
                 ## 输出规范
-                针对教师提供的备课信息，你需要生成：
-
+                针对教师提供的备课信息，你必须完整生成以下内容，不得以任何理由省略或简化：
+                
                 1. **检测题目集**：
-                   - 每道题目包含：题干、4个选项(A-D)、正确答案、关联知识点，题目解析
-                   - **题干**：清晰、准确地描述问题。
-                   - **选项**：提供 4 个选项，其中 1 个为正确答案，其他 3 个为干扰项。
-                   - **正确答案**：标明正确选项。
-                   - **关联知识点**：该题目考察的知识点，要求是简洁的短语
-                   - **题目解析**：清晰说明解答此题的逻辑或步骤。
+                   - 根据教师要求生成指定数量的题目（如未指定，默认生成10道题）
+                   - 每两道题目之间使用分割线（---）隔开
+                   - 每道题目必须完整包含以下所有部分：
+                     - **题号和题干**：清晰、准确地描述问题
+                     - **四个选项**：必须提供完整的A、B、C、D四个选项，其中1个为正确答案，其他3个为干扰项
+                     - **正确答案**：明确标明哪一个是正确选项
+                     - **关联知识点**：该题目考察的具体知识点（简洁短语）
+                     - **题目解析**：清晰说明解答此题的逻辑或步骤
                 
                 2. **使用建议**：
-                   - 简要建议教师如何利用测试结果调整教学策略
-
+                   - 针对这套题目提供具体的教学建议，包括如何根据测试结果调整教学策略
+                
+                ## 公式输出格式
+                如果题目中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式
+                
                 ## 题目设计原则
                 - 题目必须检测实际知识掌握情况，不是简单的"你是否学过"调查问卷
                 - 难度适中，需要学生进行思考和应用知识
                 - 选项设计合理，具有适当的干扰性
                 - 题目应直接关联到即将教授主题所需的预备知识
                 - 考虑授课对象的认知水平和学习阶段
-
-                ## 注意事项
+                
+                ## 强制要求
+                - 无论篇幅多长，都必须完整提供每道题目的所有组成部分，不得简化或省略
+                - 不得以"篇幅限制"为由减少题目数量或简化题目内容
+                - 如果教师指定了题目数量，必须严格按照要求生成，不多不少
+                - 所有题目必须包含完整的四个选项和详细解析
                 - 严格关注前置知识，而非当前备课主题本身的内容
-                - 根据提供的授课对象和时长，调整题目的难度和数量
-                - 当提供知识图谱数据时，优先使用其中与备课主题相关的内容，忽略不相关部分
-                - 保持专业、清晰的语言表述，适合教育场景使用
-
-                请等待教师提供备课主题、授课对象、授课时长等信息，然后按照上述要求生成内容。""";
+                
+                请等待教师提供备课主题、授课对象、授课时长和所需题目数量等信息，然后按照上述要求生成完整内容。""";
         ChatCompletionSystemMessageParam systemMessage = ChatCompletionSystemMessageParam.builder()
                 .content(systemPrompt)
                 .build();
         return systemMessage;
     }
-    //生成备课项目要求的用户消息
+
+    //生成备课项目要求的用户消息，用于预备知识检测题目的生成
     public ChatCompletionUserMessageParam getProjectRequirementsMeaasgeWithSystem(Project project){
         //教学主题
         String teachingTheme = project.getTeachingTheme();
@@ -90,23 +102,180 @@ public class PromptUtils {
         String teachingObject = project.getTeachingObject();
         //额外要求
         String extraReq = project.getExtraReq();
-        if (extraReq == null){
-            extraReq = "无";
-        }
         //教学时长
         Integer teachingDuration = project.getTeachingDuration();
-       String userPrompt = """
+        //教材相关内容
+        String textbookContent = project.getTextbookContent();
+
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+
+        String userPrompt = "";
+        if (textbookContent == null||textbookContent.isEmpty()){
+            userPrompt = """
+                    教学主题为: %s
+                    授课对象为: %s
+                    教学时长为: %d分钟
+                    额外要求为: %s""".formatted(teachingTheme,teachingObject,teachingDuration,extraReq);
+        }
+        else{
+            userPrompt = """
                教学主题为: %s
                授课对象为: %s
                教学时长为: %d分钟
-               额外要求为: %s""".formatted(teachingTheme,teachingObject,teachingDuration,extraReq);
+               额外要求为: %s
+               <attachment>
+               #教材知识图谱中检索到的内容:
+               将教学主题作为查询参数从教材的图数据库里面检索到的节点与关系
+               ```json
+               %s
+               ```
+               </attachment>
+               对于检索到的内容，只考虑与教学主题直接相关的内容，忽略不相关内容""".formatted(teachingTheme,teachingObject,teachingDuration,extraReq,textbookContent);
+        }
+       ChatCompletionUserMessageParam userMessage = getUserMessage(userPrompt);
 
-       ChatCompletionUserMessageParam userMessage = ChatCompletionUserMessageParam.builder()
-               .content(userPrompt)
-               .build();
-         return userMessage;
+       return userMessage;
 
     }
+
+
+    //获得学生预备知识掌握情况，的Prompt
+    public  String gerStudentPreKnowledgeMasteryPrompt(Project project){
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        //额外要求
+        String extraReq = project.getExtraReq();
+        //教学时长
+        Integer teachingDuration = project.getTeachingDuration();
+        //预备知识检测结果
+        String preexerceseResult = project.getPreexerceseResult();
+
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+        String userPrompt = """
+                <attachment>
+                # 预备知识检测结果
+                整个班级所有学生的预备知识检测习题的做题情况:
+                ```json
+                %s
+                ```
+                </attachment>
+                
+                ---
+                
+                # 任务背景
+                我是一名老师，正在为一节课程进行备课。
+                以下是课程的基本信息：
+                - **授课主题**：%s
+                - **授课对象**：%s
+                - **授课时长**：%d分钟
+                - **额外要求**：%s
+                为了更好地准备本次课程，我需要对班级整体的预备知识掌握情况进行分析。
+                
+                ---
+                
+                # 附件内容说明
+                - 附件中提供的是**每道题各选项的选择分布**，旨在帮助老师了解全班学生对当前课程（主题为%s）所需前置知识的整体掌握情况。
+                # 任务要求与描述
+                1. **对班级整体情况进行学情分析**
+                   - 结合各题选项分布，判断学生对当前课程前置知识的理解程度；
+                   - 着重指出掌握较好或明显薄弱的前置知识点（或常见易错点）。
+                2. **简练且有针对性**
+                   - **提炼总结**班级整体的预备知识掌握情况，不要逐条复述具体的选项分布数据。
+                   - 分析内容简洁明了，突出重点，不要过长。
+                   - 重点关注班级整体表现，突出高频错误与主要不足之处。""".formatted(preexerceseResult,teachingTheme,teachingObject,teachingDuration,extraReq,teachingTheme);
+        return userPrompt;
+    }
+
+
+    //获得教学目标的Prompt
+    public String getTeachingAimsPrompt(Project project){
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        //额外要求
+        String extraReq = project.getExtraReq();
+        //教学时长
+        Integer teachingDuration = project.getTeachingDuration();
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+        //学生预备知识掌握情况
+        String studentAnalysis = project.getStudentAnalysis();
+        //教科书相关节点与关系
+        String textbookContent = project.getTextbookContent();
+        String userPrompt = """
+                <attachment>
+                # 教材知识图谱中检索到的内容:
+                将教学主题作为查询参数，从教材的图数据库里面检索到的关系与节点信息:
+                ```json
+                %s
+                ```
+                </attachment>
+                
+                ---
+                
+                <attachment>
+                # 预备知识掌握情况分析结果
+                根据全班学生的预备知识检测结果，得到班级中学生对当前课程**预备知识**的整体掌握情况：
+                ```txt
+                %s
+                ```
+                </attachment>
+                
+                ---
+                
+                # 任务背景
+                我是一名老师，正在为一节课程进行备课。
+                以下是课程的基本信息：
+                - **授课主题**：%s；
+                - **授课对象**：%s；
+                - **授课时长**：%d分钟；
+                - **额外要求**：%s；
+                我的目标是生成课程的教学目标，要求教学目标能够反映本课程的核心内容，并适应学生的学习情况。
+                
+                ---
+                
+                # 附件内容说明
+                1. **附件1**：
+                   教学主题在教材图数据库中检索到的相关关系与节点信息。请只考虑与授课主题直接相关的内容，忽略不相关内容。
+                2. **附件2**：
+                   班级中学生对当前课程（课程主题为:%s）预备知识与前置知识的整体掌握情况。
+                
+                ---
+                
+                # 任务要求与描述
+                1. **授课主题**：围绕课程主题，明确教学目标的核心内容。
+                2. **授课对象**：结合学生的年龄、知识水平和学习特点，确保教学目标适合学生的实际情况。
+                3. **授课时长**：考虑授课时间，确保教学目标的内容和深度适配课程时长。
+                4. **教材内容**：参考教材知识图谱中检索到的与授课主题相关的节点和关系信息，确保教学目标与教材内容紧密结合。
+                5. **学生预备知识**：根据学生的预备知识掌握情况，调整教学目标的难度和层次，确保目标既有挑战性又不过于困难。
+                
+                ---
+                
+                # 输出要求
+                1. 教学目标内容要考虑全面，同时简洁明了，条理清晰。
+                2. 教学目标能够体现课程的重点和学生的学习需求。
+                3. 教学目标数量适当，符合授课时长要求。""".formatted(textbookContent,studentAnalysis,teachingTheme,teachingObject,teachingDuration,extraReq,teachingTheme);
+        return userPrompt;
+
+    }
+
+
+
+
+
+
+
+
+
+
 
     //提取结构化的单选题目
     public String extractStructuredSingleChoiceQuestion(String questionString){
@@ -197,14 +366,10 @@ public class PromptUtils {
                 从以上文本中提取结构化的单选题目，只输出markdown格式的json数据，不要任何额外的多余的内容""".formatted(questionString);
         ChatCompletionUserMessageParam userMessage = getUserMessage(prompt);
         messages.add(ChatCompletionMessageParam.ofUser(userMessage));
-        //按顺序打印每个messages列表中的每个元素的消息content
+        //打印每一个元素的消息content
         messages.forEach(message -> log.debug("消息内容: " + message));
 
-
-
-
-
-        String model = "openai-mini";
+        String model = "gemini-2.0-flash";
         ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
         return chatCompletion.choices().get(0).message().content().get();
     }
