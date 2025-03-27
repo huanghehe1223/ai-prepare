@@ -165,6 +165,44 @@ public class StreamChatController {
         return emitter;
     }
 
+    @Operation(summary = "生成教学目标对话")
+    @PostMapping(value = "/TeachingAims/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getTeachingAims(@PathVariable Integer projectId,@RequestBody ChatRequestDTO chatRequest) {
+
+        //原始消息
+        List<ChatCompletionMessageParam> messages = chatRequest.getMessages();
+        //模型名称
+        String model = chatRequest.getModel();
+        //最后一条消息内容
+        String lastUserMessageText = messageProcessUtils.extractLastUserMessageText(messages);
+        Project project = projectService.getProjectById(projectId);
+        //最开始的用户提示词
+        String userPrompt = promptUtils.getTeachingAimsPrompt(project);
+        //最前面添加一条用户消息
+        List<ChatCompletionMessageParam> addedFirstUserMessage = messageProcessUtils.addFirstUserMessage(messages, userPrompt);
+        System.out.println("lastUserMessageText: " + lastUserMessageText);
+        String newText = """
+                %s  请直接生成新一版的教学目标，并把整个内容完整地响应给我。""".formatted(lastUserMessageText);
+
+        //修改最后一条用户消息
+        List<ChatCompletionMessageParam> fimalMessages = messageProcessUtils.modifyLastUserMessage(addedFirstUserMessage, newText);
+        fimalMessages.forEach(message -> System.out.println("消息内容: " + message));
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.StreamRequestChat(model, fimalMessages, emitter);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+
+        return emitter;
+    }
+
+
+
+
 
 
 

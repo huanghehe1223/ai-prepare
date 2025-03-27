@@ -48,7 +48,7 @@ public class EducationAutoCompleteUtils {
 
 
 
-    public  String getTextCompletion(String inputText, String footerText) {
+    public  String getTextCompletion(String inputText, String footerText,Integer maxTokens) {
         try {
 
             // 创建请求参数
@@ -56,7 +56,7 @@ public class EducationAutoCompleteUtils {
                     .model(MODEL)
                     .prompt(inputText)
                     .suffix(footerText)
-                    .maxTokens(MAX_TOKENS) // 使用计算后的最大token数
+                    .maxTokens(maxTokens) // 使用计算后的最大token数
                     .build();
 
             // 创建OpenAI客户端

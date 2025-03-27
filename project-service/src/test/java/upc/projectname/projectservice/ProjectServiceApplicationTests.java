@@ -16,6 +16,7 @@ import upc.projectname.projectservice.utils.EducationAutoCompleteUtils;
 import upc.projectname.projectservice.utils.FastjsonUtils;
 import upc.projectname.projectservice.utils.OpenAISdkUtils;
 import upc.projectname.projectservice.utils.PromptUtils;
+import upc.projectname.upccommon.api.client.QuestionClient;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.upccommon.domain.po.Question;
 
@@ -284,6 +285,10 @@ class ProjectServiceApplicationTests {
 
 	}
 
+
+
+
+
 	@Test
 	void  checkPrompt(){
 		String systemPrompt = """
@@ -411,6 +416,8 @@ class ProjectServiceApplicationTests {
 		}
 	}
 
+	@Autowired
+	QuestionClient questionClient;
 	@Test
 	void  testPraseJson(){
 		String test2 = """
@@ -518,14 +525,15 @@ class ProjectServiceApplicationTests {
 				]
 				""";
 		System.out.println("test2: "+test2);
-		String replace = test2.replace("\\", "\\\\");
-		System.out.println("replace: "+replace);
+//		String replace = test2.replace("\\", "\\\\");
+//		System.out.println("replace: "+replace);
 
-		List<Question> questions = FastjsonUtils.parseArray(replace, Question.class);
-		System.out.println(questions);
-		Question question = questions.get(0);
-
-		System.out.println("explanation: "+question.getExplanation());
+		List<Question> questions = FastjsonUtils.parseArray(test2, Question.class);
+//		System.out.println(questions);
+//		Question question = questions.get(0);
+//		questionClient.saveQuestion(question);
+//
+//		System.out.println("explanation: "+question.getExplanation());
 
 
 	}
@@ -548,11 +556,9 @@ class ProjectServiceApplicationTests {
 
 	@Test
 	void testFormat(){
-		String test2 = "我爱%";
-		String test3 = """
-				%s
-				50""".formatted(test2);
-		System.out.println(test3);
+		String test2 = "$\\{1\\}$";
+
+		System.out.println(test2);
 
 	}
 
@@ -561,9 +567,261 @@ class ProjectServiceApplicationTests {
 
 	@Test
 	void testCompletion(){
-		String textCompletion = educationAutoCompleteUtils.getTextCompletion("你好", "字是黄河");
+		String textCompletion = educationAutoCompleteUtils.getTextCompletion("你好", "字是黄河",250);
 		System.out.println(textCompletion);
 	}
+
+	@Test
+	void testString11(){
+		String test2 = "\\\"使得$i^{2}=-1$\\\"";
+		System.out.println(test2);
+	}
+
+
+
+	@Test
+	void testDatabaseString() {
+		String questionString = """
+				根据教学主题和知识图谱，生成以下10道预备知识检测题：
+				
+				---
+				
+				**题目1**
+				下列哪个选项是虚数单位$i$的定义式？
+				A) $i^2 = 1$
+				B) $i^2 = 0$
+				C) $i^2 = -1$
+				D) $i^2 = 2$
+				
+				**正确答案**：C
+				**关联知识点**：虚数单位定义
+				**解析**：虚数单位$i$由方程$x^2+1=0$的解引出，其核心定义式为$i^2 = -1$。选项C符合教材中"使得$i^{2}=-1$"的原始定义。
+				
+				---
+				
+				**题目2**
+				复数的标准代数形式是：
+				A) $a + ib$（$a,b∈ℝ$）
+				B) $ai + b$（$a,b∈ℕ$）
+				C) $a + b$（$a,b∈ℤ$）
+				D) $a \\cdot i$（$a∈ℝ$）
+				
+				**正确答案**：A
+				**关联知识点**：复数表示形式
+				**解析**：教材明确指出复数由有序实数对构成，标准形式为$a+bi$（实部在前，虚部在后），其中$a,b$为实数，符合数系扩充的规范。
+				
+				---
+				
+				**题目3**
+				若两个复数$z_1=a+bi$与$z_2=c+di$相等，则必须满足：
+				A) $a = c$
+				B) $b = d$
+				C) $a = d$且$b = c$
+				D) $a = c$且$b = d$
+				
+				**正确答案**：D
+				**关联知识点**：复数相等条件
+				**解析**：复数相等的充要条件是实部与虚部分别相等，即同时满足$a=c$和$b=d$，这体现了复数作为有序实数对的本质。
+				
+				---
+				
+				**题目4**
+				复数$z = 3 - 4i$中，实部与虚部分别是：
+				A) 实部3，虚部-4
+				B) 实部3，虚部4
+				C) 实部-4，虚部3
+				D) 实部3i，虚部-4
+				
+				**正确答案**：A
+				**关联知识点**：复数结构分析
+				**解析**：在标准形式$a+bi$中，实部为$a$，虚部为$b$（注意虚部是不含$i$的实数部分），因此$3-4i$的实部是3，虚部是-4。
+				
+				---
+				
+				**题目5**
+				方程$x^2 = -1$的解集是：
+				A) $\\{1\\}$
+				B) $\\{i\\}$
+				C) $\\{i, -i\\}$
+				D) 无解
+				
+				**正确答案**：C
+				**关联知识点**：复数解方程
+				**解析**：引入虚数单位$i$后，方程$x^2=-1$的解为$x=±i$，这是复数概念产生的直接动因之一。
+				
+				---
+				
+				**题目6**
+				数系扩充的正确顺序是：
+				A) 自然数→整数→复数→实数
+				B) 自然数→实数→有理数→复数
+				C) 自然数→整数→有理数→实数→复数
+				D) 整数→自然数→有理数→复数→实数
+				
+				**正确答案**：C
+				**关联知识点**：数系扩充历程
+				**解析**：历史发展顺序为自然数→整数（解决减法封闭）→有理数（解决除法封闭）→实数（解决无理数问题）→复数（解决方程解集封闭），选项C正确反映了这一过程。
+				
+				---
+				
+				**题目7**
+				下列哪个是纯虚数？
+				A) $0$
+				B) $3+0i$
+				C) $0-2i$
+				D) $5i+5$
+				
+				**正确答案**：C
+				**关联知识点**：纯虚数定义
+				**解析**：纯虚数要求实部为0而虚部非零，$0-2i$可简写为$-2i$，满足纯虚数定义，而选项B是实数，D是普通复数。
+				
+				---
+				
+				**题目8**
+				关于复数集，正确的说法是：
+				A) 复数包含所有实数
+				B) 虚数都是纯虚数
+				C) 实数集与复数集没有交集
+				D) $i$是实数
+				
+				**正确答案**：A
+				**关联知识点**：复数集与实数集关系
+				**解析**：复数集$ℂ$包含所有实数（当虚部为0时）和虚数，因此选项A正确。选项B错误因为虚数包含纯虚数和非纯虚数，C错误因实数是复数的子集，D显然错误。
+				
+				---
+				
+				**题目9**
+				复数$z=2+3i$对应的复平面坐标是：
+				A) $(2,3)$
+				B) $(3,2)$
+				C) $(2,3i)$
+				D) $(3i,2)$
+				
+				**正确答案**：A
+				**关联知识点**：复数的几何表示
+				**解析**：在复平面中，复数$a+bi$对应点的坐标为$(a,b)$，因此$2+3i$对应点$(2,3)$，体现复数与坐标平面的一一对应关系。
+				
+				---
+				
+				**题目10**
+				当判别式$Δ = b^2-4ac < 0$时，方程$ax^2+bx+c=0$的解的情况是：
+				A) 有两个相等实根
+				B) 有两个不等实根
+				C) 没有实根但有复数根
+				D) 没有解
+				
+				**正确答案**：C
+				**关联知识点**：复数解必要性
+				**解析**：这正是教材中引出复数概念的背景：当判别式小于0时，方程在实数范围内无解，但在复数范围内有两个共轭虚根。
+				
+				---
+				
+				### 使用建议：
+				1. **测试实施**：建议用15分钟完成测试，重点观察第3、5、10题的通过率，这些题直接关联复数引入的必要性
+				2. **分层指导**：
+				   - 错题超过4道的学生：需补充数系扩充史、二次方程求根公式推导
+				   - 错题在2-3道的学生：加强复数代数运算专项训练
+				   - 全对的学生：可提前布置复数的几何意义探究任务
+				3. **教学调整**：若第6题错误率高，需在正式授课时插入数系扩充的对比表格；若第9题错误多，应加强复数几何表示的直观教学
+				
+				所有题目均包含LaTeX公式，严格遵循教材知识图谱中关于复数概念的原始定义和核心知识点，确保检测结果能准确反映学生对复数基础概念的掌握程度。
+				从以上文本中提取结构化的单选题目，只输出markdown格式的json数据，不要任何额外的多余的内容""";
+		String structuredSingleChoiceQuestion = promptUtils.extractStructuredSingleChoiceQuestion(questionString);
+		System.out.println("提取的markdown格式数据:"+structuredSingleChoiceQuestion);
+		String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredSingleChoiceQuestion);
+		System.out.println("提取的json数据:"+extractJsonFromMarkdown);
+		String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+		System.out.println("替换后的json数据:"+replacedJson);
+		System.out.println(replacedJson.equals(extractJsonFromMarkdown));
+		List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+		System.out.println(questions);
+	}
+
+	@Test
+	void testJsonUtils1()
+	{
+		Question question1 = new Question();
+		question1.setQuestionText("15+16=?");
+		question1.setOptionA("15");
+		question1.setOptionB("16");
+		question1.setOptionC("17");
+		question1.setOptionD("31");
+		question1.setCorrectAnswer("D");
+		question1.setExplanation("简单的算术问题，两个10相加得20，5加6得11，加起来就是31，选择D选项");
+		question1.setKnowledgePoint("简单加法运算");
+		Question question2 = new Question();
+		question2.setQuestionText("9+1=?");
+		question2.setOptionA("9");
+		question2.setOptionB("10");
+		question2.setOptionC("11");
+		question2.setOptionD("12");
+		question2.setCorrectAnswer("B");
+		question2.setExplanation("简单的算术问题，9加1得10，选择B选项");
+		question2.setKnowledgePoint("简单\"加法\"运算，A) $\\{1\\}$， $a \\cdot i$（$a∈ℝ$）");
+		System.out.println("knowledgePoint: "+question2.getKnowledgePoint());
+		List<Question> questions = new ArrayList<>();
+		questions.add(question1);
+		questions.add(question2);
+		String jsonString = FastjsonUtils.toJsonString(questions);
+//		System.out.println(jsonString);
+		StringBuilder markdownJson = new StringBuilder();
+		markdownJson.append("```json\n");
+		markdownJson.append(jsonString);
+		markdownJson.append("\n```");
+		// 输出最终的Markdown格式JSON字符串
+		String finalMarkdownJson = markdownJson.toString();
+		System.out.println("finalMarkdownJson: "+finalMarkdownJson);
+
+		 String originJson = FastjsonUtils.extractJsonFromMarkdown(finalMarkdownJson);
+		System.out.println("originJson: "+originJson);
+//
+		List<Question> questions1 = FastjsonUtils.parseArray(originJson, Question.class);
+		System.out.println(questions1);
+
+
+	}
+
+
+	@Test
+	void  testDanyinhao(){
+		String test2 = "'你'是一个字";
+		System.out.println(test2);
+	}
+
+	@Test
+	void testZhengze(){
+
+		String str1 = "$a \\cdot i$（$a∈ℝ$）";
+		String str2 = "$a \\\\cdot i$（$a∈ℝ$）";
+		String str3 = "选项C符合教材中\\\"使得$i^{2}=-1$\\\"的原始定义。";
+		String str4 = "$\\\\{1\\\\}$\"";
+		System.out.println(str1);
+		System.out.println(str2);
+		System.out.println(str3);
+		System.out.println(str4);
+		String text = "test ef text mnef text efab text mnefab";
+		String result = str1.replaceAll("(?<!\\\\)\\(?![\"\\\\ntrfbu0-7])", "xyz");
+		System.out.println(result);
+
+	}
+
+	@Test
+	void test999(){
+		String str1 = "$a \\cdot i$（$a∈ℝ$）";
+		String str2 = "$a \\\\cdot i$（$a∈ℝ$）";
+		String str3 = "选项C符合教材中\\\"使得$i^{2}=-1$\\\"的原始定义。";
+		String str4 = "$\\\\{1\\\\}$\"";
+		String result1 = str1.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+		System.out.println("result1: "+result1);
+		String result2 = str2.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+		System.out.println("result2: "+result2);
+		String result3 = str3.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+		System.out.println("result3: "+result3);
+		String result4 = str4.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+		System.out.println("result4: "+result4);
+	}
+
+
 
 
 

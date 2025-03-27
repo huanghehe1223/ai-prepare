@@ -306,6 +306,15 @@ public class PromptUtils {
                   }
                 ]
                 ```
+                
+                ## LaTeX公式处理
+                当题目中包含LaTeX公式时，需要特别注意以下处理规则：
+                1. 所有LaTeX公式中的反斜杠(\\)需要在JSON中进行转义，使用双反斜杠(\\\\)表示。
+                2. 例如，原始公式 `a \\cdot i` 在JSON中应表示为 `a \\\\cdot i`。
+                3. 其他特殊字符如引号(")、反斜杠(\\)等也需要按照JSON规范进行适当转义。
+                4. 确保所有数学符号和公式在转换后仍然保持原有含义和格式。
+                5. 简单来说，就是所有的\\符号全部转义成\\\\，"转义成\\"，以此类推。
+                
                 ## 输出示例
                 ```json
                 [
@@ -367,11 +376,12 @@ public class PromptUtils {
         ChatCompletionUserMessageParam userMessage = getUserMessage(prompt);
         messages.add(ChatCompletionMessageParam.ofUser(userMessage));
         //打印每一个元素的消息content
-        messages.forEach(message -> log.debug("消息内容: " + message));
+//        messages.forEach(message -> log.debug("消息内容: " + message));
 
         String model = "gemini-2.0-flash";
         ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
-        return chatCompletion.choices().get(0).message().content().get();
+        String string = chatCompletion.choices().get(0).message().content().get();
+        return string;
     }
 
 

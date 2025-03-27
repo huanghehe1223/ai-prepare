@@ -22,7 +22,7 @@ public class OpenAISdkUtils {
 //        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OpenAIClient client = OpenAIOkHttpClient.builder()
                 .apiKey(apiKey)
-                .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1",7992)))
+//                .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1",7992)))
 //                .jsonMapper(objectMapper)
                 .baseUrl(baseUrl)
                 .build();
