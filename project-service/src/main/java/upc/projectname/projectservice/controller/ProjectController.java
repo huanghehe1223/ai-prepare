@@ -1,16 +1,21 @@
 package upc.projectname.projectservice.controller;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import upc.projectname.projectservice.utils.TextBookUtils;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.projectservice.service.ProjectService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "项目管理接口")
 @RestController
@@ -103,7 +108,9 @@ public class ProjectController {
                                          @RequestParam(value = "teachingTheme",required = false) String teachingTheme,
                                          @RequestParam(value = "teachingObject",required = false) String teachingObject,
                                          @RequestParam(value = "extraReq",required = false) String extraReq,
-                                         @RequestParam(value = "currentStage",required = false) Integer currentStage) {
+                                         @RequestParam(value = "currentStage",required = false) Integer currentStage,
+                                         @RequestParam(value = "textbookContent",required = false) String textbookContent,
+                                         @RequestParam(value = "preexerceseResult",required = false) String preexerceseResult) {
         // 判断除了projectId外的所有参数是否都为空
         if (classId == null
                 && teachingAims == null
@@ -114,16 +121,29 @@ public class ProjectController {
                 && teachingTheme == null
                 && teachingObject == null
                 && extraReq == null
-                && currentStage == null) {
+                && currentStage == null
+                && textbookContent == null
+                && preexerceseResult == null) {
             return Result.error("更新失败：至少需要一个更新参数");
         }
 
         return projectService.changeProject(projectId, classId, teachingAims, studentAnalysis,
                 knowledgePoints, teachingContent, teachingDuration, teachingTheme,
-                teachingObject, extraReq,currentStage) ?
+                teachingObject, extraReq,currentStage,textbookContent,preexerceseResult) ?
                 Result.success(true, "更新成功") :
                 Result.error("更新失败");
     }
+    @Operation(summary = "从教材图数据库中检索节点与关系(业务)")
+    @PostMapping("/search")
+    public Result<String> searchFromTextBook(@RequestParam String query,@RequestParam String databaseName,@RequestParam Integer projectId) {
+        String results = TextBookUtils.getVectorResults(query,databaseName);
+        projectService.changeProject(projectId,null,null,null,null,null,null,null,null,null,null,results,null);
+        JSONArray jsonArray = JSON.parseArray(results);
+        String content1 = jsonArray.stream().map(item -> ((JSONObject) item).getString("index")+"\n"+((JSONObject) item).getString("content")).collect(Collectors.joining("\n"));
+        return Result.success(content1);
+    }
+
+
 
 
 } 

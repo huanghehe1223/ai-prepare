@@ -68,10 +68,12 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                                  String teachingTheme,
                                  String teachingObject,
                                  String extraReq,
-                                 Integer currentStage) {
+                                 Integer currentStage,
+                                 String textbookContent,
+                                 String preexerceseResult) {
         return this.baseMapper.updateProjectSelective(
                 projectId, classId, teachingAims, studentAnalysis,
                 knowledgePoints, teachingContent, teachingDuration,
-                teachingTheme, teachingObject, extraReq,currentStage) > 0;
+                teachingTheme, teachingObject, extraReq,currentStage,textbookContent,preexerceseResult) > 0;
     }
 } 

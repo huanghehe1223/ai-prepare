@@ -35,6 +35,8 @@ public class StudentAnswerResult {
     private String knowledgePoint; //关联知识点
 
 
+
+
     //以下字段来自answer_record表
     private String answerResult;  //正确，错误
 

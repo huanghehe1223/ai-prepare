@@ -43,20 +43,30 @@ public interface ProjectMapper extends BaseMapper<Project> {
                 <if test="currentStage != null">
                     current_stage = #{currentStage},
                 </if>
+                 
+                 <if test="textbookContent != null and textbookContent != ''">
+                    textbook_content = #{textbookContent},
+                </if>
+                 
+                 <if test="preexerceseResult != null and preexerceseResult != ''">
+                    preexercese_result = #{preexerceseResult},
+                </if>
      
             </set>
             WHERE project_id = #{projectId}
             </script>
             """)
     int updateProjectSelective(@Param("projectId") Integer projectId,
-                             @Param("classId") Integer classId,
-                             @Param("teachingAims") String teachingAims,
-                             @Param("studentAnalysis") String studentAnalysis,
-                             @Param("knowledgePoints") String knowledgePoints,
-                             @Param("teachingContent") String teachingContent,
-                             @Param("teachingDuration") Integer teachingDuration,
-                             @Param("teachingTheme") String teachingTheme,
-                             @Param("teachingObject") String teachingObject,
-                             @Param("extraReq") String extraReq,
-                             @Param("currentStage") Integer currentStage);
+                               @Param("classId") Integer classId,
+                               @Param("teachingAims") String teachingAims,
+                               @Param("studentAnalysis") String studentAnalysis,
+                               @Param("knowledgePoints") String knowledgePoints,
+                               @Param("teachingContent") String teachingContent,
+                               @Param("teachingDuration") Integer teachingDuration,
+                               @Param("teachingTheme") String teachingTheme,
+                               @Param("teachingObject") String teachingObject,
+                               @Param("extraReq") String extraReq,
+                               @Param("currentStage") Integer currentStage,
+                               @Param("textbookContent") String textbookContent,
+                               @Param("preexerceseResult") String preexerceseResult);
 } 

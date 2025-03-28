@@ -12,17 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import upc.projectname.projectservice.utils.EducationAutoCompleteUtils;
-import upc.projectname.projectservice.utils.FastjsonUtils;
-import upc.projectname.projectservice.utils.OpenAISdkUtils;
-import upc.projectname.projectservice.utils.PromptUtils;
+import upc.projectname.projectservice.utils.*;
 import upc.projectname.upccommon.api.client.QuestionClient;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.upccommon.domain.po.Question;
+import upc.projectname.upccommon.domain.po.Result;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @SpringBootTest
@@ -820,6 +819,48 @@ class ProjectServiceApplicationTests {
 		String result4 = str4.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
 		System.out.println("result4: "+result4);
 	}
+
+
+
+	@Test
+	void getTextbook(){
+		//黄河:
+		//u0-ss-math-rja-bx2
+		//
+		//黄河:
+		//复数的概念
+		String results = TextBookUtils.getVectorResults("玻尔的原子模型", "u0-ss-phys-hkji-xb3");
+		System.out.println(results);
+		JSONArray jsonArray = JSON.parseArray(results);
+//		jsonArray.forEach(item -> {
+//			JSONObject jsonObject = (JSONObject) item;
+//			System.out.println(jsonObject.getString("index"));
+//			System.out.println(jsonObject.getString("content"));
+//		});
+		//把所有的content拼接起来，用\n连接
+//		String content = jsonArray.stream().map(item -> ((JSONObject) item).getString("content")).collect(Collectors.joining("\n"));
+//		System.out.println(content);
+		//每一个元素，先把index和content拼接起来，用\n连接，然后再把所有的元素拼接起来，用\n连接
+		String content1 = jsonArray.stream().map(item -> ((JSONObject) item).getString("index")+"\n"+((JSONObject) item).getString("content")).collect(Collectors.joining("\n"));
+		System.out.println(content1);
+
+	}
+
+	@Test
+	void getQuestions(){
+		List<Question> questions = questionClient.getQuestionsByGroupId(25).getData();
+		String jsonString = FastjsonUtils.toJsonString(questions);
+		System.out.println(jsonString);
+	}
+
+	@Test
+	void testBiafenhao(){
+		String test1 = "笨蛋";
+		String test2 = """
+				你好，你是笨蛋我100%确定""";
+		System.out.println(test2);
+	}
+
 
 
 

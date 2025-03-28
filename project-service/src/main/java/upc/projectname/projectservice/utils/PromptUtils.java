@@ -194,7 +194,7 @@ public class PromptUtils {
 
 
     //获得教学目标的Prompt
-    public String getTeachingAimsPrompt(Project project){
+    public String getKnowledgePointSummaryPrompt(Project project){
         //教学主题
         String teachingTheme = project.getTeachingTheme();
         //授课对象
@@ -210,6 +210,9 @@ public class PromptUtils {
         String studentAnalysis = project.getStudentAnalysis();
         //教科书相关节点与关系
         String textbookContent = project.getTextbookContent();
+        //教学目标
+        String teachingAims = project.getTeachingAims();
+
         String userPrompt = """
                 <attachment>
                 # 教材知识图谱中检索到的内容:
@@ -267,6 +270,199 @@ public class PromptUtils {
 
     }
 
+    //获得知识点总结的Prompt
+    public String getTeachingAimsPrompt(Project project){
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        //额外要求
+        String extraReq = project.getExtraReq();
+        //教学时长
+        Integer teachingDuration = project.getTeachingDuration();
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+        //学生预备知识掌握情况
+        String studentAnalysis = project.getStudentAnalysis();
+        //教科书相关节点与关系
+        String textbookContent = project.getTextbookContent();
+        String userPrompt = """
+                <attachment>
+                
+                # 教材知识图谱中检索到的内容:
+                将教学主题作为查询参数，从教材的图数据库里面检索到的关系与节点信息:
+                ```json
+                %s
+                ```
+                </attachment>
+                
+                ---
+                
+                # 任务背景
+                我是一名老师，正在为一节课程进行备课。
+                以下是课程的基本信息：
+                - **授课主题**：%s；
+                
+                - **授课对象**：%s；
+                
+                - **授课时长**：%d分钟；
+                
+                - **额外要求**：%s；
+                
+                - **教学目标**：
+                %s
+                
+                请根据以上信息以及附加的教材知识图谱检索结果，对本节课所需的知识点进行总结与归纳。
+                
+                ---
+                
+                # 附件内容说明
+                附件中提供的是与授课主题相关的教材图数据库检索结果，包含若干节点与它们之间的关系信息。
+                
+                > 强调：仅使用与本次授课主题直接相关的部分进行总结,忽略不相关的内容。
+                
+                ---
+                
+                # 任务要求与描述
+                请根据以上信息，为我总结本次课程的知识点，要求：
+                1. 全面考虑授课主题、对象特点、教学时长和教学目标
+                2. 基于教材知识图谱内容，确保知识点与教材保持一致
+                3. 根据授课对象的认知水平和教学目标，合理判断知识点的重要程度
+                4. 对所有确定的知识点，均需进行简要阐述，不必过度展开。
+                
+                ---
+                
+                # 输出要求
+                请按照以下格式输出知识点总结，每个知识点需包含以下三部分信息：
+                
+                1. **知识点标题**：用精炼短语概括知识点内容（以便快速定位）。
+                2. **知识点级别**：根据重要程度在“重点”、“难点”、“普通”三者中选择。
+                3. **知识点简单描述**：对该知识点的作用或含义进行简要介绍，不要过度展开，保持简明扼要。
+                
+                ---
+                
+                # 格式要求
+                请按以下格式输出每个知识点：
+                
+                ## 知识点总结
+                
+                ### 知识点1：[知识点标题]
+                - **级别**：[重点/难点/普通]
+                - **描述**：[简明扼要的描述，1-3句话为宜]
+                
+                ### 知识点2：[知识点标题]
+                - **级别**：[重点/难点/普通]
+                - **描述**：[简明扼要的描述，1-3句话为宜]
+                [以此类推...]
+                
+                ---
+                
+                # 判断知识点级别的标准
+                - **重点**：课程核心内容，直接关系到教学目标的实现
+                - **难点**：学生理解上可能存在困难，需要重点讲解的内容
+                - **普通**：基础性内容，对理解主题有帮助但不是核心""".formatted(textbookContent,teachingTheme,teachingObject,teachingDuration,extraReq);
+        return userPrompt;
+
+    }
+
+
+    //获得教学过程大纲的Prompt
+    public String getTeachingProcessOutlinePrompt(Project project){
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        //额外要求
+        String extraReq = project.getExtraReq();
+        //教学时长
+        Integer teachingDuration = project.getTeachingDuration();
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+        //学生预备知识掌握情况
+        String studentAnalysis = project.getStudentAnalysis();
+        //教科书相关节点与关系
+        String textbookContent = project.getTextbookContent();
+        String userPrompt = """
+                <attachment>
+                
+                # 教材知识图谱中检索到的内容:
+                
+                将教学主题作为查询参数，从教材的图数据库里面检索到的关系与节点信息:
+                
+                ```json
+                %s
+                ```
+                
+                </attachment>
+                
+                ---
+                
+                <attachment>
+                
+                # 预备知识掌握情况分析结果
+                根据全班学生的预备知识检测结果，得到班级整体对当前课程**预备知识**的掌握情况：
+                
+                ```txt
+                %s
+                ```
+                
+                </attachment>
+                
+                ---
+                
+                # 任务背景
+                
+                我是本次课程的授课老师，目前正在进行课程备课，需要你帮助我生成一份线下授课的教学过程大纲。
+                
+                以下是课程的基本信息：
+                
+                - **授课主题**：……
+                - **授课对象**：……
+                - **授课时长**：……
+                - **教学目标**：……
+                - **知识点总结**：……
+                - **额外要求**：……
+                
+                ---
+                
+                # 附件内容说明
+                
+                1. **附件1**：
+                   教学主题在教材图数据库中检索到的相关关系与节点信息。
+                > 强调：仅使用与本次授课主题直接相关的部分,忽略不相关的内容
+                
+                2. **附件2**：
+                   班级整体对当前课程（课程主题为：**……**）预备知识的掌握情况。
+                
+                ---
+                
+                # 任务要求与描述
+                请根据以下要求，帮助我生成一份**线下授课的教学过程大纲**：
+                
+                1. **内容设计要求**：
+                   - 综合考虑从教材中检索到的与课程相关的内容。
+                   - 考虑全班学生对预备知识的掌握情况。
+                   - 考虑课程的知识点总结内容。
+                   - 结合备课对象、备课时长、教学目标及其他基础要求。
+                
+                2. **教学过程大纲设计要求**：
+                   - 设计教学环节或流程，安排教学活动。
+                   - 根据整体授课时长条件，给每个环节安排合适的时长。
+                   - 必须包含以下环节：
+                     - 开头的**引入环节**，用于激发学生兴趣。
+                     - 结尾的**总结环节**，用于梳理知识点与强化记忆。
+                   - 至少设计**3个互动环节**，以提高学生的参与度和学习效果。
+                
+                3. **格式要求**：
+                   - 以**大纲形式**呈现，每个环节简洁明了，不罗嗦。
+                   - 每个环节需包含**环节名称**，**环节预计用时**和**环节简单介绍**三部分，不涉及过多细节。
+                   - 整体结构需条理清晰，逻辑严密。""".formatted(textbookContent,studentAnalysis,teachingTheme,teachingObject,teachingDuration,extraReq,teachingTheme);
+
+
+        return userPrompt;
+    }
 
 
 

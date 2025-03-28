@@ -32,5 +32,8 @@ public interface ProjectService extends IService<Project> {
                           Integer teachingDuration,
                           String teachingTheme,
                           String teachingObject,
-                          String extraReq, Integer currentStage);
+                          String extraReq,
+                          Integer currentStage,
+                          String textbookContent,
+                          String preexerceseResult);
 } 
