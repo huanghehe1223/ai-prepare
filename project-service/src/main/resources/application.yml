@@ -71,3 +71,11 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+tavily:
+  api:
+    key: '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'
+
+exa:
+  api:
+    key: '3bba9ef7-b693-4f45-8fc1-fc7cf9dae84a'

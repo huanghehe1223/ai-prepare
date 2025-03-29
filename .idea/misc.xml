@@ -5,20 +5,10 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/task-service/pom.xml" />
-        <option value="$PROJECT_DIR$/user-service/pom.xml" />
-        <option value="$PROJECT_DIR$/upc-gateway/pom.xml" />
-        <option value="$PROJECT_DIR$/upc-redis-starter/pom.xml" />
-        <option value="$PROJECT_DIR$/upc-common/pom.xml" />
-        <option value="$PROJECT_DIR$/user-class-service/pom.xml" />
-        <option value="$PROJECT_DIR$/project-service/pom.xml" />
-        <option value="$PROJECT_DIR$/exercise-service/pom.xml" />
-        <option value="$PROJECT_DIR$/teachingprocess-resource-service/pom.xml" />
-        <option value="$PROJECT_DIR$/knowledgebase-service/pom.xml" />
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="corretto-17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="openjdk-23" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>
