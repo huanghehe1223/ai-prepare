@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,19 +104,18 @@ public class TavilySearchUtils {
     /**
      * 高级搜索，支持所有参数
      *
-     * @param query 搜索查询
-     * @param topic 搜索类别
-     * @param searchDepth 搜索深度
-     * @param chunksPerSource 每个来源内容块数
-     * @param maxResults 最大结果数
-     * @param timeRange 时间范围
-     * @param days 天数
-     * @param includeAnswer 是否包含答案
-     * @param includeRawContent 是否包含原始内容
-     * @param includeImages 是否包含图片
+     * @param query                    搜索查询
+     * @param topic                    搜索类别
+     * @param searchDepth              搜索深度
+     * @param chunksPerSource          每个来源内容块数
+     * @param maxResults               最大结果数
+     * @param timeRange                时间范围
+     * @param days                     天数
+     * @param includeAnswer            是否包含答案
+     * @param includeRawContent        是否包含原始内容
+     * @param includeImages            是否包含图片
      * @param includeImageDescriptions 是否包含图片描述
-     * @param includeDomains 要包含的域名
-     * @param excludeDomains 要排除的域名
+     * @param includeDomains           要包含的域名
      * @return 搜索结果JSON字符串
      */
     public static String advancedSearch(
@@ -124,11 +124,13 @@ public class TavilySearchUtils {
             String timeRange, Integer days, Boolean includeAnswer,
             Boolean includeRawContent, Boolean includeImages,
             Boolean includeImageDescriptions,
-            List<String> includeDomains, List<String> excludeDomains) {
+            List<String> includeDomains) {
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("query", query);
-
+        // 在查询前添加中文提示，确保结果偏向中文
+        String enhancedQuery = query + " 中文资料";
+        requestBody.put("query", enhancedQuery);
+        List<String> excludeDomains = Collections.singletonList(".org");
         // 添加可选参数
         if (topic != null) requestBody.put("topic", topic);
         if (searchDepth != null) requestBody.put("search_depth", searchDepth);

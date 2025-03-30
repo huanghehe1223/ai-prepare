@@ -50,14 +50,14 @@ public class TavilySearchController {
             @Parameter(description = "要包含的域名列表", required = false)
             @RequestParam(required = false) List<String> includeDomains,
             @Parameter(description = "要排除的域名列表", required = false)
-            @RequestParam(required = false) List<String> excludeDomains) {
+            @RequestParam(required = false, defaultValue = "wikipedia.org") List<String> excludeDomains) {
 
         log.info("Search with query: {}, topic: {}, depth: {}", query, topic, searchDepth);
         try {
             String rawResult = TavilySearchUtils.advancedSearch(
                     query, topic, searchDepth, chunksPerSource, maxResults,
                     timeRange, days, includeAnswer, includeRawContent,
-                    includeImages, includeImageDescriptions, includeDomains, excludeDomains);
+                    includeImages, includeImageDescriptions, includeDomains);
             log.debug("Raw result from search: {}", rawResult);
             // 解析为JSON对象
             Object jsonObject = JSON.parseObject(rawResult);
@@ -105,7 +105,7 @@ public class TavilySearchController {
             String rawResult = TavilySearchUtils.advancedSearch(
                     query, "general", "basic", 3, 5,
                     null, null, false, false,
-                    false, false, null, null);
+                    false, false, null);
             log.debug("Raw result for extraction: {}", rawResult);
 
             JSONObject jsonObject = JSON.parseObject(rawResult);
