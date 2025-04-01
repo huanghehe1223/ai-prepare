@@ -109,6 +109,183 @@ public class SimpleChatController {
         }
 
     }
+
+
+
+    @Operation(summary = "提取结构化的课后单选题目")
+    @PostMapping("/extractPostSingleChoice")
+    public  Result<Boolean> extractPostSingleChoice(@RequestParam String questionString, @RequestParam Integer groupId){
+        String structuredSingleChoiceQuestion = promptUtils.extractStructuredSingleChoiceQuestion(questionString);
+        System.out.println("提取的markdown格式数据:"+structuredSingleChoiceQuestion);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredSingleChoiceQuestion);
+        System.out.println("提取的json数据:"+extractJsonFromMarkdown);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        if (extractJsonFromMarkdown == null){
+            log.error("markdown格式数据:{}",structuredSingleChoiceQuestion);
+            return Result.error("提取失败");
+        }
+        try {
+            //处理一下提取的json数据
+            String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+            System.out.println("replacedJson:"+replacedJson);
+            System.out.println("判断是否相等:"+replacedJson.equals(extractJsonFromMarkdown));
+            List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+
+            questions.forEach(question -> {
+                question.setGroupId(groupId);
+                question.setQuestionType("单选");
+                question.setCreatedAt(LocalDateTime.now());
+                question.setUpdatedAt(LocalDateTime.now());
+            });
+            Result<Boolean> questionResult = questionClient.saveQuestions(questions);
+            if (questionResult.getCode() ==0){
+                return Result.error("保存习题失败");
+            }
+            return Result.success(true);
+
+        } catch (Exception e) {
+            log.error("反序列化失败",e);
+//            System.out.println("json字符串:"+extractJsonFromMarkdown);
+            return Result.error("反序列化失败");
+        }
+
+    }
+
+
+
+    @Operation(summary = "提取结构化的课后多选题目")
+    @PostMapping("/extractPostMultipleChoice")
+    public  Result<Boolean> extractPostMultipleChoice(@RequestParam String questionString, @RequestParam Integer groupId){
+        String structuredMultipleChoiceQuestion = promptUtils.extractStructuredMultipleChoiceQuestion(questionString);
+        System.out.println("提取的markdown格式数据:"+structuredMultipleChoiceQuestion);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredMultipleChoiceQuestion);
+        System.out.println("提取的json数据:"+extractJsonFromMarkdown);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        if (extractJsonFromMarkdown == null){
+            log.error("markdown格式数据:{}",structuredMultipleChoiceQuestion);
+            return Result.error("提取失败");
+        }
+        try {
+            //处理一下提取的json数据
+            String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+            System.out.println("replacedJson:"+replacedJson);
+            System.out.println("判断是否相等:"+replacedJson.equals(extractJsonFromMarkdown));
+            List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+
+            questions.forEach(question -> {
+                question.setGroupId(groupId);
+                question.setQuestionType("多选");
+                question.setCreatedAt(LocalDateTime.now());
+                question.setUpdatedAt(LocalDateTime.now());
+            });
+            Result<Boolean> questionResult = questionClient.saveQuestions(questions);
+            if (questionResult.getCode() ==0){
+                return Result.error("保存习题失败");
+            }
+            return Result.success(true);
+
+        } catch (Exception e) {
+            log.error("反序列化失败",e);
+//            System.out.println("json字符串:"+extractJsonFromMarkdown);
+            return Result.error("反序列化失败");
+        }
+
+    }
+
+
+    @Operation(summary = "提取结构化的课后填空题目")
+    @PostMapping("/extractPostFillInBlankExercise")
+    public  Result<Boolean> extractPostFillInBlankExercise(@RequestParam String questionString, @RequestParam Integer groupId){
+        String structuredFillInBlankQuestion = promptUtils.extractStructuredFillInBlankQuestion(questionString);
+        System.out.println("提取的markdown格式数据:"+structuredFillInBlankQuestion);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredFillInBlankQuestion);
+        System.out.println("提取的json数据:"+extractJsonFromMarkdown);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        if (extractJsonFromMarkdown == null){
+            log.error("markdown格式数据:{}",structuredFillInBlankQuestion);
+            return Result.error("提取失败");
+        }
+        try {
+            //处理一下提取的json数据
+            String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+            System.out.println("replacedJson:"+replacedJson);
+            System.out.println("判断是否相等:"+replacedJson.equals(extractJsonFromMarkdown));
+            List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+
+            questions.forEach(question -> {
+                question.setGroupId(groupId);
+                question.setQuestionType("填空");
+                question.setCreatedAt(LocalDateTime.now());
+                question.setUpdatedAt(LocalDateTime.now());
+            });
+            Result<Boolean> questionResult = questionClient.saveQuestions(questions);
+            if (questionResult.getCode() ==0){
+                return Result.error("保存习题失败");
+            }
+            return Result.success(true);
+
+        } catch (Exception e) {
+            log.error("反序列化失败",e);
+//            System.out.println("json字符串:"+extractJsonFromMarkdown);
+            return Result.error("反序列化失败");
+        }
+
+    }
+
+    @Operation(summary = "提取结构化的课后简答题目")
+    @PostMapping("/extractPostShortAnswerExercise")
+    public  Result<Boolean> extractPostShortAnswerExercise(@RequestParam String questionString, @RequestParam Integer groupId){
+        String structuredShortAnswerQuestion = promptUtils.extractStructuredShortAnswerQuestion(questionString);
+        System.out.println("提取的markdown格式数据:"+structuredShortAnswerQuestion);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredShortAnswerQuestion);
+        System.out.println("提取的json数据:"+extractJsonFromMarkdown);
+        //打印分割线
+        System.out.println("--------------------------------------------------");
+        if (extractJsonFromMarkdown == null){
+            log.error("markdown格式数据:{}",structuredShortAnswerQuestion);
+            return Result.error("提取失败");
+        }
+        try {
+            //处理一下提取的json数据
+            String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
+            System.out.println("replacedJson:"+replacedJson);
+            System.out.println("判断是否相等:"+replacedJson.equals(extractJsonFromMarkdown));
+            List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
+
+            questions.forEach(question -> {
+                question.setGroupId(groupId);
+                question.setQuestionType("简答");
+                question.setCreatedAt(LocalDateTime.now());
+                question.setUpdatedAt(LocalDateTime.now());
+            });
+            Result<Boolean> questionResult = questionClient.saveQuestions(questions);
+            if (questionResult.getCode() ==0){
+                return Result.error("保存简答习题失败");
+            }
+            return Result.success(true);
+
+        } catch (Exception e) {
+            log.error("反序列化简答习题失败",e);
+//            System.out.println("json字符串:"+extractJsonFromMarkdown);
+            return Result.error("反序列化简答习题失败");
+        }
+
+    }
+
+
+
+
     @Operation(summary = "文本补全")
     @PostMapping("/completion")
     public Result<String> completion(@RequestParam String inputText, @RequestParam String footerText,@RequestParam Integer maxTokens) {
@@ -116,6 +293,14 @@ public class SimpleChatController {
         return Result.success(textCompletion);
     }
 
+
+    @Operation(summary = "从大语言模型的回答中提取特定内容")
+    @PostMapping("/extractSpecificContent")
+    public Result<String> extractSpecificContent(@RequestParam String response, @RequestParam String targetContent) {
+        String specificContent = promptUtils.extractSpecificContent(response, targetContent);
+        return Result.success(specificContent);
+
+    }
 
 
 

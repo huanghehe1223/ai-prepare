@@ -12,7 +12,7 @@ import java.net.Proxy;
 @Component
 public class OpenAISdkUtils {
 
-    String apiKey = "sk-huanghe1223";
+    String apiKey = "sk-huanghe1224";
     String baseUrl = "http://166.108.193.184:8998/huanghe/v1";
     public OpenAIClient defaultClient = createOpenAiClient(apiKey, baseUrl);
 

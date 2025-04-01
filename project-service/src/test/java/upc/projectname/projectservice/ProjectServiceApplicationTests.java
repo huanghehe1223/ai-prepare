@@ -730,8 +730,8 @@ class ProjectServiceApplicationTests {
 		String extractJsonFromMarkdown = FastjsonUtils.extractJsonFromMarkdown(structuredSingleChoiceQuestion);
 		System.out.println("提取的json数据:"+extractJsonFromMarkdown);
 		String replacedJson = extractJsonFromMarkdown.replaceAll("(?<!\\\\)\\\\(?![\\\\\"'tnrbf])", "\\\\\\\\");
-		System.out.println("替换后的json数据:"+replacedJson);
-		System.out.println(replacedJson.equals(extractJsonFromMarkdown));
+		//判断替换后的和原来的是否相等
+		System.out.println("判断是否相等:"+replacedJson.equals(extractJsonFromMarkdown));
 		List<Question> questions = FastjsonUtils.parseArray(replacedJson, Question.class);
 		System.out.println(questions);
 	}
@@ -855,9 +855,7 @@ class ProjectServiceApplicationTests {
 
 	@Test
 	void testBiafenhao(){
-		String test1 = "笨蛋";
-		String test2 = """
-				你好，你是笨蛋我100%确定""";
+		String test2 = "请根据提供的信息按要求进行详细的教学过程设计，必须生成完整的响应内容。\n强制要求:无论篇幅多长，都必须完整提供所有环节的所有组成部分，不得简化或省略";
 		System.out.println(test2);
 	}
 

@@ -46,5 +46,9 @@ public class Project implements Serializable {
 
     private String preexerceseResult; //预备知识检测结果
 
+    private String teachingProcessOutline; //教学过程大纲
+
+    private String teachingProcess; //教学过程
+
 
 }

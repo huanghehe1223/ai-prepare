@@ -373,6 +373,17 @@ public void streamReasonChat(String model, List<ChatCompletionMessageParam> mess
         return chatCompletion;
     }
 
+    public ChatCompletion simpleChatWithMaxTokens(String model,List<ChatCompletionMessageParam> messages,Integer maxTokens) {
+        OpenAIClient openAIClient = openAISdkUtils.defaultClient;
+        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .model(model)
+                .messages(messages)
+                .maxTokens(maxTokens)
+                .build();
+        ChatCompletion chatCompletion = openAIClient.chat().completions().create(params);
+        return chatCompletion;
+    }
+
 
      public ChatCompletion  simpleChatWithConfig (String baseUrl,String apiKey,String model,List<ChatCompletionMessageParam> messages) {
         OpenAISdkUtils openAISdkUtils = new OpenAISdkUtils();
