@@ -7,7 +7,6 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.openai.client.OpenAIClient;
 import com.openai.core.http.StreamResponse;
 import com.openai.models.*;
-import com.openai.services.blocking.ModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import upc.projectname.projectservice.utils.*;
 import upc.projectname.upccommon.api.client.QuestionClient;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.upccommon.domain.po.Question;
-import upc.projectname.upccommon.domain.po.Result;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -266,7 +264,7 @@ class ProjectServiceApplicationTests {
 		questions.add(question1);
 		questions.add(question2);
 		String jsonString = FastjsonUtils.toJsonString(questions);
-//		System.out.println(jsonString);
+		System.out.println(jsonString);
 		StringBuilder markdownJson = new StringBuilder();
 		markdownJson.append("```json\n");
 		markdownJson.append(jsonString);
@@ -383,6 +381,9 @@ class ProjectServiceApplicationTests {
        ChatCompletionSystemMessageParam preKnowledgeSystemMessage = promptUtils.getPreKnowledgeSystemMessage();
        messages.add(ChatCompletionMessageParam.ofSystem(preKnowledgeSystemMessage));
 	   Project project = new Project();
+
+
+
 
 
 
@@ -799,8 +800,8 @@ class ProjectServiceApplicationTests {
 		System.out.println(str3);
 		System.out.println(str4);
 		String text = "test ef text mnef text efab text mnefab";
-		String result = str1.replaceAll("(?<!\\\\)\\(?![\"\\\\ntrfbu0-7])", "xyz");
-		System.out.println(result);
+//		String result = str1.replaceAll("(?<!\\\\)\\(?![\"\\\\ntrfbu0-7])", "xyz");
+//		System.out.println(result);
 
 	}
 
@@ -857,6 +858,23 @@ class ProjectServiceApplicationTests {
 	void testBiafenhao(){
 		String test2 = "请根据提供的信息按要求进行详细的教学过程设计，必须生成完整的响应内容。\n强制要求:无论篇幅多长，都必须完整提供所有环节的所有组成部分，不得简化或省略";
 		System.out.println(test2);
+	}
+
+
+
+	@Test
+	void testSearchKeyPointsData(){
+		JSONArray jsonArray = new JSONArray();
+		JSONObject jsonObject1 = new JSONObject();
+		jsonObject1.put("serialNumber",1);
+		jsonObject1.put("searchKeyPoint","复数的几何表示");
+		jsonArray.add(jsonObject1);
+		JSONObject jsonObject2 = new JSONObject();
+		jsonObject2.put("serialNumber",2);
+		jsonObject2.put("searchKeyPoint","复数的代数表示");
+		jsonArray.add(jsonObject2);
+		String jsonString = JSON.toJSONString(jsonArray, JSONWriter.Feature.PrettyFormat);
+		System.out.println(jsonString);
 	}
 
 
