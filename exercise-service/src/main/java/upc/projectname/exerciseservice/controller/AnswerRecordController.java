@@ -11,6 +11,11 @@ import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
 import upc.projectname.exerciseservice.service.AnswerRecordService;
 import upc.projectname.upccommon.domain.po.Student;
+import upc.projectname.upccommon.domain.dto.AccuracyRateDTO;
+import upc.projectname.upccommon.domain.dto.AverageScoreDTO;
+import upc.projectname.upccommon.domain.dto.AverageTimeDTO;
+import upc.projectname.upccommon.domain.dto.ExtremeAnswerTimeDTO;
+import upc.projectname.upccommon.domain.dto.KnowledgePointScoreDTO;
 
 import java.util.List;
 
@@ -128,5 +133,50 @@ public class AnswerRecordController {
         return answerRecordService.saveOrUpdateBatchAnswerRecords(records,studentId) ?
                 Result.success(true, "批量保存成功") :
                 Result.error("批量保存失败");
+    }
+
+    @Operation(summary = "获取学生做题平均时间统计")
+    @GetMapping("/student/{studentId}/group/{groupId}/averagetime")
+    public Result<AverageTimeDTO> getAverageTime(
+            @PathVariable Integer studentId,
+            @PathVariable Integer groupId) {
+        AverageTimeDTO averageTime = answerRecordService.getAverageTime(studentId, groupId);
+        return Result.success(averageTime);
+    }
+
+    @Operation(summary = "获取学生做题正确率统计")
+    @GetMapping("/student/{studentId}/group/{groupId}/accuracy")
+    public Result<AccuracyRateDTO> getAccuracyRate(
+            @PathVariable Integer studentId,
+            @PathVariable Integer groupId) {
+        AccuracyRateDTO accuracyRate = answerRecordService.getAccuracyRate(studentId, groupId);
+        return Result.success(accuracyRate);
+    }
+
+    @Operation(summary = "获取学生做题平均分统计")
+    @GetMapping("/student/{studentId}/group/{groupId}/averagescore")
+    public Result<AverageScoreDTO> getAverageScore(
+            @PathVariable Integer studentId,
+            @PathVariable Integer groupId) {
+        AverageScoreDTO averageScore = answerRecordService.getAverageScore(studentId, groupId);
+        return Result.success(averageScore);
+    }
+
+    @Operation(summary = "获取学生做题时间极值统计")
+    @GetMapping("/student/{studentId}/group/{groupId}/extremetime")
+    public Result<ExtremeAnswerTimeDTO> getExtremeTimeRecords(
+            @PathVariable Integer studentId,
+            @PathVariable Integer groupId) {
+        ExtremeAnswerTimeDTO extremeTimeRecords = answerRecordService.getExtremeTimeRecords(studentId, groupId);
+        return Result.success(extremeTimeRecords);
+    }
+
+    @Operation(summary = "获取学生各知识点平均分统计")
+    @GetMapping("/student/{studentId}/group/{groupId}/knowledgepoint/score")
+    public Result<List<KnowledgePointScoreDTO>> getKnowledgePointScores(
+            @PathVariable Integer studentId,
+            @PathVariable Integer groupId) {
+        List<KnowledgePointScoreDTO> knowledgePointScores = answerRecordService.getKnowledgePointScores(studentId, groupId);
+        return Result.success(knowledgePointScores);
     }
 }

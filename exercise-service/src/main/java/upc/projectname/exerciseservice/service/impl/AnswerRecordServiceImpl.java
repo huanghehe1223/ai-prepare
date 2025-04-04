@@ -6,12 +6,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
+import upc.projectname.upccommon.domain.dto.AccuracyRateDTO;
+import upc.projectname.upccommon.domain.dto.AverageScoreDTO;
+import upc.projectname.upccommon.domain.dto.AverageTimeDTO;
+import upc.projectname.upccommon.domain.dto.ExtremeAnswerTimeDTO;
+import upc.projectname.upccommon.domain.dto.KnowledgePointScoreDTO;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
 import upc.projectname.exerciseservice.mapper.AnswerRecordMapper;
 import upc.projectname.exerciseservice.service.AnswerRecordService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, AnswerRecord> implements AnswerRecordService {
@@ -99,5 +106,42 @@ public class AnswerRecordServiceImpl extends ServiceImpl<AnswerRecordMapper, Ans
             }
         }
         return true;
+    }
+
+    @Override
+    public AccuracyRateDTO getAccuracyRate(Integer studentId, Integer groupId) {
+        return this.baseMapper.getAccuracyRates(studentId, groupId);
+    }
+
+    @Override
+    public AverageScoreDTO getAverageScore(Integer studentId, Integer groupId) {
+        return this.baseMapper.getAverageScores(studentId, groupId);
+    }
+
+    @Override
+    public AverageTimeDTO getAverageTime(Integer studentId, Integer groupId) {
+        return this.baseMapper.getAverageTimes(studentId, groupId);
+    }
+
+    @Override
+    public ExtremeAnswerTimeDTO getExtremeTimeRecords(Integer studentId, Integer groupId) {
+        List<StudentAnswerResult> records = this.baseMapper.getExtremeTimeRecords(studentId, groupId);
+        ExtremeAnswerTimeDTO result = new ExtremeAnswerTimeDTO();
+        
+        for (StudentAnswerResult record : records) {
+            switch (record.getResultType()) {
+                case "rightMaxTime" -> result.setRightMaxTime(record);
+                case "rightMinTime" -> result.setRightMinTime(record);
+                case "wrongMaxTime" -> result.setWrongMaxTime(record);
+                case "wrongMinTime" -> result.setWrongMinTime(record);
+            }
+        }
+        
+        return result;
+    }
+
+    @Override
+    public List<KnowledgePointScoreDTO> getKnowledgePointScores(Integer studentId, Integer groupId) {
+        return this.baseMapper.getKnowledgePointScores(studentId, groupId);
     }
 }

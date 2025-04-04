@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class StudentAnswerResult {
 
     //以下字段来自question表
-    //单选题、多选题、简答，填空
+    //单选题、多选题、填空，简答
     private String questionType;
 
     private String questionText; //题目内容
@@ -44,7 +44,13 @@ public class StudentAnswerResult {
 
     private LocalDateTime createdAt;  //学生做完这道题的时刻
 
-    private String aiAnalysis;  //ai解析（感觉没有内容）
+    private String aiAnalysis;  //ai解析（感觉没有内容，主要针对简答题，依据标准答案来分析学生的答案）
+
+    private Integer duration;  //单位：秒，学生做题时长
+
+    private Integer score;  //得分，每道题都是10分
+
+    private String resultType;    // 用于标识查询结果类型
 
 
 
