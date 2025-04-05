@@ -305,6 +305,7 @@ public class SimpleChatController {
         }
         ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
         String markdownJson = chatCompletion.choices().get(0).message().content().get();
+        System.out.println("模型返回的markdownJson:"+markdownJson);
         String jsonString = FastjsonUtils.extractJsonFromMarkdown(markdownJson);
 
         if (jsonString == null) {
@@ -313,11 +314,53 @@ public class SimpleChatController {
         }
 
         try {
+            System.out.println("提取到的json数据:"+jsonString);
             // 解析JSON数组并提取searchKeyPoint列表
             JSONArray jsonArray = JSON.parseArray(jsonString);
             List<String> searchKeyPoints = jsonArray.stream()
                 .map(item -> ((JSONObject) item).getString("searchKeyPoint"))
                 .collect(Collectors.toList());
+
+            return Result.success(searchKeyPoints);
+        } catch (Exception e) {
+            log.error("JSON反序列化失败", e);
+            return Result.error("JSON反序列化失败");
+        }
+    }
+
+    //获取搜索关键点
+    @Operation(summary = "获取个性化预习资料搜索关键点")
+    @PostMapping("/personalizedPreparationSearchKeyPoint")
+    public Result<List<String>> getPersonalizedPreparationSearchKeyPoint(@RequestBody List<StudentAnswerResult> studentAnswerResults,@RequestParam Integer groupId) {
+        String model = "deepseek-v3.1";
+        List<ChatCompletionMessageParam> messages = new ArrayList<>();
+        ChatCompletionSystemMessageParam personalizedPreparationSystemMessage = promptUtils.getPersonalizedPreparationSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(personalizedPreparationSystemMessage));
+        ChatCompletionUserMessageParam personalizedPreparationUserMessage = promptUtils.getPersonalizedPreparationUserMessage(studentAnswerResults,groupId);
+        messages.add(ChatCompletionMessageParam.ofUser(personalizedPreparationUserMessage));
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("根据给出的信息，帮我总结3个最有价值的搜索关键点，只输出markdown格式的json数据，不要任何额外的多余的内容");
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
+        String markdownJson = chatCompletion.choices().get(0).message().content().get();
+        System.out.println("模型返回的markdownJson:"+markdownJson);
+        String jsonString = FastjsonUtils.extractJsonFromMarkdown(markdownJson);
+
+        if (jsonString == null) {
+            log.error("从Markdown中提取JSON失败，原始内容: {}", markdownJson);
+            return Result.error("提取JSON数据失败");
+        }
+
+        try {
+            System.out.println("提取到的json数据:"+jsonString);
+            // 解析JSON数组并提取searchKeyPoint列表
+            JSONArray jsonArray = JSON.parseArray(jsonString);
+            List<String> searchKeyPoints = jsonArray.stream()
+                    .map(item -> ((JSONObject) item).getString("searchKeyPoint"))
+                    .collect(Collectors.toList());
 
             return Result.success(searchKeyPoints);
         } catch (Exception e) {

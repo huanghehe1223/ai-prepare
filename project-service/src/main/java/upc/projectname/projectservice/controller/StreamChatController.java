@@ -248,7 +248,7 @@ public class StreamChatController {
     @Operation(summary = "进行学情分析对话")
     @PostMapping(value = "/learningSituationAnalysis", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("permitAll()")
-    public SseEmitter getLearningSituationAnalysis(List<StudentAnswerResult> studentAnswerResults) {
+    public SseEmitter getLearningSituationAnalysis(@RequestBody List<StudentAnswerResult> studentAnswerResults) {
         String model = "deepseek-v3.1";
         List<ChatCompletionMessageParam> messages = new ArrayList<> ();
         ChatCompletionSystemMessageParam learningSituationAnalysisSystemMessage = promptUtils.getLearningSituationAnalysisSystemMessage();
@@ -256,6 +256,34 @@ public class StreamChatController {
         ChatCompletionUserMessageParam learningSituationAnalysisUserMessage = promptUtils.getLearningSituationAnalysisUserMessage(studentAnswerResults);
         messages.add(ChatCompletionMessageParam.ofUser(learningSituationAnalysisUserMessage));
         ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("根据给出的信息，请帮我进行详细的学情分析");
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.streamChatWithMaxTokens(model, messages, emitter,16000);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+
+        return emitter;
+    }
+
+    @Operation(summary = "进行学生视角预备知识掌握情况分析对话")
+    @PostMapping(value = "/AnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspective", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getAnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspective(@RequestBody List<StudentAnswerResult> studentAnswerResults,@RequestParam Integer groupId) {
+        String model = "deepseek-v3.1";
+        List<ChatCompletionMessageParam> messages = new ArrayList<> ();
+        ChatCompletionSystemMessageParam analysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveSystemMessage = promptUtils.getAnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(analysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveSystemMessage));
+        ChatCompletionUserMessageParam analysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveUserMessage= promptUtils.getAnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveUserMessage(studentAnswerResults,groupId);
+        messages.add(ChatCompletionMessageParam.ofUser(analysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveUserMessage));
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("根据给出的信息，请帮我进行详细的预备知识掌握情况分析");
         messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
         for (int i = 0; i < messages.size(); i++) {
             System.out.println("消息序号: " + (i + 1));
@@ -486,6 +514,57 @@ public class StreamChatController {
         return emitter;
     }
 
+    @Operation(summary = "AI协同编辑对话")
+    @PostMapping(value = "/AiCollaborativeEditing", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getAiCollaborativeEditing(@RequestParam Integer projectId,@RequestParam String stageName,@RequestBody ChatRequestDTO chatRequest) {
+        String model = chatRequest.getModel();
+        List<ChatCompletionMessageParam> messages = chatRequest.getMessages();
+        String currentContent = chatRequest.getExtraContent();
+        Project project = projectService.getProjectById(projectId);
+        String userPrompt = promptUtils.getAiCollaborativeEditingUserPrompt(project,stageName,currentContent);
+        List<ChatCompletionMessageParam> newMessages = messageProcessUtils.insertUserMessageBeforeLast(messages, userPrompt);
+        for (int i = 0; i < newMessages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + newMessages.get(i));
+        }
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.StreamRequestChat(model, newMessages, emitter);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+        return emitter;
+
+    }
+
+    @Operation(summary = "AI自动编辑")
+    @PostMapping(value = "/AIAutomaticEditing", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getAiAutomaticEditing(@RequestParam Integer projectId,@RequestParam String stageName,@RequestBody ChatRequestDTO chatRequest) {
+        String model = chatRequest.getModel();
+        List<ChatCompletionMessageParam> messages = chatRequest.getMessages();
+        String currentContent = chatRequest.getExtraContent();
+        Project project = projectService.getProjectById(projectId);
+        String userPrompt = promptUtils.getAiAutomaticEditingUserPrompt(project,stageName,currentContent);
+        List<ChatCompletionMessageParam> newMessages = messageProcessUtils.insertUserMessageBeforeLast(messages, userPrompt);
+        for (int i = 0; i < newMessages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + newMessages.get(i));
+        }
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.StreamRequestChat(model, newMessages, emitter);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+        return emitter;
+
+    }
 
 
 

@@ -387,6 +387,13 @@ class ProjectServiceApplicationTests {
 
 
 
+
+
+
+
+
+
+
        ChatCompletionUserMessageParam projectRequirementsMeaasgeWithSystem = promptUtils.getProjectRequirementsMeaasgeWithSystem(project);
        messages.add(ChatCompletionMessageParam.ofUser(projectRequirementsMeaasgeWithSystem));
        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请帮我生成10道预备知识检测单选题目");

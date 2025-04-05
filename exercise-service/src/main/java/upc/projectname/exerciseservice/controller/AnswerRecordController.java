@@ -6,11 +6,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
-import upc.projectname.upccommon.domain.po.Question;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.AnswerRecord;
+import upc.projectname.upccommon.domain.po.Question;
 import upc.projectname.exerciseservice.service.AnswerRecordService;
-import upc.projectname.upccommon.domain.po.Student;
 import upc.projectname.upccommon.domain.dto.AccuracyRateDTO;
 import upc.projectname.upccommon.domain.dto.AverageScoreDTO;
 import upc.projectname.upccommon.domain.dto.AverageTimeDTO;
@@ -26,7 +25,6 @@ import java.util.List;
 public class AnswerRecordController {
 
     private final AnswerRecordService answerRecordService;
-
 
     @Operation(summary = "测试docker-compose")
     @GetMapping("/testdocker")
@@ -171,7 +169,7 @@ public class AnswerRecordController {
         return Result.success(extremeTimeRecords);
     }
 
-    @Operation(summary = "获取学生各知识点平均分统计")
+    @Operation(summary = "获取学生各知识点的平均分统计")
     @GetMapping("/student/{studentId}/group/{groupId}/knowledgepoint/score")
     public Result<List<KnowledgePointScoreDTO>> getKnowledgePointScores(
             @PathVariable Integer studentId,

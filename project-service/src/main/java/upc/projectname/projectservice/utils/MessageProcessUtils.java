@@ -178,6 +178,40 @@ public class MessageProcessUtils {
     }
 
 
+    /**
+     * 在消息列表的最后一条消息之前插入一条新的用户消息
+     * （即新消息成为倒数第二条，原最后一条保持为最后一条）
+     *
+     * @param messages 原始消息列表
+     * @param userPrompt 要添加的用户消息内容
+     * @return 插入了新用户消息的消息列表
+     */
+    public List<ChatCompletionMessageParam> insertUserMessageBeforeLast(List<ChatCompletionMessageParam> messages, String userPrompt) {
+        // 处理null情况
+        if (messages == null) {
+            messages = new ArrayList<>();
+        }
+
+        // 创建消息列表的副本
+        List<ChatCompletionMessageParam> newMessages = new ArrayList<>(messages);
+
+        // 构造新的用户消息
+        ChatCompletionUserMessageParam newUserMessage = ChatCompletionUserMessageParam.builder()
+                .content(userPrompt)
+                .build();
+
+        if (newMessages.isEmpty()) {
+            // 如果原列表为空，直接添加新消息
+            newMessages.add(ChatCompletionMessageParam.ofUser(newUserMessage));
+        } else {
+            // 在最后一个位置之前插入新消息
+            newMessages.add(newMessages.size() - 1, ChatCompletionMessageParam.ofUser(newUserMessage));
+        }
+
+        return newMessages;
+    }
+
+
 
 
 }

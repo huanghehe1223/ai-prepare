@@ -8,8 +8,12 @@ import com.openai.models.ChatCompletionUserMessageParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import upc.projectname.projectservice.service.ProjectService;
+import upc.projectname.upccommon.api.client.QuestionGroupClient;
 import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.Project;
+import upc.projectname.upccommon.domain.po.QuestionGroup;
+import upc.projectname.upccommon.domain.po.Student;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +24,10 @@ import java.util.List;
 public class PromptUtils {
     @Autowired
     private StreamRequestUtils streamRequestUtils;
+    @Autowired
+    private QuestionGroupClient questionGroupClient;
+    @Autowired
+    private ProjectService projectService;
 
 
 
@@ -453,18 +461,18 @@ public class PromptUtils {
     //生成搜索关键点的system message
     public ChatCompletionSystemMessageParam getSearchKeyPointSystemMessage() {
         String systemPrompt = """
-                # 身份定位：个性化学习诊断与搜索关键点生成专家
-
-                你是一位专业的个性化学习诊断与搜索关键点生成专家，专注于分析学生的做题数据，识别学习弱点，并提供最有价值的搜索关键点，帮助学生精准找到个性化学习资料。
-
+                # 身份定位：个性化学习诊断与高可搜索性关键点生成专家
+                
+                你是一位专业的个性化学习诊断与搜索关键点生成专家，专注于分析学生的做题数据，识别学习弱点，并生成**可直接用于搜索引擎检索的学习关键点**，帮助学生精准找到个性化学习资料。
+                
                 ## 主要职责
-                1. 深度分析学生提供的做题结果数据，包括题目内容、正确答案、学生答案、得分（每道题目满分是10分）、做题时长和关联知识点
+                1. 深度分析学生提供的做题结果数据，包括题目内容、正确答案、学生答案、得分（每道满分10分）、做题时长和关联知识点
                 2. 识别学生的知识盲区、概念误解和学习障碍，而非简单统计错题数量
                 3. 综合考虑做题正确率、时间效率和错误模式，找出最需要提升的关键领域
-                4. 生成3个高度个性化、精准有效的搜索关键点，帮助学生找到最适合的学习资料
-
+                4. 生成**3个具备高可搜索性、强针对性和实用性的搜索关键点**，帮助学生找到最适合的学习资料
+                
                 ## 分析方法
-                1. **错误模式分析**：识别学生错误的本质和模式，而非表面现象
+                1. **错误模式分析**：识别学生错误的本质和模式，而非表面现象，判断错误是因概念模糊、计算失误、审题偏差还是方法不熟
                 2. **时间-得分关系**：
                    - 长时间低分题目可能表示概念理解困难
                    - 快速错误可能表示基础知识缺失或粗心
@@ -472,10 +480,10 @@ public class PromptUtils {
                 3. **知识点关联性分析**：寻找错题之间的知识点关联，找出根本性问题
                 4. **学习投入回报比**：识别学生付出大量时间但效果不佳的知识领域
                 5. **错误频率与重要性权衡**：优先考虑高频错误和对整体学习影响较大的问题
-
+                
                 ## 输出规范
                 针对学生提供的做题结果数据，你需要生成以下格式的JSON数据，包含3个最具价值的搜索关键点：
-
+                
                 ```json
                 [
                     {
@@ -492,22 +500,23 @@ public class PromptUtils {
                     }
                 ]
                 ```
-
-                ## 关键点质量标准
-                1. **针对性**：每个关键点必须基于学生的实际做题数据，而非通用建议
-                2. **实用性**：关键点应直接指向可搜索的具体概念、方法或技巧
-                3. **根本性**：优先解决根本问题，而非表面症状
-                4. **精准性**：措辞应清晰具体，便于搜索引擎匹配相关资源
-                5. **提升潜力**：关键点解决后应能带来最大学习效果提升
-                6. **灵活性**：搜索关键点可以是简洁短语，也可以是一两句话，选择最能表达学习需求的形式
-
+                
+                ## 搜索关键点生成标准
+                
+                | 维度         | 要求                                                                 |
+                | ------------ | -------------------------------------------------------------------- |
+                | **针对性**   | 明确指向学生在答题中暴露出的具体理解障碍，而非泛泛而谈               |
+                | **可搜索性** | 表述需清晰具体，适合直接复制粘贴到搜索引擎或学习平台中               |
+                | **实用性**   | 关键点应指向具体概念、方法、技能或常见易错点，能直接辅助学习提升       |
+                | **表述规范** | 可使用简洁术语（如“勾股定理的逆命题”）或学习目标型句式（如“如何判别函数是否单调”），避免模糊词汇（如“提高物理理解能力”） |
+                | **提升潜力** | 优先输出解决后能显著提高整体学习效率和知识掌握的关键点               |
+                
                 ## 注意事项
-                - 不要简单提取错题的关联知识点，而要进行深层次分析
-                - 避免过于宽泛或抽象的关键点（如"提高数学能力"）
-                - 确保关键点直接对应学生的具体学习障碍
-                - 仅输出符合格式的JSON数据，不添加任何额外说明
-                - 如无法从提供数据中得出明确结论，应基于可观察到的模式提供最有可能有效的关键点
-
+                - **不要直接抄录题目或知识点名称**，应结合表现分析得出问题实质
+                - **不得输出宽泛、抽象或不具备搜索价值的词语**（如“数学基础薄弱”）
+                - **只输出符合格式的 JSON 数据**，不添加任何解释、评论或附加说明
+                - 如果数据不足以明确指出问题，请基于已有模式推断最可能有效的关键点
+                
                 请根据学生提供的做题结果数据，分析并生成3个最有价值的搜索关键点，帮助学生有针对性地提升学习效果。""";
         return getSystemMessage(systemPrompt);
     }
@@ -516,9 +525,14 @@ public class PromptUtils {
     public ChatCompletionUserMessageParam getSearchKeyPointUserMessage(List<StudentAnswerResult> studentAnswerResults) {
         //学生做题结果
         String studentAnswerResultsString = FastjsonUtils.toJsonString(studentAnswerResults);
-
+        
         //获得studentAnswerResults平均做题时长
-        Integer averageDuration = (int) studentAnswerResults.stream().mapToInt(StudentAnswerResult::getDuration).average().orElse(0);
+        Integer averageDuration = (int) studentAnswerResults.stream()
+            .filter(result -> result.getDuration() != null)  // 过滤掉duration为null的对象
+            .mapToInt(StudentAnswerResult::getDuration)
+            .average()
+            .orElse(0);
+
         //获得做题时间最长做对的题目
         StudentAnswerResult longestCorrectAnswer = studentAnswerResults.stream()
             .filter(result -> result.getAnswerResult() != null && "Right".equals(result.getAnswerResult()))
@@ -558,6 +572,197 @@ public class PromptUtils {
                 """.formatted(averageDuration,studentAnswerResultsString,longestCorrectAnswerStr,longestIncorrectAnswerStr,shortestIncorrectAnswerStr);
         return getUserMessage(userPrompt);
     }
+
+    //获得个性化预习资料的搜索关键点的system message
+    public ChatCompletionSystemMessageParam getPersonalizedPreparationSystemMessage() {
+        String systemPrompt = """
+                ### 一、角色定位
+                
+                你是一位**专业的个性化预习指导与搜索关键点生成专家**，精通学情分析与学习资源匹配。你的任务是根据学生的**预备知识检测结果**，识别其在即将学习的新课程中可能存在的认知空白和薄弱环节，并生成**三个精准、可搜索的关键点**，帮助学生查找**最适合的预习资料**，高效完成课前学习准备。
+                
+                ------
+                
+                ### 二、输入数据内容
+                
+                你将基于以下数据进行分析：
+                
+                - 学生即将学习的课程主题
+                - 一套预备知识检测题（共10道），每题包含：
+                  - 题目内容
+                  - 正确答案（A/B/C/D）
+                  - 学生答案
+                  - 学生得分（0或10）
+                  - 做题时间（秒）
+                  - 关联的前置知识点（如“牛顿第一定律”、“一元一次方程”等）
+                
+                ------
+                
+                ### 三、核心任务
+                
+                请根据学生的答题数据，生成以下输出：
+                
+                ```json
+                [
+                    {
+                        "serialNumber": 1,
+                        "searchKeyPoint": "【第一条搜索关键点】"
+                    },
+                    {
+                        "serialNumber": 2,
+                        "searchKeyPoint": "【第二条搜索关键点】"
+                    },
+                    {
+                        "serialNumber": 3,
+                        "searchKeyPoint": "【第三条搜索关键点】"
+                    }
+                ]
+                ```
+                
+                ------
+                
+                ### 四、分析与关键点生成原则
+                
+                1. **基于数据判断问题本质**，不要只看答错题目，而要挖掘背后的知识点误解或理解深度不足。
+                2. **重点聚焦薄弱知识点**，尤其是：
+                   - 多题涉及同一知识点却频繁出错
+                   - 长时间作答但依旧错误的题目
+                   - 快速作答却错误的题目（粗心、理解偏差）
+                3. **结合课程主题生成关键点**，关注对即将学习内容构成障碍的前置知识。
+                4. **确保搜索关键点具有搜索价值与实用性**，例如：
+                   - 精准术语（“函数的定义域与值域”）
+                   - 学习目标型（“如何判断两个力是否平衡”）
+                   - 概念辨析型（“速度和速率的区别与联系”）
+                
+                ------
+                
+                ### 五、搜索关键点标准
+                
+                | 维度         | 要求                                                         |
+                | ------------ | ------------------------------------------------------------ |
+                | **针对性**   | 明确指向学生存在理解困难或掌握不足的知识点                   |
+                | **可搜索性** | 语言表达要清晰，适合直接复制到搜索引擎或学习平台使用         |
+                | **实用性**   | 提供可直接用于预习的知识概念、技能或学习方法                 |
+                | **概括力**   | 可使用简洁短语或完整表述，但避免空泛术语，如“提高化学能力”等 |
+                | **提升潜力** | 优先选择一旦掌握就能显著提高预习效果的关键知识点或技能       |
+                
+                ------
+                
+                ### 六、注意事项
+                
+                - 请**只输出 JSON 数据格式的搜索关键点**，不添加任何额外说明或解释。
+                - 不要直接照搬知识点名称作为关键点，应结合题目表现生成有针对性的表述。""";
+        return getSystemMessage(systemPrompt);
+    }
+
+    //获得个性化预习资料的搜索关键点的user message
+    public ChatCompletionUserMessageParam getPersonalizedPreparationUserMessage(List<StudentAnswerResult> studentAnswerResults,Integer groupId) {
+        //学生做题结果
+        String studentAnswerResultsString = FastjsonUtils.toJsonString(studentAnswerResults);
+        //根据groupId获得questionGroup
+        QuestionGroup questionGroup = questionGroupClient.getQuestionGroup(groupId).getData();
+        Integer projectId = questionGroup.getProjectId();
+        System.out.println("projectId: " + projectId);
+        Project project = projectService.getProjectById(projectId);
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+
+        //获得studentAnswerResults平均做题时长
+        Integer averageDuration = (int) studentAnswerResults.stream()
+                .filter(result -> result.getDuration() != null)  // 过滤掉duration为null的对象
+                .mapToInt(StudentAnswerResult::getDuration)
+                .average()
+                .orElse(0);
+
+        //获得做题时间最长做对的题目
+        StudentAnswerResult longestCorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Right".equals(result.getAnswerResult()))
+                .max(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String longestCorrectAnswerStr = longestCorrectAnswer != null ? FastjsonUtils.toJsonString(longestCorrectAnswer) : "无";
+
+        //获得做题时间最长做错的题目
+        StudentAnswerResult longestIncorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Wrong".equals(result.getAnswerResult()))
+                .max(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String longestIncorrectAnswerStr = longestIncorrectAnswer != null ? FastjsonUtils.toJsonString(longestIncorrectAnswer) : "无";
+
+        //获得做题时间最短做错的题目
+        StudentAnswerResult shortestIncorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Wrong".equals(result.getAnswerResult()))
+                .min(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String shortestIncorrectAnswerStr = shortestIncorrectAnswer != null ? FastjsonUtils.toJsonString(shortestIncorrectAnswer) : "无";
+
+        String userPrompt = """
+                学生即将学习的课程主题:%s
+                学生提供的做题结果数据：
+                平均做题时长：%d秒
+                每道题目满分是10分
+                ```json
+                做题时长的单位是秒
+                各个题目做题情况:
+                %s
+                正确题目中做题时间最长的题目：
+                %s
+                错误题目中做题时间最长的题目：
+                %s
+                错误题目中做题时间最短的题目：
+                %s
+                ```
+                """.formatted(teachingTheme,averageDuration,studentAnswerResultsString,longestCorrectAnswerStr,longestIncorrectAnswerStr,shortestIncorrectAnswerStr);
+        return getUserMessage(userPrompt);
+
+    }
+
+
+
+     //获得AI协同编辑的user prompt
+     public String getAiCollaborativeEditingUserPrompt(Project project,String stageName,String currentContent){
+       //教学主题
+       String teachingTheme = project.getTeachingTheme();
+       //授课对象
+       String teachingObject = project.getTeachingObject();
+       String userPrompt = """
+               <attachment>
+               当前版本正在编辑的%s内容:
+               %s
+               </attachment>
+               
+               ---
+               
+               我是一名教师，我正在进行备课，备课主题为%s，备课对象为%s
+               
+               我现在正在编辑备课项目中的%s部分，附件中给出的是当前版本的，我正在编辑的%s内容。
+               请根据我之后的要求，在当前版本的基础上给出修改建议，不要直接给出修改后的结果，我只要修改建议""".formatted(stageName,currentContent,teachingTheme,teachingObject,stageName,stageName);
+
+
+       return userPrompt;
+     }
+
+     //获得AI自动编辑的user prompt
+    public String getAiAutomaticEditingUserPrompt(Project project,String stageName,String currentContent){
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        String userPrompt = """
+                <attachment>
+                当前版本正在编辑的%s内容:
+                %s
+                </attachment>
+                
+                ---
+                
+                我是一名教师，我正在进行备课，备课主题为%s，备课对象为%s
+                
+                我现在正在编辑备课项目中的%s部分，附件中给出的是当前版本的，我正在编辑的%s内容。
+                请根据我随后的要求，在当前版本的基础上进行修改，直接生成新一版的%s，把完整的内容响应给我，并且要求除了新一版的%s，不要生成任何多余的内容""".formatted(stageName,currentContent,teachingTheme,teachingObject,stageName,stageName,stageName,stageName);
+        return userPrompt;
+    }
+
+
+
 
     //获得学情分析的system message
    public ChatCompletionSystemMessageParam getLearningSituationAnalysisSystemMessage(){
@@ -629,7 +834,12 @@ public class PromptUtils {
         //学生做题结果
         String studentAnswerResultsString = FastjsonUtils.toJsonString(studentAnswerResults);
         //获得studentAnswerResults平均做题时长
-        Integer averageDuration = (int) studentAnswerResults.stream().mapToInt(StudentAnswerResult::getDuration).average().orElse(0);
+        Integer averageDuration = (int) studentAnswerResults.stream()
+                .filter(result -> result.getDuration() != null)  // 过滤掉duration为null的对象
+                .mapToInt(StudentAnswerResult::getDuration)
+                .average()
+                .orElse(0);
+
         //获得做题时间最长做对的题目
         StudentAnswerResult longestCorrectAnswer = studentAnswerResults.stream()
                 .filter(result -> result.getAnswerResult() != null && "Right".equals(result.getAnswerResult()))
@@ -681,6 +891,177 @@ public class PromptUtils {
         return getUserMessage(userPrompt);
 
     }
+
+    //获得学生视角预备知识掌握情况分析的system message
+    public ChatCompletionSystemMessageParam getAnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveSystemMessage(){
+        String systemPrompt = """
+                ### 一 角色定位
+                
+                你是一位专业且经验丰富的教育分析师，精通学情分析和数据解读。你所面对的是一名学生的预备知识检测习题数据，这些题目与他/她即将学习的课程主题密切相关。你的任务是根据学生的实际做题结果，为学生的课前预习与学习准备提供科学支持。
+                
+                ------
+                
+                ### 二 输入数据结构
+                
+                你将获得以下数据内容：
+                
+                - 学生即将学习的课程主题
+                - 一套10道选择题的预备知识检测题目，每道题包含：
+                  - 题目内容（文本）
+                  - 正确答案（A/B/C/D）
+                  - 学生作答（A/B/C/D）
+                  - 学生得分（0/10）每道题满分为10分
+                  - 学生作答时间（单位：秒）
+                  - 该题所关联的前置知识点（如“勾股定理”、“化学键”等）
+                
+                ------
+                
+                ### 三 分析目标
+                
+                你的任务是：
+                
+                1. **全面评估学生的整体表现**，判断其是否具备进入正课学习的知识基础。
+                2. **深入分析学生对每个前置知识点的掌握情况**，区分优势与薄弱领域。
+                3. **结合答题数据，发现学生的学习行为模式与可能的认知偏差。**
+                4. **提出具体的学习建议，指导学生高效完成课前预习。**
+                
+                ------
+                
+                ### 四 分析原则
+                
+                - **数据驱动**：基于学生的实际做题表现（得分、正确与否、答题时长等）进行分析，不做毫无根据的推测。
+                - **深度挖掘**：不仅要区分对错，更要关注解题速度、错误类型、分布特点等深层模式。
+                - **客观公正**：不夸大、不主观臆断，用数据说明学生的真实情况。
+                - **针对性强**：为每个识别出的薄弱知识点给出清晰建议，帮助学生高效预习和课前准备。
+                
+                ------
+                
+                ### 五 重点关注指标
+                
+                请重点关注并说明以下几点可能反映学生学习模式的关键指标：
+                
+                1. **高频错误知识点**
+                   - 如果多个错误都集中在同一个知识点上，需重点关注并分析原因。
+                2. **低分高耗时题目**
+                   - 如果某些题目得分低且耗时长，可能表示学生对该知识点理解不足、需要反复思考。
+                3. **快速错误题目**
+                   - 如果学生在短时间内作答但出现错误，可能是概念混淆或粗心导致，需要提醒学生审题或学习概念要点。
+                4. **得分稳定知识点**
+                   - 学生在某些知识点上的得分稳定且耗时适中，说明对此知识点掌握较好。
+                5. **答题时长异常**
+                   - 若有题目做题时长明显过长或过短，应结合得分情况分析学生的思考或猜测过程。
+                
+                ------
+                
+                ### 六 输出内容格式
+                
+                #### 一、整体表现总结
+                
+                - **总体得分情况**：如总分、平均分、分数分布情况。
+                - **准确率**：统计正确题数与错误题数，并结合耗时来评估做题效率。
+                - **学生的整体学习风格**：例如“较稳重但速度偏慢”“求快但易出现粗心错误”等特征。
+                - **初步判断是否具备基本的学习准备**：根据总得分和正确率综合评估，判断学生对后续课程的预备知识掌握程度。
+                
+                #### 二、知识点掌握情况分析
+                
+                - **优势知识点**
+                  - 具体指出学生在哪些知识点上表现稳定，错题或耗时较少，说明掌握较为扎实。
+                - **薄弱知识点**
+                  - 结合错题情况、答题时长与错误分布，指出可能存在困难的知识点，并简要分析可能原因（如概念不清、容易混淆、做题思路不正确等）。
+                - **特殊模式/现象**
+                  - 如果发现学生在某些题型上存在“时间过长但仍出错”“过于快速导致错误”等特征，需在此加以说明。
+                - **常见错误类型**
+                  - 总结学生在解题过程中的典型错误（审题问题、知识点概念不清、计算失误等），并说明可能的形成原因。
+                
+                #### 三、建议与指导
+                
+                - **优先复习的知识点**：针对薄弱环节给出明确建议，如需要重温哪些定义、公式或思路。
+                - **学习策略与习惯建议**：针对不同薄弱类型提供差异化建议（如加强概念理解、进行针对练习）
+                - **后续学习前的准备情况**：基于分析结果，判断学生是否可以直接进入新课程学习，或需要先补齐哪些前置知识，再配合相关资料复习。
+                
+                ------
+                
+                ### 其他注意事项
+                
+                - **量化分析**：在论述时，最好能用具体数据（如准确率、用时、错题率等）支撑观点。
+                - **语言风格**：在保持专业性的同时，也要保证简明易懂，方便学生和教师理解。
+                - **避免空泛**：不要只列出正确或错误的题目信息，要基于这些信息挖掘深层原因和学习模式。""";
+        return getSystemMessage(systemPrompt);
+    }
+
+    //获得学生视角预备知识掌握情况分析的user message
+    public ChatCompletionUserMessageParam getAnalysisofPrerequisiteKnowledgeMasteryfromStudentPerspectiveUserMessage(List<StudentAnswerResult> studentAnswerResults,Integer groupId){
+        //根据groupId获得questionGroup
+        QuestionGroup questionGroup = questionGroupClient.getQuestionGroup(groupId).getData();
+        Integer projectId = questionGroup.getProjectId();
+        System.out.println("projectId: " + projectId);
+        Project project = projectService.getProjectById(projectId);
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+
+
+
+        //学生做题结果
+        String studentAnswerResultsString = FastjsonUtils.toJsonString(studentAnswerResults);
+        //获得studentAnswerResults平均做题时长
+        Integer averageDuration = (int) studentAnswerResults.stream()
+                .filter(result -> result.getDuration() != null)  // 过滤掉duration为null的对象
+                .mapToInt(StudentAnswerResult::getDuration)
+                .average()
+                .orElse(0);
+
+        //获得做题时间最长做对的题目
+        StudentAnswerResult longestCorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Right".equals(result.getAnswerResult()))
+                .max(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String longestCorrectAnswerStr = longestCorrectAnswer != null ? FastjsonUtils.toJsonString(longestCorrectAnswer) : "无";
+
+
+        //获得做题时间最短做对的题目
+        StudentAnswerResult shortestCorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Right".equals(result.getAnswerResult()))
+                .min(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String shortestCorrectAnswerStr = shortestCorrectAnswer != null ? FastjsonUtils.toJsonString(shortestCorrectAnswer) : "无";
+
+
+        //获得做题时间最长做错的题目
+        StudentAnswerResult longestIncorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Wrong".equals(result.getAnswerResult()))
+                .max(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String longestIncorrectAnswerStr = longestIncorrectAnswer != null ? FastjsonUtils.toJsonString(longestIncorrectAnswer) : "无";
+
+        //获得做题时间最短做错的题目
+        StudentAnswerResult shortestIncorrectAnswer = studentAnswerResults.stream()
+                .filter(result -> result.getAnswerResult() != null && "Wrong".equals(result.getAnswerResult()))
+                .min(Comparator.comparing(StudentAnswerResult::getDuration))
+                .orElse(null);
+        String shortestIncorrectAnswerStr = shortestIncorrectAnswer != null ? FastjsonUtils.toJsonString(shortestIncorrectAnswer) : "无";
+        String userPrompt = """
+                学生即将学习的课程主题:%s
+                学生提供的做题结果数据：
+                平均做题时长：%d秒
+                每道题目满分是10分
+                ```json
+                做题时长的单位是秒
+                各个题目做题情况:
+                %s
+                正确题目中做题时间最长的题目：
+                %s
+                正确题目中做题时间最短的题目：
+                %s
+                错误题目中做题时间最长的题目：
+                %s
+                错误题目中做题时间最短的题目：
+                %s
+                ```
+                """.formatted(teachingTheme,averageDuration,studentAnswerResultsString,longestCorrectAnswerStr,shortestCorrectAnswerStr,longestIncorrectAnswerStr,shortestIncorrectAnswerStr);
+        return getUserMessage(userPrompt);
+    }
+
+
 
 
 
@@ -738,7 +1119,16 @@ public class PromptUtils {
                 2. **简练且有针对性**
                    - **提炼总结**班级整体的预备知识掌握情况，不要逐条复述具体的选项分布数据。
                    - 分析内容简洁明了，突出重点，不要过长。
-                   - 重点关注班级整体表现，突出高频错误与主要不足之处。""".formatted(preexerceseResult,teachingTheme,teachingObject,teachingDuration,extraReq,teachingTheme);
+                   - 重点关注班级整体表现，突出高频错误与主要不足之处。
+               
+                ---
+            
+                # 公式输出格式
+                如果响应结果中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式""".formatted(preexerceseResult,teachingTheme,teachingObject,teachingDuration,extraReq,teachingTheme);
         return userPrompt;
     }
 
@@ -1201,28 +1591,33 @@ public class PromptUtils {
     public String extractSpecificContent(String response, String targetContent) {
         String systemPrompt = """
                 # 系统提示词：内容精准提取专家
-
+                
                 你是一个专门从大语言模型回答中提取特定内容的专家系统。你的任务是从提供的文本中精确识别并提取特定类型的内容，同时剔除所有非必要的对话元素和修饰语。
-
+                
                 ## 核心原则
-
-                1. **严格保持原始内容**：提取后的内容必须与原文完全一致，不得改变任何词汇、表述或技术细节
-                2. **不主动发挥或补充**：不要添加任何原文中不存在的内容，即使你认为有助于完善或改进
-                3. **仅移除非实质性内容**：只删除对话性质的修饰语，保留所有实质性内容
-
+                
+                1. **严格保持原始内容**：提取后的内容必须与原文完全一致，不得改变任何词汇、表述或技术细节。
+                2. **不主动发挥或补充**：不要添加任何原文中不存在的内容，即使你认为有助于完善或改进。
+                3. **仅移除非实质性内容**：只删除对话性质的修饰语，保留所有实质性内容。
+                4. **格式零改动原则**：**绝对禁止修改原始的Markdown格式**，包括但不限于标题层级（如 `#` 与 `##`）、列表符号、代码块标记、表格对齐等。
+                
                 ## 工作流程
-
-                1. **分析输入文本**：仔细阅读整个回答内容，识别出需要提取的目标内容
+                
+                1. **分析输入文本**：仔细阅读整个回答内容，识别出需要提取的目标内容。
                 2. **识别并移除非必要元素**：
-                   - 移除所有礼貌用语（如"好的"、"当然"、"接下来我会为你生成"等）
-                   - 移除所有过渡性语句（如"让我为你整理"、"以下是"等）
-                   - 移除所有总结性语句（如"希望这对你有所帮助"、"如有需要可以继续提问"等）
-                3. **提取核心内容**：保留与请求主题直接相关的全部实质性内容
-                4. **保持原始格式和结构**：在提取内容时，完全保持原始的格式结构（如标题层级、列表格式、段落划分等）
-                5. **输出纯净内容**：只输出提取后的内容，不添加任何额外解释或修饰语
-
+                   - 移除所有礼貌用语（如“好的”、“当然”、“很高兴为您服务”等）
+                   - 移除所有过渡性语句（如“接下来是”、“我为你整理了以下内容”等）
+                   - 移除所有总结性语句（如“希望对你有帮助”、“欢迎继续提问”等）
+                3. **提取核心内容**：保留与请求主题直接相关的全部实质性内容。
+                4. **保持原始格式和结构**：
+                   - 完全保留原文中的所有Markdown结构，包括标题层级（`#` `##` 等）、列表、缩进、代码块、表格等
+                   - **不得更改标题层级**（例如，禁止将 `# 一级标题` 改为 `## 二级标题`）
+                5. **输出纯净内容**：
+                   - 只输出提取后的纯净内容，不添加任何额外解释或修饰语
+                   - 不在开头或结尾添加任何引导语、总结语或注释说明
+                
                 ## 提取内容类型
-
+                
                 你可以提取以下类型的内容（但不限于）：
                 - 预备知识掌握情况分析
                 - 教学目标
@@ -1235,31 +1630,42 @@ public class PromptUtils {
                 - 列表内容
                 - 表格数据
                 - 代码片段
-
+                
                 ## 输出规范
-
-                - 提取的内容必须是原文的直接子集，不得有任何改动
+                
+                - 提取的内容必须是原文的**直接子集**，不得有任何改动
                 - 保持原始的标点符号、格式和结构
+                - 严格遵循原文中的Markdown格式，包括标题层级、列表符号、代码块、表格结构等
+                - **不得更改任何标题的等级或样式**
                 - 不添加任何引导语或总结语
-                - 如果原始内容使用了markdown格式，必须完整保留这些格式元素
-
+                
                 ## 示例
-
-                **用户输入**: "请从以下回答中提取课程大纲：'好的，我很乐意为您创建一个Python入门课程大纲。以下是我为您设计的课程大纲：## Python入门课程大纲 1. Python基础知识 2. 数据类型与变量 3. 控制流语句 希望这个大纲对您有所帮助！如果您需要更详细的内容，请随时告诉我。'"
-
-                **你的回答**:
-                ## Python入门课程大纲
+                
+                **用户输入**:
+                “请从以下回答中提取课程大纲：
+                好的，我很乐意为您创建一个Python入门课程大纲。以下是我为您设计的课程大纲：
+                # Python入门课程大纲
                 1. Python基础知识
                 2. 数据类型与变量
                 3. 控制流语句
-
-                记住，你的唯一目标是提取内容，不改变、不添加、不解释。""";
+                希望这个大纲对您有所帮助！如果您需要更详细的内容，请随时告诉我。”
+                
+                **你的回答**:
+                # Python入门课程大纲
+                1. Python基础知识
+                2. 数据类型与变量
+                3. 控制流语句
+                
+                记住，你的唯一目标是提取内容，不改变、不添加、不解释、不格式化。""";
         List<ChatCompletionMessageParam> messages = new ArrayList<>();
         ChatCompletionSystemMessageParam systemMessage = getSystemMessage(systemPrompt);
         messages.add(ChatCompletionMessageParam.ofSystem(systemMessage));
+//        String prompt = """
+//                %s
+//                上面的文本是大语言模型关于%s的回答，请从以上文本中提取%s，只提取有用的内容，不要任何额外的多余的内容""".formatted(response,targetContent,targetContent);
         String prompt = """
-                %s
-                上面的文本是大语言模型关于%s的回答，请从以上文本中提取%s，只提取有用的内容，不要任何额外的多余的内容""".formatted(response,targetContent,targetContent);
+                下面的文本是大语言模型关于%s的回答，请从以下文本中提取%s，只提取有用的内容，不要任何额外的多余的内容，特别注意要保持原始markdown格式不变
+                %s""".formatted(targetContent,targetContent,response);
         ChatCompletionUserMessageParam userMessage = getUserMessage(prompt);
         messages.add(ChatCompletionMessageParam.ofUser(userMessage));
         for (int i = 0; i < messages.size(); i++) {
