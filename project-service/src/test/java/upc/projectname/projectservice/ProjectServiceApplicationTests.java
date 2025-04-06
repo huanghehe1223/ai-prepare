@@ -939,6 +939,13 @@ class ProjectServiceApplicationTests {
 		System.out.println(knowledgePointsTitle);
 	}
 
+	//查看临时文件夹路径
+	@Test
+	void testTempFile() {
+		String tempDirPath = System.getProperty("java.io.tmpdir");
+		System.out.println("临时文件夹路径: " + tempDirPath);
+	}
+
 
 
 

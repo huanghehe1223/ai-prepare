@@ -39,4 +39,6 @@ public interface ProjectService extends IService<Project> {
                           String teachingProcessOutline,
                           String teachingProcess,
                           String knowledgePointsTitle);
-} 
+
+    String exportMarkdown(Integer projectId);
+}

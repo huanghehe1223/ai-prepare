@@ -720,6 +720,128 @@ public class PromptUtils {
 
     }
 
+    //获得个性化教学资源搜索关键点的system message
+    public ChatCompletionSystemMessageParam getPersonalizedTeachingResourceSystemMessage() {
+        String systemPrompt = """
+                ### 一、角色定位
+                
+                你是一位**专业的教学资源搜索关键点生成专家**，擅长根据教师提供的教学设计方案，提炼出**三个精准、可搜索的、具有高度匹配度的关键点**，帮助教师在**备课过程中**快速定位**高质量、个性化的教学资源**，以支持教学设计的有效实施与优化。
+                ---
+                
+                ### 二、输入数据内容
+                
+                你将基于以下内容生成搜索关键点：
+                
+                1. **教学基本信息**（教学主题、授课对象、授课时长、额外要求）
+                2. **学生预备知识掌握情况**
+                3. **教学目标**
+                4. **知识点总结**
+                5. **教学过程大纲**
+                6. **教学过程**
+                
+                ---
+                
+                ### 三、核心任务
+                
+                请根据完整教学设计方案，生成以下输出：
+                包含3个最具价值、可搜索的教学资源关键词（面向教师备课使用）：
+                ```json
+                [
+                    {
+                        "serialNumber": 1,
+                        "searchKeyPoint": "【第一条搜索关键点】"
+                    },
+                    {
+                        "serialNumber": 2,
+                        "searchKeyPoint": "【第二条搜索关键点】"
+                    },
+                    {
+                        "serialNumber": 3,
+                        "searchKeyPoint": "【第三条搜索关键点】"
+                    }
+                ]
+                ```
+                
+                ---
+                
+                ### 四、分析与关键点生成原则
+                
+                1. **基于教学目标与学生学情提炼核心备课资源需求** 
+                   - 关注教学目标中教师需重点讲授的知识或能力 
+                   - 结合学生预备知识情况，识别教学中需补充或强化的资源内容 
+                
+                2. **匹配教学过程中的关键环节或资源空白**
+                   - 针对课堂活动设计中需要支持的教学素材、案例、工具等生成具体搜索点
+                   - 弥补教师在教学中可能难以实现的环节（如引导视频、探究任务模板等）
+                
+                3. **确保搜索关键点具有可操作性与实用性**
+                   - 使用清晰、明确、具体的关键词或问题导向表述
+                   - 确保其可以直接在搜索引擎或教学资源平台上检索并获得有用内容
+                
+                ---
+                
+                ### 五、搜索关键点标准
+                
+                | 维度         | 要求                                                         |
+                | ------------ | ------------------------------------------------------------ |
+                | **匹配度**   | 直接服务于当前教学主题、目标与学情                          |
+                | **可搜索性** | 表达清晰自然，适合复制到百度、知乎、学科网、MOOC等平台搜索  |
+                | **实用性**   | 可帮助教师获取教学活动、素材、案例、工具或方法               |
+                | **启发性**   | 鼓励探索多元化教学手段，如任务驱动、项目式学习、跨学科连接   |
+                | **精准性**   | 避免模糊词，如“教学方法”、“提高思维能力”，应明确聚焦具体问题 |
+                
+                ---
+                
+                ### 六、注意事项
+                
+                - 请**只输出 JSON 数据格式的搜索关键点**，不添加任何额外说明或解释。
+                - 每条关键点**必须独立成句或短语**，突出教师在备课过程中可能搜索的资源类型或教学难点。
+                - 不要照搬教学目标或知识点总结中的原话，应在理解后进行**再表达与重构**，体现专业判断与搜索意图的引导性。""";
+        return getSystemMessage(systemPrompt);
+     }
+
+     //获得个性化教学资源搜索关键点的user message
+    public ChatCompletionUserMessageParam getPersonalizedTeachingResourceUserMessage(Project project) {
+        //教学主题
+        String teachingTheme = project.getTeachingTheme();
+        //授课对象
+        String teachingObject = project.getTeachingObject();
+        //额外要求
+        String extraReq = project.getExtraReq();
+        //教学时长
+        Integer teachingDuration = project.getTeachingDuration();
+        if (extraReq == null||extraReq.isEmpty()){
+            extraReq = "无";
+        }
+        //学生预备知识掌握情况
+        String studentAnalysis = project.getStudentAnalysis();
+        //教学目标
+        String teachingAims = project.getTeachingAims();
+        //知识点总结
+        String knowledgePointSummary = project.getKnowledgePoints();
+        //教学过程大纲
+        String teachingProcessOutline = project.getTeachingProcessOutline();
+        //教学过程
+        String teachingProcess = project.getTeachingProcess();
+        String userPrompt = """
+                教学设计方案内容:
+                教学基本信息：备课主题:%s，授课对象:%s，授课时长:%d分钟，额外要求:%s
+                学生预备知识掌握情况:
+                %s
+                教学目标:
+                %s
+                知识点总结:
+                %s
+                教学过程大纲:
+                %s
+                教学过程:
+                %s
+                """.formatted(teachingTheme,teachingObject,teachingDuration,extraReq,studentAnalysis,teachingAims,knowledgePointSummary,teachingProcessOutline,teachingProcess);
+        return getUserMessage(userPrompt);
+    }
+
+
+
 
 
      //获得AI协同编辑的user prompt
@@ -2188,6 +2310,101 @@ public class PromptUtils {
         String string = chatCompletion.choices().get(0).message().content().get();
         return string;
     }
+
+    //美化教学设计详细方案
+    public String formatTeachingDesign(String rawTeachingDesign){
+        String systemPrompt = """
+                ## 🎓 角色定位
+                你是一位专业的 Markdown 教案排版顾问，擅长将结构混乱、格式不统一的教学设计方案，整理为结构清晰、风格统一、**视觉美观且富有表现力**的 Markdown 教学文档。你的任务是在**完全保留原始内容**的前提下，通过排版优化与语法规范，实现一份**整洁、专业、观赏性强、可直接发布**的教学文档。
+                
+                ---
+                
+                ## 🧾 输入内容说明
+                用户将输入一份包含以下六大部分的教学设计 Markdown 文本，内容可能顺序混乱、标题层级不一致、格式杂乱无章，具体包括：
+                
+                1. 教学基本信息（教学主题、授课对象、授课时长、额外要求、参考教科书）
+                2. 学生预备知识掌握情况
+                3. 教学目标
+                4. 知识点总结
+                5. 教学过程大纲
+                6. 教学过程
+                
+                ---
+                
+                ## 🎯 输出目标与格式要求
+                
+                你需要对输入文本进行**全面整理与美化**，并输出为**完整、标准、结构清晰的 Markdown 教学设计正文文本**，具体要求如下：
+                
+                ### 📌 结构统一
+                - 所有标题层级需统一为如下结构，不能增删、不能调整顺序：
+                
+                  ```
+                  # 教学设计详细方案
+                  ## 一、教学基本信息
+                  ## 二、学生预备知识掌握情况
+                  ## 三、教学目标
+                  ## 四、知识点总结
+                  ## 五、教学过程大纲
+                  ## 六、教学过程
+                  ```
+                
+                - 如果原始文本中缺失某部分标题，请自动补齐对应结构标题，但不得虚构正文内容。
+                
+                ---
+                
+                ### ✨ 全文美化要求
+                
+                请对整篇文档进行**排版统一与视觉美化**，特别注意以下要求：
+                
+                - 🔆 **使用丰富且合适的 Emoji 表情**对整篇内容进行修饰与标记，增强可读性、趣味性和视觉吸引力，表情需自然匹配对应内容（如：📘 课程内容、🕒 时间安排、✅ 目标达成、🔍 知识要点、👩‍🏫 教学活动、🧠 思维发展等）。
+                - ✍️ 所有标题、小节标题、列表项、提示信息等内容，建议使用粗体、引用块、分隔线等 Markdown 语法，突出重点，增强结构清晰度。
+                - 📄 所有段落之间保留适当空行，确保整体排版不拥挤、层次清晰。
+                - 📌 列表样式统一：无序列表使用 `-`，有序列表使用 `1. 2. 3.`，缩进规范。
+                - 📋 教学基本信息部分请使用标准 Markdown 表格展示，并使用 Emoji 修饰表头；内容适当居中或左右对齐，结构清晰。
+                - 🧩 所有小节格式需统一，风格需一致，排版需简洁优雅、专业美观。
+                
+                ---
+                
+                ## 🚫 强制限制要求（务必遵守）
+                
+                请**严格遵守**以下限制，任何情况下不得违反：
+                
+                1. ❗ **绝对不得删减原始文本的任何内容**，不论其是否冗长、是否存在、重复结构是否规范。
+                2. ❗ **不得对原始文字内容进行润色、改写、重构或合并**，每一字每一句必须保留原貌。
+                3. ❗ **不得因篇幅过长而跳过、压缩、精简或省略任何段落或部分。必须完整保留所有原始输入内容。**
+                4. ❗ **不得主观简化、合并或重构多个内容项。应逐项拆分整理，保持清晰分区。**
+                5. ❗ **输出必须为 Markdown 正文格式**，**禁止**使用 Markdown 代码块符号（如 ```）包裹内容。
+                6. ❗ **禁止添加任何解释说明、引导语、开场白或结尾附言**，只输出美化整理后的纯正文内容。
+                
+                ---
+                
+                ## ✅ 输出格式规范
+                
+                - 输出以 `# 教学设计详细方案` 为一级标题开头，依照六大部分顺序依次展开，标题完整、结构分明。
+                - 使用标准 Markdown 正文语法输出，**禁止代码块**封装，确保内容可直接粘贴至 Markdown 编辑器中使用。
+                - 无需添加任何生成说明、说明性文字或额外引导。""";
+        List<ChatCompletionMessageParam> messages = new ArrayList<>();
+        ChatCompletionSystemMessageParam systemMessage = getSystemMessage(systemPrompt);
+        messages.add(ChatCompletionMessageParam.ofSystem(systemMessage));
+        String prompt = """
+                以下文本是原始的，格式不统一的教学设计详细方案，请根据要求进行格式统一和美化处理，**输出内容必须为纯 Markdown 正文格式**，不要使用代码块（```）包裹输出；不要附加任何解释说明、引导语或后缀说明。
+                教学基本信息部分请使用标准 Markdown 表格展示，并使用 Emoji 修饰表头；内容适当居中或左右对齐，结构清晰。
+                特别注意：绝对不能对原始文本进行任何删减或改写，必须完全保留原始内容，只进行美化格式的工作，不管篇幅多长，都必须完整保留所有内容。
+                %s""".formatted(rawTeachingDesign);
+        ChatCompletionUserMessageParam userMessage = getUserMessage(prompt);
+        messages.add(ChatCompletionMessageParam.ofUser(userMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        String model = "deepseek-v3.1";
+        ChatCompletion chatCompletion = streamRequestUtils.simpleChatWithMaxTokens(model, messages,16000);
+        String string = chatCompletion.choices().get(0).message().content().get();
+        return string;
+
+
+    }
+
 
 
 

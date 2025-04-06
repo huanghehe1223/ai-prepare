@@ -371,6 +371,47 @@ public class SimpleChatController {
         }
     }
 
+    //获取个性化教学资源搜素关键点
+    @Operation(summary = "获取个性化教学资源搜索关键点")
+    @PostMapping("/personalizedTeachingResourceSearchKeyPoint")
+    public Result<List<String>> getPersonalizedTeachingResourceSearchKeyPoint(@RequestParam Integer projectId) {
+        String model = "deepseek-v3.1";
+        List<ChatCompletionMessageParam> messages = new ArrayList<>();
+        ChatCompletionSystemMessageParam personalizedTeachingResourceSystemMessage = promptUtils.getPersonalizedTeachingResourceSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(personalizedTeachingResourceSystemMessage));
+        Project project = projectService.getProjectById(projectId);
+        ChatCompletionUserMessageParam personalizedTeachingResourceUserMessage = promptUtils.getPersonalizedTeachingResourceUserMessage(project);
+        messages.add(ChatCompletionMessageParam.ofUser(personalizedTeachingResourceUserMessage));
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("根据给出的信息，帮我总结3个最有价值的搜索关键点，用于帮助教师在备课过程中快速定位高质量、个性化的教学资源，只输出markdown格式的json数据，不要任何额外的多余的内容");
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
+        String markdownJson = chatCompletion.choices().get(0).message().content().get();
+        System.out.println("模型返回的markdownJson:"+markdownJson);
+        String jsonString = FastjsonUtils.extractJsonFromMarkdown(markdownJson);
+
+        if (jsonString == null) {
+            log.error("从Markdown中提取JSON失败，原始内容: {}", markdownJson);
+            return Result.error("提取JSON数据失败");
+        }
+
+        try {
+            System.out.println("提取到的json数据:"+jsonString);
+            // 解析JSON数组并提取searchKeyPoint列表
+            JSONArray jsonArray = JSON.parseArray(jsonString);
+            List<String> searchKeyPoints = jsonArray.stream()
+                    .map(item -> ((JSONObject) item).getString("searchKeyPoint"))
+                    .collect(Collectors.toList());
+
+            return Result.success(searchKeyPoints);
+        } catch (Exception e) {
+            log.error("JSON反序列化失败", e);
+            return Result.error("JSON反序列化失败");
+        }
+    }
 
 
 
@@ -400,6 +441,21 @@ public class SimpleChatController {
                 Result.success(true, "提取知识点标题成功") :
                 Result.error("提取知识点标题失败");
 
+    }
+
+
+    @Operation(summary = "获取最终版本的教学设计详细方案")
+    @PostMapping("/getFinalTeachingDesign")
+    public Result<String> getFinalTeachingDesign(@RequestParam Integer projectId) {
+        //原始markdown
+        String rawMarkdown = projectService.exportMarkdown(projectId);
+        //美化后的markdown
+        String markdown = promptUtils.formatTeachingDesign(rawMarkdown);
+        Project project =new Project();
+        project.setProjectId(projectId);
+        project.setFinalTeachingDesign(markdown);
+        projectService.updateProject(project);
+        return Result.success(markdown);
     }
 
 

@@ -52,5 +52,9 @@ public class Project implements Serializable {
 
     private String knowledgePointsTitle; //知识点标题
 
+    private String textbookName; //教材名称
+
+    private String finalTeachingDesign; //最终教学设计详细方案
+
 
 }

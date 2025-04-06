@@ -8,12 +8,25 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import upc.projectname.projectservice.utils.PromptUtils;
 import upc.projectname.projectservice.utils.TextBookUtils;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.projectservice.service.ProjectService;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +37,7 @@ import java.util.stream.Collectors;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final PromptUtils promptUtils;
 
 
 
@@ -141,13 +155,63 @@ public class ProjectController {
     }
     @Operation(summary = "从教材图数据库中检索节点与关系(业务)")
     @PostMapping("/search")
-    public Result<String> searchFromTextBook(@RequestParam String query,@RequestParam String databaseName,@RequestParam Integer projectId) {
+    public Result<String> searchFromTextBook(@RequestParam String query,@RequestParam String databaseName,@RequestParam Integer projectId,@RequestParam String textbookName) {
         String results = TextBookUtils.getVectorResults(query,databaseName);
-        projectService.changeProject(projectId,null,null,null,null,null,null,null,null,null,null,results,null,null,null,null);
+        Project project = new Project();
+        project.setProjectId(projectId);
+        project.setTextbookContent(results);
+        project.setTextbookName(textbookName);
+        projectService.updateProject(project);
         JSONArray jsonArray = JSON.parseArray(results);
         String content1 = jsonArray.stream().map(item -> ((JSONObject) item).getString("index")+"\n"+((JSONObject) item).getString("content")).collect(Collectors.joining("\n"));
         return Result.success(content1);
     }
+
+
+
+
+
+
+    @Operation(summary = "导出markdown教学设计文件")
+    @GetMapping("/export/{projectId}")
+    public ResponseEntity<Object> exportMarkdown(@PathVariable Integer projectId) {
+        String rawMarkdown = projectService.exportMarkdown(projectId);
+        String markdown = promptUtils.formatTeachingDesign(rawMarkdown);
+//        String markdown = projectService.exportMarkdown(projectId);
+
+        // 获取项目信息用于文件命名
+        Project project = projectService.getProjectById(projectId);
+        String filename = (project != null && project.getTeachingTheme() != null)
+                ? project.getTeachingTheme()
+                : "教学设计_" + projectId;
+
+        // 确保文件名有效并添加后缀
+        filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_") + ".md";
+
+        // 设置HTTP头
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/markdown"));
+
+        try {
+            // 使用 URLEncoder 对文件名进行编码，并指定编码方式为 UTF-8
+            String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8.toString());
+            // 替换空格编码，使其更友好
+            encodedFilename = encodedFilename.replace("+", "%20");
+
+            // 同时提供编码版本和原始版本（用引号括起来）
+            headers.add(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + encodedFilename + "\"; " +
+                            "filename*=UTF-8''" + encodedFilename);
+        } catch (UnsupportedEncodingException e) {
+            // 如果编码失败，使用默认ASCII安全的文件名
+            headers.setContentDispositionFormData("attachment", "teaching_design.md");
+        }
+
+        // 返回带有Markdown内容的响应实体
+        return new ResponseEntity<>(markdown, headers, HttpStatus.OK);
+    }
+
+
 
 
 
