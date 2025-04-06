@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import upc.projectname.projectservice.entity.ChatRequestDTO;
+import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.projectservice.utils.*;
 import upc.projectname.upccommon.api.client.QuestionClient;
 import upc.projectname.upccommon.api.client.QuestionGroupClient;
@@ -38,6 +39,7 @@ public class SimpleChatController {
     private final QuestionGroupClient questionGroupClient;
     private final QuestionClient questionClient;
     private final EducationAutoCompleteUtils educationAutoCompleteUtils;
+    private final ProjectService projectService;
 
 
     @Operation(summary = "非流式对话")
@@ -385,6 +387,18 @@ public class SimpleChatController {
     public Result<String> extractSpecificContent(@RequestParam String response, @RequestParam String targetContent) {
         String specificContent = promptUtils.extractSpecificContent(response, targetContent);
         return Result.success(specificContent);
+
+    }
+
+
+    @Operation(summary = "从知识点总结里面提取知识点标题")
+    @PostMapping("/extractKnowledgePointsTitle")
+    public Result<Boolean> extractKnowledgePointsTitle(@RequestParam String knowledgePointSummary,@RequestParam Integer projectId) {
+        String knowledgePointsTitle = promptUtils.extractKnowledgePointsTitle(knowledgePointSummary);
+        //根据更新结果决定返回成功还是失败
+        return projectService.changeProject(projectId,null,null,null,null,null,null,null,null,null,null,null,null,null,null,knowledgePointsTitle) ?
+                Result.success(true, "提取知识点标题成功") :
+                Result.error("提取知识点标题失败");
 
     }
 

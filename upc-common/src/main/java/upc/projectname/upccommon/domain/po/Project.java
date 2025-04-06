@@ -50,5 +50,7 @@ public class Project implements Serializable {
 
     private String teachingProcess; //教学过程
 
+    private String knowledgePointsTitle; //知识点标题
+
 
 }

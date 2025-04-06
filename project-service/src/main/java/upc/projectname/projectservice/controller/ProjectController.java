@@ -110,7 +110,10 @@ public class ProjectController {
                                          @RequestParam(value = "extraReq",required = false) String extraReq,
                                          @RequestParam(value = "currentStage",required = false) Integer currentStage,
                                          @RequestParam(value = "textbookContent",required = false) String textbookContent,
-                                         @RequestParam(value = "preexerceseResult",required = false) String preexerceseResult) {
+                                         @RequestParam(value = "preexerceseResult",required = false) String preexerceseResult,
+                                         @RequestParam(value = "teachingProcessOutline",required = false) String teachingProcessOutline,
+                                         @RequestParam(value = "teachingProcess",required = false) String teachingProcess,
+                                         @RequestParam(value = "knowledgePointsTitle",required = false) String knowledgePointsTitle) {
         // 判断除了projectId外的所有参数是否都为空
         if (classId == null
                 && teachingAims == null
@@ -123,13 +126,16 @@ public class ProjectController {
                 && extraReq == null
                 && currentStage == null
                 && textbookContent == null
-                && preexerceseResult == null) {
+                && preexerceseResult == null
+                && teachingProcessOutline == null
+                && teachingProcess == null
+                && knowledgePointsTitle == null) {
             return Result.error("更新失败：至少需要一个更新参数");
         }
 
         return projectService.changeProject(projectId, classId, teachingAims, studentAnalysis,
                 knowledgePoints, teachingContent, teachingDuration, teachingTheme,
-                teachingObject, extraReq,currentStage,textbookContent,preexerceseResult) ?
+                teachingObject, extraReq,currentStage,textbookContent,preexerceseResult,teachingProcessOutline,teachingProcess,knowledgePointsTitle) ?
                 Result.success(true, "更新成功") :
                 Result.error("更新失败");
     }
@@ -137,7 +143,7 @@ public class ProjectController {
     @PostMapping("/search")
     public Result<String> searchFromTextBook(@RequestParam String query,@RequestParam String databaseName,@RequestParam Integer projectId) {
         String results = TextBookUtils.getVectorResults(query,databaseName);
-        projectService.changeProject(projectId,null,null,null,null,null,null,null,null,null,null,results,null);
+        projectService.changeProject(projectId,null,null,null,null,null,null,null,null,null,null,results,null,null,null,null);
         JSONArray jsonArray = JSON.parseArray(results);
         String content1 = jsonArray.stream().map(item -> ((JSONObject) item).getString("index")+"\n"+((JSONObject) item).getString("content")).collect(Collectors.joining("\n"));
         return Result.success(content1);

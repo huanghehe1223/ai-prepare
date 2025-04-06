@@ -436,6 +436,9 @@ public class PromptUtils {
         String knowledgePointSummary = project.getKnowledgePoints();
         //教材相关内容
         String textbookContent = project.getTextbookContent();
+        //知识点标题
+        String knowledgePointsTitle = project.getKnowledgePointsTitle();
+
         String userPrompt = """
                教学主题: %s：
                授课对象: %s：
@@ -450,7 +453,9 @@ public class PromptUtils {
                %s
                ```
                </attachment>
-               对于检索到的内容，只考虑与教学主题直接相关的内容，忽略不相关内容""".formatted(teachingTheme,teachingObject,teachingAims,knowledgePointSummary,textbookContent);
+               对于检索到的内容，只考虑与教学主题直接相关的内容，忽略不相关内容
+               题目关联的知识点必须从以下知识点中挑选:
+               %s""".formatted(teachingTheme,teachingObject,teachingAims,knowledgePointSummary,textbookContent,knowledgePointsTitle);
         ChatCompletionUserMessageParam userMessage = getUserMessage(userPrompt);
 
         return userMessage;
@@ -1282,6 +1287,15 @@ public class PromptUtils {
 
                 ---
 
+                # 公式输出格式
+                如果响应结果中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式
+
+                ---
+
                 # 格式要求
                 请按以下格式输出每个知识点：
 
@@ -1681,6 +1695,81 @@ public class PromptUtils {
         return string;
 
     }
+
+
+
+
+
+    //提取知识点标题
+    public String extractKnowledgePointsTitle(String knowledgePointSummary) {
+        String systemPrompt = """
+                你将获得一段以“知识点总结”形式编写的文本，每个知识点由标题和内容组成。
+                你的任务是从中**提取每个知识点的标题**，并按照以下要求输出：
+                
+                ### 输出格式要求：
+                
+                - **仅提取标题本身**，不包含“知识点1”、“知识点2”等编号。
+                - 各个标题之间用**中文逗号（，）**隔开。
+                - **不换行**，只输出一行内容。
+                - 不要输出任何额外说明或解释，仅输出结果。
+                
+                ### 示例输入片段：
+                
+                ```txt
+                ### 知识点1：复数的基本概念
+                - **级别**：重点
+                - **描述**：介绍复数的定义，了解虚数单位 \\( i \\) 的引入（\\( i^2 = -1 \\)），并理解复数的一般形式 \\( a + bi \\)（\\( a \\) 和 \\( b \\) 为实数）。
+                
+                ### 知识点2：复数的相等条件
+                - **级别**：普通
+                - **描述**：两个复数相等的条件是它们的实部和虚部分别相等，即若 \\( a + bi = c + di \\)，则 \\( a = c \\) 且 \\( b = d \\)。
+                
+                ### 知识点3：复数集的构成
+                - **级别**：普通
+                - **描述**：复数集通过引入虚数单位 \\( i \\)，将实数集扩充，形成了包含所有实数和虚数在内的更大集合。
+                
+                ### 知识点4：数系的扩充历史
+                - **级别**：难点
+                - **描述**：回顾从自然数到复数的数系扩充过程和发展背景，理解每次扩充的实际需求和数学意义。
+                
+                ### 知识点5：复数解实系数一元二次方程
+                - **级别**：重点
+                - **描述**：学习如何使用复数来解判别式小于零的实系数一元二次方程，理解复数解的实际意义和应用价值。
+                ...
+                ```
+                
+                ### 对应示例输出：
+                
+                复数的基本概念，复数的相等条件，复数集的构成，数系的扩充历史，复数解实系数一元二次方程
+                
+                请严格按照以上要求进行输出。""";
+        List<ChatCompletionMessageParam> messages = new ArrayList<>();
+        ChatCompletionSystemMessageParam systemMessage = getSystemMessage(systemPrompt);
+        messages.add(ChatCompletionMessageParam.ofSystem(systemMessage));
+//        String prompt = """
+//                %s
+//                上面的文本是大语言模型关于%s的回答，请从以上文本中提取%s，只提取有用的内容，不要任何额外的多余的内容""".formatted(response,targetContent,targetContent);
+        String prompt = """
+                以下文本是大语言模型关于知识点总结的回答，请按照输出要求，从中提取每个知识点的标题，不同知识点之间使用中文逗号隔开，不要包含标号，不换行，只输出一行内容，不要任何额外说明或解释，仅输出知识点标题。
+                ```txt
+                %s
+                ```""".formatted(knowledgePointSummary);
+        ChatCompletionUserMessageParam userMessage = getUserMessage(prompt);
+        messages.add(ChatCompletionMessageParam.ofUser(userMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        //打印每一个元素的消息content
+//        messages.forEach(message -> log.debug("消息内容: " + message));
+
+        String model = "gemini-2.0-flash";
+        ChatCompletion chatCompletion = streamRequestUtils.simpleChat(model, messages);
+        String string = chatCompletion.choices().get(0).message().content().get();
+        return string;
+
+    }
+
 
 
 

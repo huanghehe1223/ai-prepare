@@ -51,6 +51,17 @@ public interface ProjectMapper extends BaseMapper<Project> {
                  <if test="preexerceseResult != null and preexerceseResult != ''">
                     preexercese_result = #{preexerceseResult},
                 </if>
+                 
+                 <if test="teachingProcessOutline != null and teachingProcessOutline != ''">
+                    teaching_process_outline = #{teachingProcessOutline},
+                </if>
+                 <if test="teachingProcess != null and teachingProcess != ''">
+                    teaching_process = #{teachingProcess},
+                </if>
+                 <if test="knowledgePointsTitle != null and knowledgePointsTitle != ''">
+                    knowledge_points_title = #{knowledgePointsTitle},
+                </if>
+                 
      
             </set>
             WHERE project_id = #{projectId}
@@ -68,5 +79,8 @@ public interface ProjectMapper extends BaseMapper<Project> {
                                @Param("extraReq") String extraReq,
                                @Param("currentStage") Integer currentStage,
                                @Param("textbookContent") String textbookContent,
-                               @Param("preexerceseResult") String preexerceseResult);
+                               @Param("preexerceseResult") String preexerceseResult,
+                               @Param("teachingProcessOutline") String teachingProcessOutline,
+                               @Param("teachingProcess") String teachingProcess,
+                               @Param("knowledgePointsTitle") String knowledgePointsTitle);
 } 
