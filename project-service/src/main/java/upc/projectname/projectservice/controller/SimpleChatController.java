@@ -21,10 +21,13 @@ import upc.projectname.upccommon.domain.po.Result;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Tag(name = "非流式对话管理接口")
@@ -57,10 +60,33 @@ public class SimpleChatController {
     public Result<List<Model>> getAllModels() {
         OpenAIClient openAIClient = openAISdkUtils.defaultClient;
         List<Model> models = openAIClient.models().list().response().data();
+
         // Filter out the model with id "openai-mini"
         models = models.stream()
                 .filter(model -> !"openai-mini".equals(model.id()))
                 .collect(java.util.stream.Collectors.toList());
+
+        // Custom sort with predefined order for specific models
+        Map<String, Integer> modelPriority = new HashMap<>();
+        modelPriority.put("claude-3-7-sonnet-thinking",0);
+        modelPriority.put("claude-3-7-sonnet", 1);
+        modelPriority.put("deepseek-r1", 2);
+        modelPriority.put("gpt-4o", 3);
+        modelPriority.put("deepseek-v3.1", 4);
+        modelPriority.put("gemini-2.5-pro", 5);
+        modelPriority.put("o3-mini-high", 6);
+        modelPriority.put("mistral-large", 7);
+        modelPriority.put("command-r-plus", 8);
+
+        models.sort((a, b) -> {
+            // Get priority for both models (default to 100 if not in priority map)
+            int priorityA = modelPriority.getOrDefault(a.id(), 100);
+            int priorityB = modelPriority.getOrDefault(b.id(), 100);
+
+            // Compare based on priority
+            return Integer.compare(priorityA, priorityB);
+        });
+
         return Result.success(models);
     }
 
@@ -382,7 +408,10 @@ public class SimpleChatController {
         Project project = projectService.getProjectById(projectId);
         ChatCompletionUserMessageParam personalizedTeachingResourceUserMessage = promptUtils.getPersonalizedTeachingResourceUserMessage(project);
         messages.add(ChatCompletionMessageParam.ofUser(personalizedTeachingResourceUserMessage));
-        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("根据给出的信息，帮我总结3个最有价值的搜索关键点，用于帮助教师在备课过程中快速定位高质量、个性化的教学资源，只输出markdown格式的json数据，不要任何额外的多余的内容");
+        String finelPrompt = """
+                根据给出的信息，帮我总结3个最有价值的搜索关键点，用于帮助教师在备课过程中快速定位高质量、个性化的教学资源，只输出markdown格式的json数据，不要任何额外的多余的内容
+                特别注意:生成的搜素关键点一定要是内涵丰富的简洁短语，教师能根据这些简洁短语搜索到丰富的教学资源，搜索关键点不要太长，也不要是句子，必须是简洁短语""";
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage(finelPrompt);
         messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
         for (int i = 0; i < messages.size(); i++) {
             System.out.println("消息序号: " + (i + 1));

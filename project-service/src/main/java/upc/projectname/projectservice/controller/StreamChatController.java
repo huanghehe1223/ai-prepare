@@ -488,14 +488,14 @@ public class StreamChatController {
     @PreAuthorize("permitAll()")
     public SseEmitter getTeachingProcessDesign(@PathVariable Integer projectId) {
 
-        String model = "deepseek-r1";
+        String model = "claude-3-7-sonnet-thinking";
         List<ChatCompletionMessageParam> messages = new ArrayList<> ();
         ChatCompletionSystemMessageParam teachingProcessDesignSystemMessage = promptUtils.getTeachingProcessDesignSystemMessage();
         messages.add(ChatCompletionMessageParam.ofSystem(teachingProcessDesignSystemMessage));
         Project project = projectService.getProjectById(projectId);
         ChatCompletionUserMessageParam teachingProcessRequirementsMeaasgeWithSystem = promptUtils.getTeachingProcessRequirementsMeaasgeWithSystem(project);
         messages.add(ChatCompletionMessageParam.ofUser(teachingProcessRequirementsMeaasgeWithSystem));
-        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请根据提供的信息按要求进行详细的教学过程设计，把完整的内容响应给我。\n 强制要求:无论篇幅多长，都必须完整提供所有环节的所有组成部分，不得简化或省略");
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请根据提供的信息按要求进行详细的教学过程设计，把完整的内容响应给我。\n 强制要求:无论篇幅多长，都必须完整提供所有环节的所有组成部分，不得简化或省略。思考过程和回答都默认使用中文");
         messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
         //打印消息序号（从1开始递增），然后再打印消息内容
         for (int i = 0; i < messages.size(); i++) {
@@ -507,7 +507,7 @@ public class StreamChatController {
         SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
         // 使用线程池异步处理，避免阻塞主线程
         executorService.execute(() -> {
-            streamRequestUtils.StreamRequestChat(model, messages, emitter);
+            streamRequestUtils.streamChatWithMaxTokens(model, messages, emitter,64000);
             emitter.complete();
             log.warn("所有响应处理完毕，在外面关闭SSE连接");
         });

@@ -14,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import upc.projectname.projectservice.entity.ResourceDTO;
 import upc.projectname.projectservice.utils.PromptUtils;
+import upc.projectname.projectservice.utils.ResourcesBuildUtils;
 import upc.projectname.projectservice.utils.TextBookUtils;
 import upc.projectname.upccommon.domain.po.Result;
 import upc.projectname.upccommon.domain.po.Project;
@@ -38,6 +40,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final PromptUtils promptUtils;
+    private final ResourcesBuildUtils resourcesBuildUtils;
 
 
 
@@ -210,6 +213,27 @@ public class ProjectController {
         // 返回带有Markdown内容的响应实体
         return new ResponseEntity<>(markdown, headers, HttpStatus.OK);
     }
+
+    @Operation(summary = "增加教学资源列表")
+    @PostMapping("/addResourceList")
+    public Result<Boolean> addResourceList(@RequestParam Integer projectId,@RequestBody List<ResourceDTO> resourceDTOList) {
+        Project projectById = projectService.getProjectById(projectId);
+        if (projectById == null) {
+            return Result.error("项目不存在");
+        }
+        String resourceString = resourcesBuildUtils.generateFormattedResourcesDocument(resourceDTOList);
+        StringBuilder markdown = new StringBuilder();
+        markdown.append(projectById.getFinalTeachingDesign());
+        markdown.append("\n\n");
+        markdown.append(resourceString);
+        Project project =new Project();
+        project.setProjectId(projectId);
+        project.setFinalTeachingDesign(markdown.toString());
+        projectService.updateProject(project);
+        return Result.success(true, "修改成功");
+    }
+
+
 
 
 

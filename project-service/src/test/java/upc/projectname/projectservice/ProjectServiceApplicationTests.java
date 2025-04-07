@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import upc.projectname.projectservice.entity.ResourceDTO;
+import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.projectservice.utils.*;
 import upc.projectname.upccommon.api.client.QuestionClient;
 import upc.projectname.upccommon.domain.po.Project;
@@ -29,7 +31,8 @@ class ProjectServiceApplicationTests {
 	private OpenAISdkUtils openAISdkUtils;
 	@Autowired
 	private PromptUtils promptUtils;
-
+    @Autowired
+    private ProjectService projectService;
 
 
 	@Test
@@ -944,6 +947,87 @@ class ProjectServiceApplicationTests {
 	void testTempFile() {
 		String tempDirPath = System.getProperty("java.io.tmpdir");
 		System.out.println("临时文件夹路径: " + tempDirPath);
+	}
+
+	@Autowired
+	ResourcesBuildUtils resourcesBuildUtils;
+	//测试拼接markdown文本
+	@Test
+	void testMarkdown(){
+		Project projectById = projectService.getProjectById(5);
+		String finalTeachingDesign = projectById.getFinalTeachingDesign();
+		List<ResourceDTO> resourceDTOList = new ArrayList<>();
+		ResourceDTO resourceDTO1 = new ResourceDTO("web","https://www.baidu.com","百度");
+		resourceDTOList.add(resourceDTO1);
+		ResourceDTO resourceDTO2 = new ResourceDTO("web","https://www.google.com","谷歌");
+		resourceDTOList.add(resourceDTO2);
+		ResourceDTO resourceDTO3 = new ResourceDTO("image","https://imgs.699pic.com/images/600/418/540.jpg!detail.v1","图片");
+		ResourceDTO resourceDTO4 = new ResourceDTO("web","https://www.bilibili.com","bilibili");
+		resourceDTOList.add(resourceDTO3);
+		resourceDTOList.add(resourceDTO4);
+		ResourceDTO resourceDTO5 = new ResourceDTO("image","https://ts1.tc.mm.bing.net/th/id/R-C.931cee7fe752510a9b609f37e88f1fdd?rik=N30Iebc6FuGQkQ&riu=http%3a%2f%2fwww.quazero.com%2fuploads%2fallimg%2f150515%2f1-150515215436.jpg&ehk=8T6ZJ%2fjRWQiXLKPsBSWAjPRu5yPTLhUHOpmVIdQmAFE%3d&risl=&pid=ImgRaw&r=0","小猫");
+		resourceDTOList.add(resourceDTO5);
+		ResourceDTO resourceDTO6 = new ResourceDTO("video","BV13DobYDERu","b站视频1");
+		resourceDTOList.add(resourceDTO6);
+		ResourceDTO resourceDTO7 = new ResourceDTO("video","BV1s9o1YXE2v","b站视频2");
+		resourceDTOList.add(resourceDTO7);
+		String resourceString = resourcesBuildUtils.generateFormattedResourcesDocument(resourceDTOList);
+		StringBuilder markdown = new StringBuilder();
+		markdown.append(finalTeachingDesign);
+		markdown.append("\n\n");
+		markdown.append(resourceString);
+		Project project =new Project();
+		project.setProjectId(5);
+		project.setFinalTeachingDesign(markdown.toString());
+		projectService.updateProject(project);
+
+
+
+	}
+
+	//测试claude thinking
+	@Test
+	void testClaudeThinking(){
+		String apiKey = "huanghe1224";
+		String baseUrl = "https://huanghehe1223-huanghehe-kilo2api.hf.space/huanghe/v1";
+		OpenAIClient openAIClient = openAISdkUtils.createOpenAiClient(apiKey,baseUrl);
+//		String model = "openai-mini";
+//		String model = "deepseek-r1";
+//		String model = "gemini-2.0-flash";
+		String model = "claude-3-7-sonnet-20250219-thinking";
+		List<ChatCompletionMessageParam> messages = new ArrayList<>();
+//		 添加系统消息
+        ChatCompletionSystemMessageParam systemMessage = ChatCompletionSystemMessageParam.builder()
+                .content("不管我说什么，用什么语言，你都必须只使用日语回答我")
+                .build();
+        messages.add(ChatCompletionMessageParam.ofSystem(systemMessage));
+
+		ChatCompletionUserMessageParam userMessage = ChatCompletionUserMessageParam.builder()
+				.content("我的名字叫黄河。")
+				.build();
+		messages.add(ChatCompletionMessageParam.ofUser(userMessage));
+		ChatCompletionUserMessageParam userMessage1 = ChatCompletionUserMessageParam.builder()
+				.content("你认识我吗?")
+				.build();
+		messages.add(ChatCompletionMessageParam.ofUser(userMessage1));
+		ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+				.model(model)
+				.maxTokens(64000)
+				.messages(messages)
+				.build();
+
+
+		try (StreamResponse<ChatCompletionChunk> streamResponse = openAIClient.chat().completions().createStreaming(params)) {
+			streamResponse.stream().forEach(chunk -> {
+				System.out.println(chunk);
+			});
+			System.out.println("No more chunks!");
+		}
+//		ChatCompletion chatCompletion = openAIClient.chat().completions().create(params);
+//		String answer = chatCompletion.choices().get(0).message().content().get();
+//		System.out.println(answer);
+//		System.out.println(chatCompletion);
+
 	}
 
 
