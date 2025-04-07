@@ -18,11 +18,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import upc.projectname.projectservice.entity.ChatRequestDTO;
 import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.projectservice.utils.*;
+import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
 import upc.projectname.upccommon.domain.po.Project;
 import upc.projectname.upccommon.domain.po.Result;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -71,7 +72,7 @@ public class StreamChatController {
                     String rawResult = TavilySearchUtils.advancedSearch(
                             keyword, "general", "basic", 3, 5,
                             null, null, false, false,
-                            false, false, null);
+                            false, false, null, false);
 
                     if (rawResult != null && !rawResult.isEmpty()) {
                         keywordResults.put("basicSearch", JSON.parseObject(rawResult));
@@ -105,7 +106,7 @@ public class StreamChatController {
     /**
      * 流式输出多关键词搜索结果
      */
-    @Operation(summary = "流式多关键词搜索", description = "使用SSE流式输出多关键词搜索结果")
+    @Operation(summary = "流式多关键词搜索", description = "使用SSE流式输出多关键词搜索结果，先按类型处理")
     @GetMapping("/stream")
     public SseEmitter streamMultiKeywordSearch(
             @Parameter(description = "第一个关键词", required = true) @RequestParam String keyword1,
@@ -153,22 +154,33 @@ public class StreamChatController {
             keywords.add(keyword3);
         }
 
+        // 定义搜索类型
+        List<String> searchTypes = Arrays.asList("basic", "pdf", "video", "image");
+
         // 在新线程中处理搜索请求
         executorService.execute(() -> {
             try {
                 // 发送开始事件
                 sendEvent(emitter, "start", "开始搜索", Map.of("keywords", keywords));
 
-                // 处理每个关键词
-                for (String keyword : keywords) {
-                    log.info("开始处理关键词: {}", keyword);
-                    processKeywordSearch(keyword, emitter);
+                // 按类型处理 - 先循环类型，再循环关键词
+                for (String type : searchTypes) {
+                    // 发送类型开始事件
+                    sendEvent(emitter, "type_start", "开始处理搜索类型", Map.of("type", type));
+
+                    // 对每个关键词执行当前类型的搜索
+                    for (String keyword : keywords) {
+                        processSearch(keyword, type, emitter);
+                    }
+
+                    // 发送类型完成事件
+                    sendEvent(emitter, "type_complete", "搜索类型处理完成", Map.of("type", type));
                 }
 
                 // 发送完成事件
                 Map<String, Object> stats = new HashMap<>();
                 stats.put("totalKeywords", keywords.size());
-                stats.put("totalSearches", keywords.size() * 4);
+                stats.put("totalSearches", keywords.size() * searchTypes.size());
                 stats.put("searchTime", System.currentTimeMillis());
                 sendEvent(emitter, "complete", "搜索完成", stats);
 
@@ -190,115 +202,83 @@ public class StreamChatController {
     }
 
     /**
-     * 处理单个关键词的所有搜索
+     * 处理单个关键词的特定类型搜索
      */
-    private void processKeywordSearch(String keyword, SseEmitter emitter) throws IOException {
-        // 发送关键词开始事件
-        sendEvent(emitter, "keyword_start", "开始处理关键词", Map.of("keyword", keyword));
+    private void processSearch(String keyword, String type, SseEmitter emitter) throws IOException {
+        // 发送搜索开始事件
+        sendEvent(emitter, "search_start", "开始" + getTypeDisplayName(type) + "搜索",
+                Map.of("keyword", keyword, "type", type));
 
-        // 1. 执行基础搜索
         try {
-            sendEvent(emitter, "search_start", "开始基础搜索",
-                    Map.of("keyword", keyword, "type", "basic"));
+            String rawResult = null;
 
-            String rawResult = TavilySearchUtils.advancedSearch(
-                    keyword, "general", "basic", 3, 30,
-                    null, null, false, false,
-                    false, false, null);
+            // 根据类型执行不同的搜索
+            switch (type) {
+                case "basic":
+                    // 基础搜索
+                    rawResult = TavilySearchUtils.advancedSearch(
+                            keyword, "general", "basic", 3, 30,
+                            null, null, false, false,
+                            false, false, null, false);
+                    break;
 
+                case "pdf":
+                    // PDF搜索
+                    rawResult = ExaSearchUtils.advancedSearch(
+                            keyword, true, "auto", "pdf", 30,
+                            null, null, null, null,
+                            null, null, null, null,
+                            false, true, 3, 2,
+                            false, "fallback");
+                    break;
+
+                case "video":
+                    // 视频搜索
+                    String videoQuery = keyword;
+                    List<String> includeDomains = Collections.singletonList("bilibili.com/video");
+                    rawResult = TavilySearchUtils.advancedSearch(
+                            videoQuery, "general", "basic", 3, 10,
+                            null, null, false, false,
+                            false, false, includeDomains, true);
+                    break;
+
+                case "image":
+                    // 图片搜索
+                    String imageQuery = keyword + "，图片";
+                    rawResult = TavilySearchUtils.advancedSearch(
+                            imageQuery, "general", "basic", 3, 30,
+                            null, null, false, false,
+                            true, true, null, false);
+                    break;
+            }
+
+            // 处理和发送结果
             if (rawResult != null && !rawResult.isEmpty()) {
                 Object jsonResult = JSON.parseObject(rawResult);
-                sendEvent(emitter, "search_result", "基础搜索结果",
-                        Map.of("keyword", keyword, "type", "basic", "result", jsonResult));
+                sendEvent(emitter, "search_result", getTypeDisplayName(type) + "搜索结果",
+                        Map.of("keyword", keyword, "type", type, "result", jsonResult));
             } else {
-                sendEvent(emitter, "search_result", "基础搜索无结果",
-                        Map.of("keyword", keyword, "type", "basic", "result", Map.of("message", "没有结果")));
+                sendEvent(emitter, "search_result", getTypeDisplayName(type) + "搜索无结果",
+                        Map.of("keyword", keyword, "type", type, "result", Map.of("message", "没有结果")));
             }
         } catch (Exception e) {
-            log.error("关键词 [{}] 基础搜索失败: {}", keyword, e.getMessage(), e);
-            sendEvent(emitter, "search_error", "基础搜索失败",
-                    Map.of("keyword", keyword, "type", "basic", "error", e.getMessage()));
+            log.error("关键词 [{}] {}搜索失败: {}", keyword, getTypeDisplayName(type), e.getMessage(), e);
+            sendEvent(emitter, "search_error", getTypeDisplayName(type) + "搜索失败",
+                    Map.of("keyword", keyword, "type", type, "error", e.getMessage()));
         }
+    }
 
-        // 3. 执行PDF搜索
-        try {
-            sendEvent(emitter, "search_start", "开始PDF搜索",
-                    Map.of("keyword", keyword, "type", "pdf"));
-
-            String rawResult = ExaSearchUtils.advancedSearch(
-                    keyword, true, "auto", "pdf", 30,
-                    null, null, null, null,
-                    null, null, null, null,
-                    false, true, 3, 2,
-                    false, "fallback");
-
-            if (rawResult != null && !rawResult.isEmpty()) {
-                Object jsonResult = JSON.parseObject(rawResult);
-                sendEvent(emitter, "search_result", "PDF搜索结果",
-                        Map.of("keyword", keyword, "type", "pdf", "result", jsonResult));
-            } else {
-                sendEvent(emitter, "search_result", "PDF搜索无结果",
-                        Map.of("keyword", keyword, "type", "pdf", "result", Map.of("message", "没有结果")));
-            }
-        } catch (Exception e) {
-            log.error("关键词 [{}] PDF搜索失败: {}", keyword, e.getMessage(), e);
-            sendEvent(emitter, "search_error", "PDF搜索失败",
-                    Map.of("keyword", keyword, "type", "pdf", "error", e.getMessage()));
+    /**
+     * 获取搜索类型的显示名称
+     */
+    private String getTypeDisplayName(String type) {
+        switch (type) {
+            case "basic": return "基础";
+            case "pdf": return "PDF";
+            case "video": return "视频";
+            case "image": return "图片";
+            default: return type;
         }
-
-        // 4. 执行视频搜索
-        try {
-            sendEvent(emitter, "search_start", "开始视频搜索",
-                    Map.of("keyword", keyword, "type", "video"));
-
-            String videoQuery = keyword + " 视频";
-            List<String> includeDomains = Collections.singletonList("bilibili.com");
-            String rawResult = TavilySearchUtils.advancedSearch(
-                    videoQuery, "general", "basic", 3, 30,
-                    null, null, false, false,
-                    false, false, includeDomains);
-
-            if (rawResult != null && !rawResult.isEmpty()) {
-                Object jsonResult = JSON.parseObject(rawResult);
-                sendEvent(emitter, "search_result", "视频搜索结果",
-                        Map.of("keyword", keyword, "type", "video", "result", jsonResult));
-            } else {
-                sendEvent(emitter, "search_result", "视频搜索无结果",
-                        Map.of("keyword", keyword, "type", "video", "result", Map.of("message", "没有结果")));
-            }
-        } catch (Exception e) {
-            log.error("关键词 [{}] 视频搜索失败: {}", keyword, e.getMessage(), e);
-            sendEvent(emitter, "search_error", "视频搜索失败",
-                    Map.of("keyword", keyword, "type", "video", "error", e.getMessage()));
-        }
-
-        // 2. 执行图片搜索
-        try {
-            sendEvent(emitter, "search_start", "开始图片搜索",
-                    Map.of("keyword", keyword, "type", "image"));
-
-            String imageQuery = keyword + "，图片";
-            String rawResult = TavilySearchUtils.advancedSearch(
-                    imageQuery, "general", "basic", 3, 30,
-                    null, null, false, false,
-                    true, true, null);
-
-            if (rawResult != null && !rawResult.isEmpty()) {
-                Object jsonResult = JSON.parseObject(rawResult);
-                sendEvent(emitter, "search_result", "图片搜索结果",
-                        Map.of("keyword", keyword, "type", "image", "result", jsonResult));
-            } else {
-                sendEvent(emitter, "search_result", "图片搜索无结果",
-                        Map.of("keyword", keyword, "type", "image", "result", Map.of("message", "没有结果")));
-            }
-        } catch (Exception e) {
-            log.error("关键词 [{}] 图片搜索失败: {}", keyword, e.getMessage(), e);
-            sendEvent(emitter, "search_error", "图片搜索失败",
-                    Map.of("keyword", keyword, "type", "image", "error", e.getMessage()));
-        }
-
-        // 发送关键词完成事件
-        sendEvent(emitter, "keyword_complete", "关键词处理完成", Map.of("keyword", keyword));
     }
 
     /**

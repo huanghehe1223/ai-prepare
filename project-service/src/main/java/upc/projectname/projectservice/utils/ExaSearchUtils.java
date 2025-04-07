@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,11 @@ public class ExaSearchUtils {
         requestBody.put("query", query);
         requestBody.put("useAutoprompt", useAutoprompt);
         requestBody.put("type", type);
-
+        // 初始化excludeDomains（如果为null）
+        if (excludeDomains == null) {
+            excludeDomains = new ArrayList<>();
+        }
+        excludeDomains.add("github.com");
         if (category != null) requestBody.put("category", category);
         if (numResults != null) requestBody.put("numResults", numResults);
         if (includeDomains != null && !includeDomains.isEmpty()) requestBody.put("includeDomains", includeDomains);

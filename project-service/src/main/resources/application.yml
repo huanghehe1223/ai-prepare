@@ -74,7 +74,7 @@ knife4j:
 
 tavily:
   api:
-    key: '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'
+    key: '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'
 
 exa:
   api:

@@ -57,7 +57,7 @@ public class TavilySearchController {
             String rawResult = TavilySearchUtils.advancedSearch(
                     query, topic, searchDepth, chunksPerSource, maxResults,
                     timeRange, days, includeAnswer, includeRawContent,
-                    includeImages, includeImageDescriptions, includeDomains);
+                    includeImages, includeImageDescriptions, includeDomains, false);
             log.debug("Raw result from search: {}", rawResult);
             // 解析为JSON对象
             Object jsonObject = JSON.parseObject(rawResult);
@@ -105,7 +105,7 @@ public class TavilySearchController {
             String rawResult = TavilySearchUtils.advancedSearch(
                     query, "general", "basic", 3, 5,
                     null, null, false, false,
-                    false, false, null);
+                    false, false, null, false);
             log.debug("Raw result for extraction: {}", rawResult);
 
             JSONObject jsonObject = JSON.parseObject(rawResult);

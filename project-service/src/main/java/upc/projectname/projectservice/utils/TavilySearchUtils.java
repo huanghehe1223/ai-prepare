@@ -124,12 +124,10 @@ public class TavilySearchUtils {
             String timeRange, Integer days, Boolean includeAnswer,
             Boolean includeRawContent, Boolean includeImages,
             Boolean includeImageDescriptions,
-            List<String> includeDomains) {
+            List<String> includeDomains, Boolean isVideo) {
 
         Map<String, Object> requestBody = new HashMap<>();
-        // 在查询前添加中文提示，确保结果偏向中文
-        String enhancedQuery = query + " 中文资料";
-        requestBody.put("query", enhancedQuery);
+        requestBody.put("query", query);
         List<String> excludeDomains = Collections.singletonList(".org");
         // 添加可选参数
         if (topic != null) requestBody.put("topic", topic);
