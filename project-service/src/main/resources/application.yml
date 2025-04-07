@@ -4,7 +4,7 @@ spring:
     name: project-service
   cloud:
     nacos:
-      server-addr: 47.104.223.78:8848
+      server-addr: 47.105.115.241:8848
     #配置openfeign接口日志输出，与okhttp连接池子
     openfeign:
       client:
@@ -71,3 +71,11 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+
+tavily:
+  api:
+    key: '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'
+
+exa:
+  api:
+    key: '3bba9ef7-b693-4f45-8fc1-fc7cf9dae84a'
