@@ -8,6 +8,7 @@ import com.openai.models.ChatCompletionUserMessageParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import upc.projectname.projectservice.entity.ChatAnswerDTO;
 import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.upccommon.api.client.QuestionGroupClient;
 import upc.projectname.upccommon.domain.dto.StudentAnswerResult;
@@ -28,6 +29,8 @@ public class PromptUtils {
     private QuestionGroupClient questionGroupClient;
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private MessageProcessUtils messageProcessUtils;
 
 
 
@@ -1337,6 +1340,140 @@ public class PromptUtils {
         return userPrompt;
 
     }
+
+    //教学目标Mixture-of-Agents对应的system message
+    public ChatCompletionSystemMessageParam getTeachingAimsWtihMixtureofAgentsSystemMessage(){
+        String systemPrompt = """
+                ## 身份定位
+                你是一个负责进行深度分析和整合的大语言模型，当前你的任务是整合多个大语言模型的回答，以生成一个更高质量的新版本回答。用户将提供：
+                
+                1. 用户想要完成的任务描述
+                2. 用户任务的背景信息/供参考的信息
+                3. 来自多个大语言模型的回答
+                
+                你需要严格按照以下步骤进行思考和分析：
+                
+                ---
+                
+                ### **第一步：逐一分析每一个模型的回答**
+                
+                对每一个回答进行以下三方面的分析：
+                特别注意：对每个模型的回答进行分析的时候一定要明确点出模型的具体名称，方便用户对应。
+                
+                - **主要内容**：简要概括该回答的核心内容和结论
+                - **优点**：指出该回答的亮点、独到见解或表达清晰之处
+                - **缺点**：指出该回答的不足、逻辑漏洞、遗漏之处或表述模糊的问题
+                
+                请**严格使用以下格式**书写分析内容，逐一分析每个模型的回答。
+                ```
+                **模型1（具体模型名称）回答分析：**
+                
+                主要内容：
+                - ...
+                - ...
+                
+                优点：
+                - ...
+                - ...
+                
+                缺点：
+                - ...
+                - ...
+                
+                **模型2（具体模型名称）回答分析：**
+                （依此类推）
+                ```
+                
+                ---
+                
+                ### **第二步：对所有模型回答进行比较分析**
+                
+                请找出：
+                
+                - **一致之处**：多个回答中存在共识或重合的信息点
+                - **差异之处**：回答之间观点不同、立场对立或补充的信息
+                
+                请**严格使用以下格式**书写分析内容，对模型回答进行分析比较。
+                ```
+                **比较与对比：**
+                
+                一致之处：
+                - ...
+                - ...
+                
+                差异之处：
+                - ...
+                - ...
+                ```
+                
+                ---
+                
+                ### **第三步：综合分析**
+                
+                基于以上分析，请总结出：
+                
+                - **最有价值的信息**：哪些回答中提供了关键性、高质量的信息内容
+                - **需要补充的信息**：哪些关键点被忽略或需要进一步完善
+                
+                请**严格使用以下格式**书写分析内容，对模型回答进行综合分析。
+                ```
+                **综合分析：**
+                
+                最有价值的信息：
+                - ...
+                - ...
+                
+                需要补充的信息：
+                - ...
+                - ...
+                ```
+                
+                ---
+                
+                > ⚠️**注意：**前三步分析你需要在思考过程中完成，不要在正式回答中出现。
+                
+                ---
+                
+                ### **第四步：生成整合后的新版本回答**
+                
+                根据前三步分析的结果，**生成一个内容清晰、结构合理、语言通顺的新版本整合回答**，该回答应具有以下特点：
+                
+                - 综合多个模型的优点
+                - 修正和规避原始回答中的缺陷
+                - 覆盖所有关键点，并补充遗漏内容
+                - 表达逻辑清晰、语言简洁准确
+                
+                ---
+                
+                ### **公式输出格式**
+                如果响应结果中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式
+                
+                
+                你需要在思考过程中完成前三步分析，在思考过程中完成分析，正式回答时只需要完成第四步，输出新版本的整合后的回答。""";
+        return getSystemMessage(systemPrompt);
+    }
+
+    //教学目标Mixture-of-Agents对应的user message
+    public ChatCompletionUserMessageParam getTeachingAimsWtihMixtureofAgentsUserMessage(Project project,List<ChatAnswerDTO> chatAnswerDTOList){
+        //任务描述
+        String taskDescription = "生成备课课程的教学目标";
+        //任务背景
+        String taskBackground = getTeachingAimsPrompt(project);
+        //模型回答
+        String modelAnswers = messageProcessUtils.formatChatAnswers(chatAnswerDTOList);
+        String userPrompt = """
+                任务描述：%s
+                背景信息/供参考的信息：
+                %s
+                模型回答：
+                %s""".formatted(taskDescription,taskBackground,modelAnswers);
+        return getUserMessage(userPrompt);
+    }
+
 
     //获得知识点总结的Prompt（已验证）
     public String getKnowledgePointSummaryPrompt(Project project){

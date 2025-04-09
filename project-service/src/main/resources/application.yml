@@ -4,7 +4,7 @@ spring:
     name: project-service
   cloud:
     nacos:
-      server-addr: 47.105.115.241:8848
+      server-addr: 47.104.223.78:8848
     #配置openfeign接口日志输出，与okhttp连接池子
     openfeign:
       client:

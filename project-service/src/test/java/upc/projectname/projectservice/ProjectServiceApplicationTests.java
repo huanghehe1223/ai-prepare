@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import upc.projectname.projectservice.entity.ChatAnswerDTO;
 import upc.projectname.projectservice.entity.ResourceDTO;
 import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.projectservice.utils.*;
@@ -1028,6 +1029,30 @@ class ProjectServiceApplicationTests {
 //		System.out.println(answer);
 //		System.out.println(chatCompletion);
 
+	}
+
+
+	@Autowired
+	MessageProcessUtils messageProcessUtils;
+	//测试formatChatAnswers方法
+	@Test
+	void testFormatChatAnswers(){
+		List<ChatAnswerDTO> answers = new ArrayList<>();
+		ChatAnswerDTO answer1 = new ChatAnswerDTO("gemini-2.0-flash","我是gemini-2.0-flash");
+		ChatAnswerDTO answer2 = new ChatAnswerDTO("claude-3-7-sonnet","我是claude-3-7-sonnet");
+		ChatAnswerDTO answer3 = new ChatAnswerDTO("claude-3-7-sonnet-20250219-thinking","我是claude-3-7-sonnet-20250219-thinking");
+		answers.add(answer1);
+		answers.add(answer2);
+		answers.add(answer3);
+		String formattedAnswers = messageProcessUtils.formatChatAnswers(answers);
+		System.out.println(formattedAnswers);
+	}
+
+	//测试字符串里面有\n的打印
+	@Test
+	void testString999(){
+		String test999 = "根据给出的信息，请帮我对各个模型回答进行分析，总结和整合。你需要在思考过程中完成前三步分析，正式回答时只需要完成第四步，输出新版本的整合后的回答。\n特别注意：对每个模型的回答进行分析的时候一定要明确点出模型的具体名称，方便用户对应";
+		System.out.println(test999);
 	}
 
 

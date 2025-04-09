@@ -6,6 +6,7 @@ import com.openai.models.ChatCompletionMessageParam;
 import com.openai.models.ChatCompletionUserMessageParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import upc.projectname.projectservice.entity.ChatAnswerDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -210,6 +211,26 @@ public class MessageProcessUtils {
 
         return newMessages;
     }
+
+
+
+    public String formatChatAnswers(List<ChatAnswerDTO> answers) {
+        StringBuilder result = new StringBuilder();
+        int modelCount = 1;
+
+        for (ChatAnswerDTO answer : answers) {
+            if (modelCount > 1) {
+                result.append("\n");
+            }
+            result.append("模型").append(modelCount)
+                    .append("(").append(answer.getModelName()).append(")的回答：\n")
+                    .append(answer.getAnswerContent());
+            modelCount++;
+        }
+
+        return result.toString();
+    }
+
 
 
 

@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import upc.projectname.projectservice.entity.ChatAnswerDTO;
 import upc.projectname.projectservice.entity.ChatRequestDTO;
 import upc.projectname.projectservice.service.ProjectService;
 import upc.projectname.projectservice.utils.*;
@@ -673,6 +674,48 @@ public class StreamChatController {
 
         return emitter;
     }
+
+
+
+    @Operation(summary = "进行mixture-of-agents的教学目标对话")
+    @PostMapping(value = "/mixtureofAgentsTeachingAims/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getMixtureofAgentsTeachingAims(@RequestBody List<ChatAnswerDTO> chatAnswerDTOList, @PathVariable Integer projectId) {
+        String model = "deepseek-r1";
+        List<ChatCompletionMessageParam> messages = new ArrayList<> ();
+        ChatCompletionSystemMessageParam mixtureofAgentsTeachingAimsSystemMessage = promptUtils.getTeachingAimsWtihMixtureofAgentsSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(mixtureofAgentsTeachingAimsSystemMessage));
+        Project project = projectService.getProjectById(projectId);
+        ChatCompletionUserMessageParam mixtureofAgentsTeachingAimsUserMessage = promptUtils.getTeachingAimsWtihMixtureofAgentsUserMessage(project,chatAnswerDTOList);
+        messages.add(ChatCompletionMessageParam.ofUser(mixtureofAgentsTeachingAimsUserMessage));
+        String finalPrompt = """
+                根据给出的信息，请帮我对各个模型回答进行分析，总结和整合。你需要在思考过程中完成前三步分析，正式回答时只需要完成第四步，输出新版本的整合后的回答。
+                特别注意1：对每个模型的回答进行分析的时候一定要明确点出模型的具体名称，方便用户对应。
+                特别注意2:
+                如果响应结果中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式
+                """;
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage(finalPrompt);
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.streamReasonChat(model, messages, emitter);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+
+        return emitter;
+    }
+
 
     @Operation(summary = "生成知识点总结对话")
     @PostMapping(value = "/KnowledgePointSummary/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
