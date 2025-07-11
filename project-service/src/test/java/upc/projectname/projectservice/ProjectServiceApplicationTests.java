@@ -6,6 +6,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.openai.client.OpenAIClient;
 import com.openai.core.http.StreamResponse;
+import com.openai.models.ChatCompletionChunk;
+import com.openai.models.ChatCompletionChunk.Choice;
 import com.openai.models.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -81,29 +83,29 @@ class ProjectServiceApplicationTests {
 				.build();
 		OpenAIClient openAIClient = openAISdkUtils.defaultClient;
 
-//		try (StreamResponse<ChatCompletionChunk> streamResponse = openAIClient.chat().completions().createStreaming(params)) {
-//			streamResponse.stream().forEach(chunk -> {
-//				List<ChatCompletionChunk.Choice> choices = chunk.choices();
-//				if (!choices.isEmpty()){
-//					Optional<String> optionalString = chunk.choices().get(0).delta().content();
-//					Optional<ChatCompletionChunk.Choice.FinishReason> finishReason = chunk.choices().get(0).finishReason();
-//					if (finishReason.isPresent()) {
-//						System.out.println("finishReason:" + finishReason.get());
-//					}
-//					if (optionalString.isPresent()) {
-//						String content = optionalString.get();
-//						System.out.print(content);
-//					}
-//
-//				}
-//
-//			});
-//			System.out.println("No more chunks!");
-//		}
 		try (StreamResponse<ChatCompletionChunk> streamResponse = openAIClient.chat().completions().createStreaming(params)) {
-			streamResponse.stream().forEach(chunk -> {System.out.println(chunk);});
+			streamResponse.stream().forEach(chunk -> {
+				List<Choice> choices = chunk.choices();
+				if (!choices.isEmpty()){
+					Optional<String> optionalString = chunk.choices().get(0).delta().content();
+					Optional<Choice.FinishReason> finishReason = chunk.choices().get(0).finishReason();
+					if (finishReason.isPresent()) {
+						System.out.println("finishReason:" + finishReason.get());
+					}
+					if (optionalString.isPresent()) {
+						String content = optionalString.get();
+						System.out.print(content);
+					}
+
+				}
+
+			});
 			System.out.println("No more chunks!");
 		}
+//		try (StreamResponse<ChatCompletionChunk> streamResponse = openAIClient.chat().completions().createStreaming(params)) {
+//			streamResponse.stream().forEach(chunk -> {System.out.println(chunk);});
+//			System.out.println("No more chunks!");
+//		}
 
 
 
@@ -860,7 +862,7 @@ class ProjectServiceApplicationTests {
 
 	@Test
 	void getQuestions(){
-		List<Question> questions = questionClient.getQuestionsByGroupId(25).getData();
+		List<Question> questions = questionClient.getQuestionsByGroupId(62).getData();
 		String jsonString = FastjsonUtils.toJsonString(questions);
 		System.out.println(jsonString);
 	}

@@ -1,5 +1,6 @@
 package upc.projectname.upcgateway.filter;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -11,6 +12,9 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import upc.projectname.upcgateway.utils.JwtUtils;
+
+import java.util.List;
 
 //加上@Component该过滤器就会起作用
 @Component
@@ -39,20 +43,15 @@ public class CrosFilter implements GlobalFilter, Ordered {
 //        }
 
         //获取token
-
-
-
-
 //        List<String> token = request.getHeaders().get("token");
+//        //登录注册放行
 //        if (path.toString().contains("/login") || path.toString().contains("/register")) {
-//            //   登录注册放行
+//
 //            return chain.filter(exchange);
 //        }
-//
-//
+//        //未携带请求头，不放行
 //        if (token==null || token.isEmpty()) {
-////            未携带请求头，不放行
-//            //   请求在这里结束，不会放行，直接响应对应内容
+//            // 请求在这里结束，不会放行，直接响应对应内容
 //            response.setStatusCode(HttpStatus.UNAUTHORIZED);
 //            return response.setComplete();
 //        }
@@ -60,12 +59,12 @@ public class CrosFilter implements GlobalFilter, Ordered {
 //        String auth = token.get(0);
 //        Claims claims = JwtUtils.parseJWT(auth);
 //        if (claims==null) {
-////            解析失败，请求头不合法，不放行
+//            //解析失败，请求头不合法，不放行
 //            response.setStatusCode(HttpStatus.UNAUTHORIZED);
 //            return response.setComplete();
 //        }
 
-//        解析成功，放行
+        //解析成功，放行
         return chain.filter(exchange);
 
 

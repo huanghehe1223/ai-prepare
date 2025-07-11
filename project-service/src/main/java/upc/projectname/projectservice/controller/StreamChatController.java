@@ -381,7 +381,12 @@ public class StreamChatController {
         Project project = projectService.getProjectById(projectId);
         ChatCompletionUserMessageParam projectRequirementsMeaasgeWithSystem = promptUtils.getProjectRequirementsMeaasgeWithSystem(project);
         messages.add(ChatCompletionMessageParam.ofUser(projectRequirementsMeaasgeWithSystem));
-        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请帮我生成10道预备知识检测单选题目");
+        String finalPrompt = """
+                请根据提供的信息帮我生成10道预备知识检测单选题目
+                特别注意1：生成的必须是前置知识/预备知识的检测习题，习题关联的知识点都是当前备课主题的前置知识，而不是当前备课主题本身的知识点
+                特别注意2：不要当前备课主题本身的知识点检测习题，要的是预备知识，前置知识的检测习题""";
+//        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请帮我生成10道预备知识检测单选题目");
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage(finalPrompt);
         messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
         messages.forEach(message -> log.debug("消息内容: " + message));
         // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
@@ -717,6 +722,46 @@ public class StreamChatController {
     }
 
 
+    @Operation(summary = "进行mixture-of-agents的教学目标对话-version2")
+    @PostMapping(value = "/mixtureofAgentsTeachingAimsVersion2/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getMixtureofAgentsTeachingAimsVersion2(@RequestBody List<ChatAnswerDTO> chatAnswerDTOList, @PathVariable Integer projectId) {
+        String model = "claude-3-7-sonnet-thinking";
+        List<ChatCompletionMessageParam> messages = new ArrayList<> ();
+        ChatCompletionSystemMessageParam mixtureofAgentsTeachingAimsSystemMessage = promptUtils.getTeachingAimsWtihMixtureofAgentsSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(mixtureofAgentsTeachingAimsSystemMessage));
+        Project project = projectService.getProjectById(projectId);
+        ChatCompletionUserMessageParam mixtureofAgentsTeachingAimsUserMessage = promptUtils.getTeachingAimsWtihMixtureofAgentsUserMessage(project,chatAnswerDTOList);
+        messages.add(ChatCompletionMessageParam.ofUser(mixtureofAgentsTeachingAimsUserMessage));
+        String finalPrompt = """
+                根据给出的信息，请帮我对各个模型回答进行分析，总结和整合。你需要在思考过程中完成前三步分析，正式回答时只需要完成第四步，输出新版本的整合后的回答。
+                特别注意1：对每个模型的回答进行分析的时候一定要明确点出模型的具体名称，方便用户对应。
+                特别注意2：进行前三步分析时，必须按照规定的格式进行
+                特别注意3:
+                如果响应结果中包含数学公式，请按以下要求输出:
+                - 使用LaTeX格式表示公式
+                - 行内公式使用单个$符号包裹，如：$x^2$
+                - 独立公式块独占一行，并且使用两个$$符号包裹，如：$$\\sum_{i=1}^n i^2$$
+                - 普通文本保持原样，不要使用LaTeX格式
+                """;
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage(finalPrompt);
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+        // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.streamReasonChat(model, messages, emitter);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+
+        return emitter;
+    }
+
     @Operation(summary = "生成知识点总结对话")
     @PostMapping(value = "/KnowledgePointSummary/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("permitAll()")
@@ -819,6 +864,38 @@ public class StreamChatController {
             System.out.println("消息内容: " + messages.get(i));
         }
 
+        // 创建一个可以保持连接很长时间的SseEmitter（100分钟超时）
+        SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(6000000L);
+        // 使用线程池异步处理，避免阻塞主线程
+        executorService.execute(() -> {
+            streamRequestUtils.streamChatWithMaxTokens(model, messages, emitter,64000);
+            emitter.complete();
+            log.warn("所有响应处理完毕，在外面关闭SSE连接");
+        });
+        return emitter;
+    }
+
+
+    @Operation(summary = "生成教学过程设计对话-version2")
+    @PostMapping(value = "/TeachingProcessDesignVersion2/{projectId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PreAuthorize("permitAll()")
+    public SseEmitter getTeachingProcessDesignVersion2(@PathVariable Integer projectId) {
+
+        String model = "gpt-4o-mini";
+        List<ChatCompletionMessageParam> messages = new ArrayList<> ();
+        ChatCompletionSystemMessageParam teachingProcessDesignSystemMessage = promptUtils.getTeachingProcessDesignSystemMessage();
+        messages.add(ChatCompletionMessageParam.ofSystem(teachingProcessDesignSystemMessage));
+        Project project = projectService.getProjectById(projectId);
+        ChatCompletionUserMessageParam teachingProcessRequirementsMeaasgeWithSystem = promptUtils.getTeachingProcessRequirementsMeaasgeWithSystem(project);
+        messages.add(ChatCompletionMessageParam.ofUser(teachingProcessRequirementsMeaasgeWithSystem));
+        ChatCompletionUserMessageParam finalMessage = promptUtils.getUserMessage("请根据提供的信息按要求进行详细的教学过程设计，把完整的内容响应给我。\n 强制要求:无论篇幅多长，都必须完整提供所有环节的所有组成部分，不得简化或省略。思考过程和回答都默认使用中文");
+        messages.add(ChatCompletionMessageParam.ofUser(finalMessage));
+        //打印消息序号（从1开始递增），然后再打印消息内容
+        for (int i = 0; i < messages.size(); i++) {
+            System.out.println("消息序号: " + (i + 1));
+            System.out.println("消息内容: " + messages.get(i));
+        }
+
         // 创建一个可以保持连接很长时间的SseEmitter（10分钟超时）
         SseEmitter emitter = streamRequestUtils.createConfiguredEmitter(600000L);
         // 使用线程池异步处理，避免阻塞主线程
@@ -829,6 +906,8 @@ public class StreamChatController {
         });
         return emitter;
     }
+
+
 
     @Operation(summary = "AI协同编辑对话")
     @PostMapping(value = "/AiCollaborativeEditing", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

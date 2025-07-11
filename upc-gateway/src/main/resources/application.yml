@@ -40,12 +40,12 @@ spring:
             - StripPrefix=1
       globalcors:
         cors-configurations:
-          '[/**]':
-            allowed-origin-patterns: "*"
-            allowed-methods: "*"
-            allowed-headers: "*"
-            allow-credentials: true
-            max-age: 3600
+          '[/**]':                         # 对所有路径应用这些CORS配置
+            allowed-origin-patterns: "*"   # 允许任何来源的请求访问API
+            allowed-methods: "*"           # 允许所有HTTP方法(GET,POST,PUT,DELETE等)
+            allowed-headers: "*"           # 允许请求中包含任何头信息
+            allow-credentials: true        # 允许携带认证信息(如cookies)
+            max-age: 3600                  # 预检请求的缓存时间(秒)，减少OPTIONS请求
 #        cors-configurations:
 #          '[/**]':
 #            allowed-origin-patterns:
